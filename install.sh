@@ -140,24 +140,12 @@ ensure_opencode() {
   fi
   warn "opencode not found. Installing..."
 
-  # Arch Linux — use pacman (preferred on Arch)
-  if check_command pacman && [[ "$OSTYPE" != darwin* ]]; then
-    sudo pacman -S --noconfirm opencode 2>/dev/null && return || true
-  fi
-
-  # macOS with Homebrew — use the official tap (more up-to-date than the community formula)
-  if [[ "$OSTYPE" == darwin* ]] && check_command brew; then
+  # Prefer brew if available (macOS and Linux)
+  if check_command brew; then
     brew install anomalyco/tap/opencode && return
   fi
 
-  # npm / bun global install — cross-platform, already ensured above
-  if [[ "${PACKAGE_MANAGER:-}" == "bun" ]]; then
-    bun install -g opencode-ai && return
-  elif check_command npm; then
-    npm install -g opencode-ai && return
-  fi
-
-  # Official install script — works on macOS and Linux (final fallback)
+  # Fallback: official install script
   curl -fsSL https://opencode.ai/install | bash
 
   if ! check_command opencode; then
