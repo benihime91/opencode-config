@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ─────────────────────────────────────────────
 # OpenCode Config Bootstrap Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/ayushmanburagohain/opencode-config/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/heads/main/install.sh | bash
 # ─────────────────────────────────────────────
 
 REPO_SLUG="benihime91/opencode-config"
