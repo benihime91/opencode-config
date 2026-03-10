@@ -1,0 +1,14 @@
+{
+  "plugins": {
+    "@franlol/opencode-md-table-formatter": "0.0.3",
+    "@tarquinen/opencode-dcp": "latest"
+  },
+  "mcp": {
+    "agentation-mcp": "latest",
+    "chrome-devtools-mcp": "latest",
+    "@upstash/context7-mcp": "latest"
+  },
+  "tools": {
+    "@augmentcode/auggie": "latest"
+  }
+}

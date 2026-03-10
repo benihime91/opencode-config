@@ -1,6 +1,6 @@
 ---
 description: Generate skills from git history analysis
-agent: build
+agent: doc-updater
 ---
 
 # Skill Create Command

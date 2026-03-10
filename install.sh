@@ -21,6 +21,15 @@ info()    { echo -e "${GREEN}[opencode-config]${NC} $*"; }
 warn()    { echo -e "${YELLOW}[opencode-config]${NC} $*"; }
 error()   { echo -e "${RED}[opencode-config]${NC} $*" >&2; exit 1; }
 
+# ── Preflight ────────────────────────────────
+# Fail fast on hard requirements before mutating anything.
+
+preflight() {
+  check_command gh   || error "gh CLI is required but not found. Install: https://cli.github.com"
+  check_command curl || error "curl is required but not found."
+  [[ -n "${HOME:-}" ]]  || error "\$HOME is not set."
+}
+
 # ── Dependency checks ────────────────────────
 
 check_command() {
@@ -69,7 +78,7 @@ ensure_bun_or_node() {
   fi
 }
 
-# jq is used to parse opencode.json for dynamic MCP/plugin discovery
+# jq is used to parse opencode.json and versions.json for dynamic discovery.
 ensure_jq() {
   if check_command jq; then return; fi
   warn "jq not found. Installing..."
@@ -86,11 +95,11 @@ ensure_jq() {
   fi
 }
 
-# auggie (augment-context-engine MCP) requires Node.js 22+
+# auggie (augment-context-engine MCP) requires Node.js 22+.
 # Uses nvm for a consistent, sudo-free install on macOS and Linux.
 ensure_node22() {
-  # Source nvm if present but not yet loaded
   local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
+  # Source nvm if present but not yet loaded in this shell session.
   if [[ -s "$nvm_dir/nvm.sh" ]]; then
     # shellcheck source=/dev/null
     source "$nvm_dir/nvm.sh"
@@ -108,18 +117,18 @@ ensure_node22() {
 
   warn "Node.js 22+ required by auggie (found: $(node --version 2>/dev/null || echo 'none'))."
 
-  # Install nvm if not already present
-  if ! check_command nvm; then
+  # nvm is a shell function, not a binary — check_command nvm always fails.
+  # Use a file existence check instead.
+  if [[ ! -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]]; then
     info "Installing nvm..."
     curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-    # Source nvm for this session
     export NVM_DIR="$HOME/.nvm"
     # shellcheck source=/dev/null
     source "$NVM_DIR/nvm.sh"
   fi
 
   info "Installing Node.js 22 via nvm..."
-  nvm install 22
+  nvm install 22 || { warn "nvm Node 22 install failed. auggie may not work."; return; }
   nvm use 22
   nvm alias default 22
 
@@ -140,12 +149,12 @@ ensure_opencode() {
   fi
   warn "opencode not found. Installing..."
 
-  # Prefer brew if available (macOS and Linux)
+  # Prefer brew if available (macOS and Linux).
   if check_command brew; then
     brew install anomalyco/tap/opencode && return
   fi
 
-  # Fallback: official install script
+  # Fallback: official install script.
   curl -fsSL https://opencode.ai/install | bash
 
   if ! check_command opencode; then
@@ -157,37 +166,53 @@ ensure_opencode() {
 
 setup_gh_auth() {
   if ! gh auth status &>/dev/null; then
+    # Interactive login is impossible in a piped/non-interactive shell.
+    if [[ ! -t 0 ]]; then
+      error "Not authenticated with GitHub. Run 'gh auth login' in your terminal first, then re-run the installer."
+    fi
     info "gh: not authenticated — launching login..."
     gh auth login
   else
     info "gh: already authenticated"
   fi
-  # Wire gh as the git credential helper so git never prompts for a password
-  gh auth setup-git
+
+  # Only configure the credential helper if it isn't already pointing at gh.
+  if ! git config --global credential.helper 2>/dev/null | grep -q "gh"; then
+    gh auth setup-git
+    info "gh: git credential helper configured"
+  fi
 }
 
 # ── Clone repo ───────────────────────────────
 
 clone_repo() {
   if [[ -d "$CLONE_DIR/.git" ]]; then
-    info "Repo already cloned at $CLONE_DIR — pulling latest..."
-    git -C "$CLONE_DIR" pull --ff-only
-  else
-    info "Cloning opencode-config to $CLONE_DIR..."
-    gh repo clone "$REPO_SLUG" "$CLONE_DIR"
+    info "Repo already at $CLONE_DIR — skipping clone."
+    info "To update: git -C \"$CLONE_DIR\" pull"
+    return
   fi
+  info "Cloning opencode-config to $CLONE_DIR..."
+  gh repo clone "$REPO_SLUG" "$CLONE_DIR"
 }
 
 # ── Backup existing config ───────────────────
 
 backup_existing() {
   if [[ -d "$CONFIG_DIR" ]] && [[ ! -L "$CONFIG_DIR" ]]; then
-    # Only back up if it's a real directory with non-symlink content
+    # Only back up if it's a real directory with non-symlink content.
     if [[ -f "$CONFIG_DIR/opencode.json" ]] && [[ ! -L "$CONFIG_DIR/opencode.json" ]]; then
       warn "Existing config found. Backing up to $BACKUP_DIR..."
       cp -r "$CONFIG_DIR" "$BACKUP_DIR"
       info "Backup saved to $BACKUP_DIR"
     fi
+  fi
+
+  # Prune backups: keep only the 3 most recent to avoid disk accumulation.
+  local old_backups
+  old_backups=$(ls -dt "$HOME/.config/opencode.bak."* 2>/dev/null | tail -n +4) || true
+  if [[ -n "$old_backups" ]]; then
+    echo "$old_backups" | xargs rm -rf
+    info "Pruned old backups (keeping last 3)"
   fi
 }
 
@@ -196,14 +221,12 @@ backup_existing() {
 symlink_config() {
   mkdir -p "$CONFIG_DIR"
 
-  # Files to symlink
   local files=(
     "opencode.json"
     "AGENTS.md"
     "dcp.jsonc"
   )
 
-  # Directories to symlink
   local dirs=(
     "agents"
     "commands"
@@ -215,6 +238,10 @@ symlink_config() {
     local src="$CLONE_DIR/$f"
     local dst="$CONFIG_DIR/$f"
     if [[ -f "$src" ]]; then
+      # Skip if the symlink already points to the correct source.
+      if [[ -L "$dst" ]] && [[ "$(readlink "$dst")" == "$src" ]]; then
+        continue
+      fi
       [[ -e "$dst" ]] && rm -f "$dst"
       ln -sf "$src" "$dst"
       info "Linked $f"
@@ -227,6 +254,10 @@ symlink_config() {
     local src="$CLONE_DIR/$d"
     local dst="$CONFIG_DIR/$d"
     if [[ -d "$src" ]]; then
+      # Skip if the symlink already points to the correct source.
+      if [[ -L "$dst" ]] && [[ "$(readlink "$dst")" == "$src" ]]; then
+        continue
+      fi
       [[ -e "$dst" ]] && rm -rf "$dst"
       ln -sfn "$src" "$dst"
       info "Linked $d/"
@@ -245,10 +276,14 @@ install_deps() {
   else
     npm install --prefix "$CLONE_DIR"
   fi
-  # Create node_modules symlink in config dir so plugins can resolve
+
+  # Symlink node_modules into config dir so plugins can resolve — idempotent.
   local nm_src="$CLONE_DIR/node_modules"
   local nm_dst="$CONFIG_DIR/node_modules"
   if [[ -d "$nm_src" ]]; then
+    if [[ -L "$nm_dst" ]] && [[ "$(readlink "$nm_dst")" == "$nm_src" ]]; then
+      return
+    fi
     [[ -e "$nm_dst" ]] && rm -rf "$nm_dst"
     ln -sfn "$nm_src" "$nm_dst"
     info "Linked node_modules/"
@@ -256,28 +291,30 @@ install_deps() {
 }
 
 # ── Install OpenCode plugins ─────────────────
-# Reads .plugin[] from opencode.json and installs each package globally.
-# Falls back to hardcoded list if jq is unavailable.
+# Reads from versions.json (preferred) → opencode.json .plugin[] → hardcoded fallback.
 
 install_opencode_plugins() {
+  local versions="$CLONE_DIR/versions.json"
   local config="$CLONE_DIR/opencode.json"
-  [[ -f "$config" ]] || { warn "opencode.json not found, skipping plugin install"; return; }
-
-  info "Installing OpenCode plugins..."
-
   local pkgs=()
-  if check_command jq; then
+
+  if [[ -f "$versions" ]] && check_command jq; then
+    # versions.json: { "plugins": { "pkg-name": "version" } }
+    while IFS= read -r entry; do
+      [[ -n "$entry" ]] && pkgs+=("$entry")
+    done < <(jq -r '.plugins | to_entries[] | "\(.key)@\(.value)"' "$versions" 2>/dev/null)
+  elif [[ -f "$config" ]] && check_command jq; then
     while IFS= read -r pkg; do
       [[ -n "$pkg" ]] && pkgs+=("$pkg")
     done < <(jq -r '.plugin[]?' "$config" 2>/dev/null)
   else
-    # Hardcoded fallback — mirrors current opencode.json
     pkgs=(
       "@franlol/opencode-md-table-formatter@0.0.3"
       "@tarquinen/opencode-dcp@latest"
     )
   fi
 
+  info "Installing OpenCode plugins..."
   for pkg in "${pkgs[@]}"; do
     info "  plugin: $pkg"
     if [[ "$PACKAGE_MANAGER" == "bun" ]]; then
@@ -289,19 +326,21 @@ install_opencode_plugins() {
 }
 
 # ── Pre-cache npx-based MCP servers ──────────
-# Reads local npx MCP commands from opencode.json and pre-installs them
-# globally so first launch doesn't stall on download.
-# Falls back to hardcoded list if jq is unavailable.
+# Reads from versions.json (preferred) → opencode.json (pattern match) → hardcoded fallback.
 
 install_mcp_deps() {
+  local versions="$CLONE_DIR/versions.json"
   local config="$CLONE_DIR/opencode.json"
-  [[ -f "$config" ]] || { warn "opencode.json not found, skipping MCP pre-cache"; return; }
-
-  info "Pre-caching npx-based MCP servers..."
-
   local pkgs=()
-  if check_command jq; then
-    # Extract the package name (argv[2]) from every local MCP whose command[0] == "npx"
+
+  if [[ -f "$versions" ]] && check_command jq; then
+    # versions.json: { "mcp": { "pkg-name": "version" } }
+    while IFS= read -r entry; do
+      [[ -n "$entry" ]] && pkgs+=("$entry")
+    done < <(jq -r '.mcp | to_entries[] | "\(.key)@\(.value)"' "$versions" 2>/dev/null)
+  elif [[ -f "$config" ]] && check_command jq; then
+    # Extract package name via pattern match — not positional index, which breaks
+    # if extra flags are added before the package name in the command array.
     while IFS= read -r pkg; do
       [[ -n "$pkg" ]] && pkgs+=("$pkg")
     done < <(jq -r '
@@ -309,17 +348,19 @@ install_mcp_deps() {
       | to_entries[]
       | select(.value.type == "local")
       | select(.value.command[0] == "npx")
-      | .value.command[2]
+      | .value.command
+      | map(select(test("^[@a-zA-Z]")))
+      | last
     ' "$config" 2>/dev/null)
   else
-    # Hardcoded fallback — mirrors current opencode.json
     pkgs=(
-      "agentation-mcp"
+      "agentation-mcp@latest"
       "chrome-devtools-mcp@latest"
-      "@upstash/context7-mcp"
+      "@upstash/context7-mcp@latest"
     )
   fi
 
+  info "Pre-caching npx-based MCP servers..."
   for pkg in "${pkgs[@]}"; do
     info "  mcp: $pkg"
     if [[ "$PACKAGE_MANAGER" == "bun" ]]; then
@@ -343,21 +384,14 @@ ensure_auggie() {
 
   info "Installing auggie (Augment Code CLI / context-engine MCP)..."
 
-  # auggie is a Node.js binary — always use npm/node even when bun is the package manager
-  local npm_cmd
+  # auggie is a Node.js binary — always use npm even when bun is the package manager.
   if check_command npm; then
-    npm_cmd="npm"
+    npm install -g @augmentcode/auggie || warn "auggie install failed"
   elif check_command bun; then
-    npm_cmd="bun"
+    bun install -g @augmentcode/auggie || warn "auggie install failed"
   else
     warn "No npm/bun found. Cannot install auggie."
     return
-  fi
-
-  if [[ "$npm_cmd" == "bun" ]]; then
-    bun install -g @augmentcode/auggie || warn "auggie install failed"
-  else
-    npm install -g @augmentcode/auggie || warn "auggie install failed"
   fi
 
   if check_command auggie; then
@@ -377,6 +411,7 @@ main() {
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
 
+  preflight
   ensure_git
   ensure_bun_or_node
   ensure_jq

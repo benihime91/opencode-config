@@ -4,8 +4,8 @@ description: Security vulnerability detection and remediation specialist. Use af
 tools:
   read: true
   bash: true
-  write: true
-  edit: true
+  write: false
+  edit: false
 ---
 
 # Security Reviewer
