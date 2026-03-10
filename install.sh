@@ -6,7 +6,8 @@ set -euo pipefail
 # Usage: curl -fsSL https://raw.githubusercontent.com/ayushmanburagohain/opencode-config/main/install.sh | bash
 # ─────────────────────────────────────────────
 
-REPO_URL="https://github.com/ayushmanburagohain/opencode-config.git"
+REPO_SLUG="ayushmanburagohain/opencode-config"
+REPO_URL="https://github.com/$REPO_SLUG.git"
 CLONE_DIR="$HOME/opencode-config"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 BACKUP_DIR="$HOME/.config/opencode.bak.$(date +%Y%m%d_%H%M%S)"
@@ -164,6 +165,19 @@ ensure_opencode() {
   fi
 }
 
+# ── GitHub auth ──────────────────────────────
+
+setup_gh_auth() {
+  if ! gh auth status &>/dev/null; then
+    info "gh: not authenticated — launching login..."
+    gh auth login
+  else
+    info "gh: already authenticated"
+  fi
+  # Wire gh as the git credential helper so git never prompts for a password
+  gh auth setup-git
+}
+
 # ── Clone repo ───────────────────────────────
 
 clone_repo() {
@@ -172,7 +186,7 @@ clone_repo() {
     git -C "$CLONE_DIR" pull --ff-only
   else
     info "Cloning opencode-config to $CLONE_DIR..."
-    git clone "$REPO_URL" "$CLONE_DIR"
+    gh repo clone "$REPO_SLUG" "$CLONE_DIR"
   fi
 }
 
@@ -378,6 +392,7 @@ main() {
   ensure_git
   ensure_bun_or_node
   ensure_jq
+  setup_gh_auth
   clone_repo
   backup_existing
   symlink_config
