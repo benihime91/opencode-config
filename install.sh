@@ -6,7 +6,7 @@ set -euo pipefail
 # Usage: curl -fsSL https://raw.githubusercontent.com/ayushmanburagohain/opencode-config/main/install.sh | bash
 # ─────────────────────────────────────────────
 
-REPO_SLUG="ayushmanburagohain/opencode-config"
+REPO_SLUG="benihime91/opencode-config"
 REPO_URL="https://github.com/$REPO_SLUG.git"
 CLONE_DIR="$HOME/opencode-config"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
