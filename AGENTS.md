@@ -87,7 +87,7 @@ DO NOT WRITE TESTS OR DOCUMENTATION UNLESS EXPLICITLY INSTRUCTED TO DO SO.
 
 ## Lessons & Findings Loop (Mandatory After Corrections)
 
-After any user correction or redirection, update `docs/findings.md`.
+After any user correction or redirection, update `docs/findings.md` (created by the `planning-with-files` skill).
 
 Each entry must include:
 
