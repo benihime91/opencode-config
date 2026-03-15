@@ -24,7 +24,7 @@ You have tools at your disposal to solve the coding task. Follow these rules reg
 
 ## Maximize Context Understanding
 
-Use `augment-context-engine_codebase-retrieval` for semantic code discovery inside repositories. Be THOROUGH when gathering information. Make sure you have the FULL picture before replying. Use additional tool calls or clarifying questions as needed.
+Use `contextplus` ([CONTEXTPLUS.md](CONTEXTPLUS.md)) for semantic code discovery inside repositories. Be THOROUGH when gathering information. Make sure you have the FULL picture before replying. Use additional tool calls or clarifying questions as needed.
 TRACE every symbol back to its definitions and usages so you fully understand it.
 Look past the first seemingly relevant result. EXPLORE alternative implementations, edge cases, and varied search terms until you have COMPREHENSIVE coverage of the topic.
 
@@ -87,7 +87,7 @@ DO NOT WRITE TESTS OR DOCUMENTATION UNLESS EXPLICITLY INSTRUCTED TO DO SO.
 
 ## Lessons & Findings Loop (Mandatory After Corrections)
 
-After any user correction or redirection, update `docs/findings.md` (created by the `planning-with-files` skill).
+After any user correction or redirection, update `docs/findings.md`.
 
 Each entry must include:
 

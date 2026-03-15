@@ -149,13 +149,14 @@ ensure_opencode() {
   fi
   warn "opencode not found. Installing..."
 
-  # Prefer brew if available (macOS and Linux).
-  if check_command brew; then
+  # macOS: use Homebrew tap for the most up-to-date releases.
+  if [[ "$OSTYPE" == darwin* ]]; then
+    install_homebrew
     brew install anomalyco/tap/opencode && return
   fi
 
-  # Fallback: official install script.
-  curl -fsSL https://opencode.ai/install | bash
+  # All other platforms: install via bun.
+  bun install -g opencode-ai
 
   if ! check_command opencode; then
     warn "opencode installer ran but 'opencode' not in PATH yet. You may need to restart your shell."
