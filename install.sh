@@ -95,52 +95,6 @@ ensure_jq() {
   fi
 }
 
-# auggie (augment-context-engine MCP) requires Node.js 22+.
-# Uses nvm for a consistent, sudo-free install on macOS and Linux.
-ensure_node22() {
-  local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
-  # Source nvm if present but not yet loaded in this shell session.
-  if [[ -s "$nvm_dir/nvm.sh" ]]; then
-    # shellcheck source=/dev/null
-    source "$nvm_dir/nvm.sh"
-  fi
-
-  local node_major=0
-  if check_command node; then
-    node_major=$(node -e 'process.stdout.write(process.version.split(".")[0].replace("v",""))' 2>/dev/null || echo "0")
-  fi
-
-  if [[ "$node_major" -ge 22 ]]; then
-    info "Node.js $(node --version) satisfies >=22 requirement"
-    return
-  fi
-
-  warn "Node.js 22+ required by auggie (found: $(node --version 2>/dev/null || echo 'none'))."
-
-  # nvm is a shell function, not a binary — check_command nvm always fails.
-  # Use a file existence check instead.
-  if [[ ! -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]]; then
-    info "Installing nvm..."
-    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    # shellcheck source=/dev/null
-    source "$NVM_DIR/nvm.sh"
-  fi
-
-  info "Installing Node.js 22 via nvm..."
-  nvm install 22 || { warn "nvm Node 22 install failed. auggie may not work."; return; }
-  nvm use 22
-  nvm alias default 22
-
-  if check_command node; then
-    node_major=$(node -e 'process.stdout.write(process.version.split(".")[0].replace("v",""))' 2>/dev/null || echo "0")
-    if [[ "$node_major" -ge 22 ]]; then
-      info "Node.js $(node --version) active via nvm"
-    else
-      warn "Node.js $(node --version) is still < 22. auggie may not work correctly."
-    fi
-  fi
-}
 
 ensure_opencode() {
   if check_command opencode; then
@@ -372,36 +326,6 @@ install_mcp_deps() {
   done
 }
 
-# ── Install auggie (augment-context-engine) ──
-# auggie provides the MCP server for semantic codebase search.
-# Package: @augmentcode/auggie  Requires: Node.js 22+
-# After install, run: auggie login
-
-ensure_auggie() {
-  if check_command auggie; then
-    info "auggie already installed: $(auggie --version 2>/dev/null || echo 'version unknown')"
-    return
-  fi
-
-  info "Installing auggie (Augment Code CLI / context-engine MCP)..."
-
-  # auggie is a Node.js binary — always use npm even when bun is the package manager.
-  if check_command npm; then
-    npm install -g @augmentcode/auggie || warn "auggie install failed"
-  elif check_command bun; then
-    bun install -g @augmentcode/auggie || warn "auggie install failed"
-  else
-    warn "No npm/bun found. Cannot install auggie."
-    return
-  fi
-
-  if check_command auggie; then
-    info "auggie installed. Run 'auggie login' to authenticate."
-  else
-    warn "auggie install may have failed. The augment-context-engine MCP will be unavailable."
-    warn "Manual install: npm install -g @augmentcode/auggie && auggie login"
-  fi
-}
 
 # ── Main ─────────────────────────────────────
 
@@ -423,8 +347,6 @@ main() {
   install_deps
   install_opencode_plugins
   install_mcp_deps
-  ensure_node22
-  ensure_auggie
   ensure_opencode
 
   echo ""
@@ -436,22 +358,18 @@ main() {
   echo "  1. Reload your shell"
   echo "     source ~/.zshrc   (zsh)"
   echo "     source ~/.bashrc  (bash)"
-  echo "     ↳ Required if nvm or bun were freshly installed"
+  echo "     ↳ Required if bun was freshly installed"
   echo ""
   echo "  2. Authenticate with your LLM provider"
   echo "     opencode auth"
   echo "     ↳ Or set env vars: ANTHROPIC_API_KEY, OPENAI_API_KEY, etc."
   echo ""
-  echo "  3. Authenticate auggie  (semantic codebase search MCP)"
-  echo "     auggie login"
-  echo "     ↳ Opens a browser OAuth flow — required once"
-  echo ""
-  echo "  4. Set optional MCP API keys"
+  echo "  3. Set optional MCP API keys"
   echo "     export EXA_API_KEY=<your-key>   # exa web search MCP"
   echo "     ↳ Get a key at https://exa.ai"
   echo "     ↳ Add to ~/.zshrc / ~/.bashrc to persist"
   echo ""
-  echo "  5. Launch opencode"
+  echo "  4. Launch opencode"
   echo "     opencode"
   echo ""
   echo "  ── Keeping up to date ──────────────────────────"
