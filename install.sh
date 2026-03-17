@@ -25,7 +25,6 @@ error()   { echo -e "${RED}[opencode-config]${NC} $*" >&2; exit 1; }
 # Fail fast on hard requirements before mutating anything.
 
 preflight() {
-  check_command gh   || error "gh CLI is required but not found. Install: https://cli.github.com"
   check_command curl || error "curl is required but not found."
   [[ -n "${HOME:-}" ]]  || error "\$HOME is not set."
 }
@@ -126,7 +125,7 @@ clone_repo() {
     return
   fi
   info "Cloning opencode-config to $CLONE_DIR..."
-  gh repo clone "$REPO_SLUG" "$CLONE_DIR"
+  git clone "$REPO_URL" "$CLONE_DIR"
 }
 
 # ── Backup existing config ───────────────────

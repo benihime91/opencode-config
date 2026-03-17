@@ -23,7 +23,7 @@ opencode
 ## Manual Install
 
 ```bash
-gh repo clone benihime91/opencode-config ~/opencode-config
+git clone https://github.com/benihime91/opencode-config.git ~/opencode-config
 mkdir -p ~/.config/opencode
 ln -sf ~/opencode-config/opencode.json ~/.config/opencode/opencode.json
 ln -sf ~/opencode-config/AGENTS.md ~/.config/opencode/AGENTS.md
