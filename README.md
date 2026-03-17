@@ -48,7 +48,7 @@ mkdir -p ~/.config/opencode
 ln -sf ~/opencode-config/opencode.json ~/.config/opencode/opencode.json
 ln -sf ~/opencode-config/AGENTS.md ~/.config/opencode/AGENTS.md
 ln -sf ~/opencode-config/dcp.jsonc ~/.config/opencode/dcp.jsonc
-ln -sfn ~/opencode-config/agents ~/.config/opencode/agents
+ln -sfn ~/opencode-config/agent ~/.config/opencode/agent
 ln -sfn ~/opencode-config/commands ~/.config/opencode/commands
 ln -sfn ~/opencode-config/plugins ~/.config/opencode/plugins
 ln -sfn ~/opencode-config/skills ~/.config/opencode/skills
@@ -68,15 +68,17 @@ Changes are live immediately via symlinks.
 
 ### Agents
 
-Custom agent definitions in `agents/`:
+Custom agent definitions in `agent/`:
 
 | Agent | Purpose |
 |---|---|
-| `architect` | System design and architectural decisions |
-| `code-reviewer` | Code quality, security, and maintainability review |
+| `designer` | UI/UX specialist for polished frontend work |
 | `doc-updater` | Documentation and codemap updates |
-| `explorer` | Fast read-only codebase navigation — "Where is X?", "Find Y" |
-| `planner` | Complex feature planning and implementation planning |
+| `explorer` | Parallel codebase discovery and search |
+| `fixer` | Fast implementation specialist for clear specs |
+| `librarian` | Official docs and API reference research |
+| `oracle` | Strategic advisor for architecture and hard debugging |
+| `orchestrator` | Primary coding agent and delegation coordinator |
 | `refactor-cleaner` | Dead code cleanup and consolidation |
 | `security-reviewer` | Security vulnerability detection |
 
@@ -88,6 +90,7 @@ Custom slash commands in `commands/`:
 |---|---|
 | `/checkpoint` | Snapshot current session state to planning files |
 | `/code-review` | Run a code review on current changes |
+| `/commit-push` | Commit and push current branch changes |
 | `/commit-push-pr` | Commit, push, and create a PR |
 | `/learn` | Research and learn about a topic |
 | `/plan` | Create a detailed implementation plan |
@@ -103,8 +106,7 @@ Custom slash commands in `commands/`:
 | `agentation` | Add the Agentation visual feedback toolbar to a Next.js project |
 | `agentation-self-driving` | Autonomous design critique mode using the Agentation toolbar |
 | `article-writing` | Write long-form content with consistent voice |
-| `coding-standards` | Universal coding standards for TS/JS/React/Node |
-| `frontend-patterns` | React/Next.js patterns, state management, performance |
+| `planning-with-files` | Persistent markdown planning workflow for complex tasks |
 | `search-first` | Research-before-coding workflow; invokes the explorer agent |
 
 ### Plugins
@@ -118,7 +120,7 @@ Custom slash commands in `commands/`:
 | Server | Purpose |
 |---|---|
 | `agentation` | Annotation session management |
-| `augment-context-engine` | Semantic codebase search (requires `auggie login`) |
+| `contextplus` | Semantic codebase search and structural navigation |
 | `chrome-devtools` | Browser automation and DevTools access |
 | `context7` | Up-to-date library documentation |
 | `exa` | Web search and code context retrieval (requires `EXA_API_KEY`) |
@@ -131,22 +133,23 @@ opencode-config/
 ├── opencode.json           # Main config (MCPs, plugins, LSP)
 ├── AGENTS.md               # Global agent instructions
 ├── dcp.jsonc               # DCP config
-├── agents/                 # Custom agent definitions
-│   ├── architect.md
-│   ├── code-reviewer.md
+├── agent/                  # Custom agent definitions
+│   ├── designer.md
 │   ├── doc-updater.md
 │   ├── explorer.md
-│   ├── planner.md
+│   ├── fixer.md
+│   ├── librarian.md
+│   ├── oracle.md
+│   ├── orchestrator.md
 │   ├── refactor-cleaner.md
 │   └── security-reviewer.md
 ├── commands/               # Custom slash commands
-├── plugins/                # Plugin files and assets
-│   └── planning-with-files/
+├── plugins/                # Plugin files
+│   └── planning-with-files.ts
 └── skills/                 # Skill definitions
     ├── agentation/
     ├── agentation-self-driving/
     ├── article-writing/
-    ├── coding-standards/
-    ├── frontend-patterns/
+    ├── planning-with-files/
     └── search-first/
 ```

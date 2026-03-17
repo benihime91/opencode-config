@@ -183,7 +183,7 @@ symlink_config() {
   )
 
   local dirs=(
-    "agents"
+    "agent"
     "commands"
     "plugins"
     "skills"

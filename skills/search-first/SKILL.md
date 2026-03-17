@@ -186,11 +186,10 @@ Task(subagent_type="explore", prompt="
 ")
 ```
 
-| Need | Use |
-| ---- | --- |
-| "Where is the login handler?" | explorer agent |
-| "Find all files importing lodash" | explorer agent |
+| Need                                  | Use            |
+| ------------------------------------- | -------------- |
+| "Where is the login handler?"         | explorer agent |
+| "Find all files importing lodash"     | explorer agent |
 | "Which file defines the `User` type?" | explorer agent |
-| "Understand the full auth architecture" | researcher agent (Full Mode) |
 
-See `agents/explorer.md` for full agent definition.
+See [explorer.md](../../agent/explorer.md) for full agent definition.
