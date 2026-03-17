@@ -1,6 +1,6 @@
 # opencode-config
 
-My personal [OpenCode](https://opencode.ai) configuration — agents, commands, skills, plugins, and MCP servers.
+Personal [OpenCode](https://opencode.ai) config for agents, commands, skills, plugins, and MCP servers.
 
 ## Install
 
@@ -8,35 +8,15 @@ My personal [OpenCode](https://opencode.ai) configuration — agents, commands, 
 curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/heads/main/install.sh | bash
 ```
 
-The installer will:
+The installer clones the repo, backs up your existing config, symlinks files into `~/.config/opencode`, and installs dependencies.
 
-1. Install `git`, `bun`/`node`, and `jq` if missing
-2. Authenticate with GitHub via `gh` (no password prompts)
-3. Clone this repo to `~/opencode-config`
-4. Back up any existing `~/.config/opencode/` configuration
-5. Symlink all config files so edits in the repo are live immediately
-6. Install plugin dependencies and pre-cache all npx MCP packages
-7. Install `auggie` (`@augmentcode/auggie`) for the semantic codebase search MCP
-8. Install `opencode` if missing
-
-### After Install
+## Finish Setup
 
 ```bash
-# 1. Reload your shell (if nvm or bun were freshly installed)
-source ~/.zshrc   # zsh
-source ~/.bashrc  # bash
-
-# 2. Authenticate with your LLM provider
+source ~/.zshrc   # or ~/.bashrc
 opencode auth
-# or set env vars: ANTHROPIC_API_KEY, OPENAI_API_KEY, etc.
-
-# 3. Authenticate auggie (one-time browser OAuth)
 auggie login
-
-# 4. Set optional MCP API keys
-export EXA_API_KEY=<your-key>   # exa web search — add to ~/.zshrc to persist
-
-# 5. Launch
+export EXA_API_KEY=<your-key>   # optional
 opencode
 ```
 
@@ -56,100 +36,18 @@ cd ~/opencode-config && bun install
 ln -sfn ~/opencode-config/node_modules ~/.config/opencode/node_modules
 ```
 
-## Updating
+## Update
 
 ```bash
 cd ~/opencode-config && git pull && bash install.sh
 ```
 
-Changes are live immediately via symlinks.
+Symlinks keep changes live immediately.
 
 ## What's Included
 
-### Agents
-
-Custom agent definitions live in `agents/` and are symlinked into the runtime `~/.config/opencode/agents/` directory OpenCode loads:
-
-| Agent | Purpose |
-|---|---|
-| `designer` | UI/UX specialist for polished frontend work |
-| `doc-updater` | Documentation and codemap updates |
-| `explorer` | Parallel codebase discovery and search |
-| `fixer` | Fast implementation specialist for clear specs |
-| `librarian` | Official docs and API reference research |
-| `oracle` | Strategic advisor for architecture and hard debugging |
-| `orchestrator` | Primary coding agent and delegation coordinator |
-| `refactor-cleaner` | Dead code cleanup and consolidation |
-| `security-reviewer` | Security vulnerability detection |
-
-### Commands (Slash Commands)
-
-Custom slash commands in `commands/`:
-
-| Command | Purpose |
-|---|---|
-| `/checkpoint` | Snapshot current session state to planning files |
-| `/code-review` | Run a code review on current changes |
-| `/commit-push` | Commit and push current branch changes |
-| `/commit-push-pr` | Commit, push, and create a PR |
-| `/learn` | Research and learn about a topic |
-| `/plan` | Create a detailed implementation plan |
-| `/refactor-clean` | Identify and remove dead code |
-| `/skill-create` | Analyze git history and generate a skill |
-| `/update-codemaps` | Update project codemaps |
-| `/update-docs` | Update project documentation |
-
-### Skills
-
-| Skill | Purpose |
-|---|---|
-| `agentation` | Add the Agentation visual feedback toolbar to a Next.js project |
-| `agentation-self-driving` | Autonomous design critique mode using the Agentation toolbar |
-| `article-writing` | Write long-form content with consistent voice |
-| `planning-with-files` | Persistent markdown planning workflow for complex tasks |
-| `search-first` | Research-before-coding workflow; invokes the explorer agent |
-
-### Plugins
-
-- **planning-with-files** — Persistent markdown-based task planning ("working memory on disk")
-- **opencode-md-table-formatter** — Markdown table formatting
-- **opencode-dcp** — DCP integration
-
-### MCP Servers
-
-| Server | Purpose |
-|---|---|
-| `agentation` | Annotation session management |
-| `contextplus` | Semantic codebase search and structural navigation |
-| `chrome-devtools` | Browser automation and DevTools access |
-| `context7` | Up-to-date library documentation |
-| `exa` | Web search and code context retrieval (requires `EXA_API_KEY`) |
-
-## Structure
-
-```
-opencode-config/
-├── install.sh              # Bootstrap installer
-├── opencode.json           # Main config (MCPs, plugins, LSP)
-├── AGENTS.md               # Global agent instructions
-├── dcp.jsonc               # DCP config
-├── agents/                 # Custom agent definitions
-│   ├── designer.md
-│   ├── doc-updater.md
-│   ├── explorer.md
-│   ├── fixer.md
-│   ├── librarian.md
-│   ├── oracle.md
-│   ├── orchestrator.md
-│   ├── refactor-cleaner.md
-│   └── security-reviewer.md
-├── commands/               # Custom slash commands
-├── plugins/                # Plugin files
-│   └── planning-with-files.ts
-└── skills/                 # Skill definitions
-    ├── agentation/
-    ├── agentation-self-driving/
-    ├── article-writing/
-    ├── planning-with-files/
-    └── search-first/
-```
+- `agents/` - custom agents like `orchestrator`, `explorer`, `fixer`, `librarian`, `designer`, and `oracle`
+- `commands/` - slash commands such as `/plan`, `/learn`, `/code-review`, `/commit-push`, and `/update-docs`
+- `skills/` - reusable workflows including `planning-with-files`, `search-first`, and `article-writing`
+- `plugins/` - local plugins
+- MCP servers for browser automation, semantic search, research, annotations, and live docs

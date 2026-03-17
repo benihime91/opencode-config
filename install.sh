@@ -117,27 +117,6 @@ ensure_opencode() {
   fi
 }
 
-# ── GitHub auth ──────────────────────────────
-
-setup_gh_auth() {
-  if ! gh auth status &>/dev/null; then
-    # Interactive login is impossible in a piped/non-interactive shell.
-    if [[ ! -t 0 ]]; then
-      error "Not authenticated with GitHub. Run 'gh auth login' in your terminal first, then re-run the installer."
-    fi
-    info "gh: not authenticated — launching login..."
-    gh auth login
-  else
-    info "gh: already authenticated"
-  fi
-
-  # Only configure the credential helper if it isn't already pointing at gh.
-  if ! git config --global credential.helper 2>/dev/null | grep -q "gh"; then
-    gh auth setup-git
-    info "gh: git credential helper configured"
-  fi
-}
-
 # ── Clone repo ───────────────────────────────
 
 clone_repo() {
@@ -345,7 +324,6 @@ main() {
   ensure_git
   ensure_bun_or_node
   ensure_jq
-  setup_gh_auth
   clone_repo
   backup_existing
   symlink_config

@@ -1,2 +1,5 @@
 node_modules/
-docs/
+docs/*
+!docs/CODEMAPS/
+!docs/CODEMAPS/**
+.mcp_data/*

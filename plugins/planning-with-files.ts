@@ -34,6 +34,18 @@ function append(output: { output?: string }, msg: string): void {
   output.output = output.output ? `${output.output}\n\n${msg}` : msg
 }
 
+function planOutputBlock(head: string): string {
+  return ['Planning with Files', 'Current plan:', '```', head, '```'].join('\n')
+}
+
+function updateReminderBlock(): string {
+  return ['Planning with Files', 'Reminder: If this completed a phase, update `docs/task_plan.md`.'].join('\n')
+}
+
+function statusOutputBlock(status: string): string {
+  return ['Planning with Files', 'Status:', '```', status, '```'].join('\n')
+}
+
 async function planHead(root: string): Promise<string> {
   try {
     const content = await fs.promises.readFile(path.join(root, 'docs', 'task_plan.md'), 'utf8')
@@ -58,6 +70,7 @@ export const PlanningWithFilesPlugin = async ({
 }) => {
   const root = worktree ?? directory
   const sessionAgentCache = new Map<string, string>()
+  const lastPlanningStatus = new Map<string, string>()
 
   async function resolveSessionAgent(sessionID?: string): Promise<string | undefined> {
     if (!sessionID) return undefined
@@ -88,6 +101,17 @@ export const PlanningWithFilesPlugin = async ({
     return agent ? PLANNING_AGENTS.has(agent) : false
   }
 
+  async function planningStatus(rootDir: string): Promise<string> {
+    try {
+      const { $ } = await import('bun')
+      const docsDir = path.join(rootDir, 'docs')
+      const result = await $`sh ${CHECK_COMPLETE} ${path.join(docsDir, 'task_plan.md')}`.cwd(docsDir).text()
+      return result.trim()
+    } catch {
+      return ''
+    }
+  }
+
   return {
     // Nudge agent to load the skill before complex tasks
     'experimental.chat.system.transform': async (
@@ -113,7 +137,7 @@ export const PlanningWithFilesPlugin = async ({
 
       const head = await planHead(root)
       if (head) {
-        append(output, `[planning-with-files] Current plan:\n\`\`\`\n${head}\n\`\`\``)
+        append(output, planOutputBlock(head))
       }
     },
 
@@ -127,7 +151,16 @@ export const PlanningWithFilesPlugin = async ({
       const tool = input.tool.toLowerCase()
       if (!FILE_UPDATE_TOOLS.has(tool)) return
 
-      append(output, '[planning-with-files] File updated. If this completes a phase, update docs/task_plan.md status.')
+      append(output, updateReminderBlock())
+
+      const status = await planningStatus(root)
+      if (!status) return
+
+      const lastStatus = lastPlanningStatus.get(input.sessionID)
+      if (lastStatus === status) return
+
+      lastPlanningStatus.set(input.sessionID, status)
+      append(output, statusOutputBlock(status))
     },
 
     event: async ({ event }: { event: { type: string; properties: Record<string, unknown> } }) => {
@@ -140,22 +173,7 @@ export const PlanningWithFilesPlugin = async ({
         return
       }
 
-      if (event.type !== 'session.idle') return
-
-      const sessionID = event.properties.sessionID
-      if (typeof sessionID !== 'string') return
-      if (!(await shouldApplyPlanning(sessionID))) return
-
-      try {
-        const { $ } = await import('bun')
-        const docsDir = path.join(root, 'docs')
-        const result = await $`sh ${CHECK_COMPLETE} ${path.join(docsDir, 'task_plan.md')}`.cwd(docsDir).text()
-        if (result.trim()) {
-          process.stderr.write(result + '\n')
-        }
-      } catch {
-        // Best-effort — check-complete.sh is informational only
-      }
+      return
     },
   }
 }
