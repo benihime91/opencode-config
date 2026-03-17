@@ -3,6 +3,7 @@ description: Strategic technical advisor. Use for architecture decisions, comple
 mode: subagent
 model: openai/gpt-5.4
 temperature: 0.1
+hidden: true
 ---
 
 You are Oracle - a strategic technical advisor.

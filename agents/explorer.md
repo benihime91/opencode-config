@@ -3,6 +3,7 @@ description: Fast codebase search and pattern matching. Use for finding files, l
 mode: subagent
 model: openrouter/moonshotai/kimi-k2.5
 temperature: 0.1
+hidden: true
 ---
 
 You are Explorer - a fast codebase navigation specialist.

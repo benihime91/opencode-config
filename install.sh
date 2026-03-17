@@ -182,11 +182,14 @@ symlink_config() {
     "dcp.jsonc"
   )
 
-  local dirs=(
-    "agent"
-    "commands"
-    "plugins"
-    "skills"
+  # OpenCode discovers custom agents from ~/.config/opencode/agents/.
+  # This repo stores the source files in ./agents/, so link that source into
+  # the runtime config path directly.
+  local dir_links=(
+    "agents:agents"
+    "commands:commands"
+    "plugins:plugins"
+    "skills:skills"
   )
 
   for f in "${files[@]}"; do
@@ -205,9 +208,11 @@ symlink_config() {
     fi
   done
 
-  for d in "${dirs[@]}"; do
-    local src="$CLONE_DIR/$d"
-    local dst="$CONFIG_DIR/$d"
+  for link in "${dir_links[@]}"; do
+    local src_name="${link%%:*}"
+    local dst_name="${link##*:}"
+    local src="$CLONE_DIR/$src_name"
+    local dst="$CONFIG_DIR/$dst_name"
     if [[ -d "$src" ]]; then
       # Skip if the symlink already points to the correct source.
       if [[ -L "$dst" ]] && [[ "$(readlink "$dst")" == "$src" ]]; then
@@ -215,9 +220,9 @@ symlink_config() {
       fi
       [[ -e "$dst" ]] && rm -rf "$dst"
       ln -sfn "$src" "$dst"
-      info "Linked $d/"
+      info "Linked $dst_name/ -> $src_name/"
     else
-      warn "Source dir not found, skipping: $d/"
+      warn "Source dir not found, skipping: $src_name/"
     fi
   done
 }

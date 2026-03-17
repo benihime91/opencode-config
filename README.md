@@ -48,7 +48,7 @@ mkdir -p ~/.config/opencode
 ln -sf ~/opencode-config/opencode.json ~/.config/opencode/opencode.json
 ln -sf ~/opencode-config/AGENTS.md ~/.config/opencode/AGENTS.md
 ln -sf ~/opencode-config/dcp.jsonc ~/.config/opencode/dcp.jsonc
-ln -sfn ~/opencode-config/agent ~/.config/opencode/agent
+ln -sfn ~/opencode-config/agents ~/.config/opencode/agents
 ln -sfn ~/opencode-config/commands ~/.config/opencode/commands
 ln -sfn ~/opencode-config/plugins ~/.config/opencode/plugins
 ln -sfn ~/opencode-config/skills ~/.config/opencode/skills
@@ -68,7 +68,7 @@ Changes are live immediately via symlinks.
 
 ### Agents
 
-Custom agent definitions in `agent/`:
+Custom agent definitions live in `agents/` and are symlinked into the runtime `~/.config/opencode/agents/` directory OpenCode loads:
 
 | Agent | Purpose |
 |---|---|
@@ -133,7 +133,7 @@ opencode-config/
 ├── opencode.json           # Main config (MCPs, plugins, LSP)
 ├── AGENTS.md               # Global agent instructions
 ├── dcp.jsonc               # DCP config
-├── agent/                  # Custom agent definitions
+├── agents/                 # Custom agent definitions
 │   ├── designer.md
 │   ├── doc-updater.md
 │   ├── explorer.md

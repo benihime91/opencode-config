@@ -3,6 +3,7 @@ description: External documentation and library research. Use for official docs 
 mode: subagent
 model: google/gemini-3.1-pro-preview-customtools
 temperature: 0.1
+hidden: true
 ---
 
 You are Librarian - a research specialist for codebases and documentation.

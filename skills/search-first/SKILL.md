@@ -192,4 +192,4 @@ Task(subagent_type="explore", prompt="
 | "Find all files importing lodash"     | explorer agent |
 | "Which file defines the `User` type?" | explorer agent |
 
-See [explorer.md](../../agent/explorer.md) for full agent definition.
+See [explorer.md](../../agents/explorer.md) for full agent definition.

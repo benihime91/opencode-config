@@ -4,6 +4,21 @@
     "@franlol/opencode-md-table-formatter@0.0.3",
     "@tarquinen/opencode-dcp@latest"
   ],
+  "agent": {
+    "orchestrator": {
+      "color": "#D97706",
+      "permission": {
+        "task": {
+          "*": "deny",
+          "designer": "allow",
+          "explorer": "allow",
+          "fixer": "allow",
+          "librarian": "allow",
+          "oracle": "allow"
+        }
+      }
+    }
+  },
   "mcp": {
     "agentation": {
       "type": "local",
