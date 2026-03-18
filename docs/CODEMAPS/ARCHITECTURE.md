@@ -1,11 +1,11 @@
 # Architecture Codemap
 
-**Last Updated:** 2026-03-17
-**Entry Points:** `README.md`, `AGENTS.md`, `opencode.json`, `plugins/planning-with-files.ts`, `commands/*.md`, `agents/*.md`, `skills/*/SKILL.md`
+**Last Updated:** 2026-03-18
+**Entry Points:** `README.md`, `AGENTS.md`, `opencode.json`, `plugins/planning-with-files.ts`, `plugins/using-skills.ts`, `commands/*.md`, `agents/*.md`, `skills/*/SKILL.md`
 
 ## System Overview
 
-This repository packages an OpenCode setup: global agent rules, slash-command workflows, specialist agents, reusable skills, one runtime plugin, and install/bootstrap assets.
+This repository packages an OpenCode setup: global agent rules, slash-command workflows, specialist agents, reusable skills, runtime plugins, theme definitions, and install/bootstrap assets.
 
 ## Architecture
 
@@ -32,12 +32,16 @@ install.sh / README.md
         |
         +--> skills/*/SKILL.md ----------------> reusable task playbooks
         |
-        `--> plugins/planning-with-files.ts --> lifecycle hooks
-                  |
-                  +--> docs/task_plan.md
-                  +--> docs/findings.md
-                  +--> docs/progress.md
-                  `--> skills/planning-with-files/scripts/check-complete.sh
+        +--> themes/*.json --------------------> color theme definitions
+        |
+        +--> plugins/planning-with-files.ts --> lifecycle hooks
+        |         |
+        |         +--> docs/task_plan.md
+        |         +--> docs/findings.md
+        |         +--> docs/progress.md
+        |         `--> skills/planning-with-files/scripts/check-complete.sh
+        |
+        `--> plugins/using-skills.ts ---------> skill enforcement prompts
 ```
 
 ## Key Components
@@ -51,7 +55,9 @@ install.sh / README.md
 | `commands/` | Slash-command definitions with agent routing and workflow instructions | Frontmatter metadata, runtime git/tool context | Task entrypoints |
 | `agents/` | Specialized instruction packs for orchestrator and subagents | OpenCode agent loader | Command execution |
 | `skills/` | Reusable capability packs loaded on demand | Skill loader, external MCPs or browser tooling | Complex task workflows |
+| `themes/` | Color theme JSON files for OpenCode UI customization | Theme loader | Visual appearance |
 | `plugins/planning-with-files.ts` | Registers planning-related chat/tool hooks | `@opencode-ai/plugin`, Node built-ins, planning docs, check script | Session reminders and status |
+| `plugins/using-skills.ts` | Injects skill enforcement prompt into system messages | `@opencode-ai/plugin` | All chat sessions |
 | `docs/` | Persistent planning memory plus codemap docs | Plugin behavior and doc workflows | Later sessions and repo navigation |
 
 ## Data Flow
@@ -63,19 +69,21 @@ install.sh / README.md
 5. Agent instructions in `agents/` guide how the task is executed.
 6. Skills under `skills/` are loaded when a task needs an opinionated workflow.
 7. The planning plugin watches chat/tool lifecycle events and reads or updates planning context from `docs/`.
+8. The using-skills plugin ensures skill invocation is checked before responses.
 
 ## Component Relationships
 
 ```text
 commands/update-codemaps.md --> agents/doc-updater.md --> docs/CODEMAPS/*.md
 commands/update-docs.md -----> agents/doc-updater.md --> docs/*.md
-commands/plan.md ------------> agents/orchestrator.md --> specialist agents
+commands/plan.md ------------> agents/planner.md ------> implementation plans
+commands/rollback.md --------> (git operations)
 
-agents/orchestrator.md ------> explorer | librarian | oracle | designer | fixer
+agents/orchestrator.md ------> explorer | librarian | oracle | designer | fixer | planner
 
 plugins/planning-with-files.ts --> docs/task_plan.md
 plugins/planning-with-files.ts --> skills/planning-with-files/scripts/check-complete.sh
-plugins/planning-with-files.ts --> session message metadata cache
+plugins/using-skills.ts ----------> session system prompts
 
 skills/agentation-self-driving/SKILL.md --> skills/agentation-self-driving/references/two-session-workflow.md
 skills/search-first/SKILL.md -----------> exa + context7 research flow
@@ -101,8 +109,9 @@ skills/search-first/SKILL.md -----------> exa + context7 research flow
 - Start at `AGENTS.md` for repo-wide operating rules.
 - Start at `commands/` when you want entrypoints.
 - Start at `agents/` when you want role behavior.
-- Start at `plugins/planning-with-files.ts` when you want executable logic.
+- Start at `plugins/` when you want executable logic.
 - Start at `skills/` when you want reusable workflows.
+- Start at `themes/` when you want UI customization.
 
 ## Related Maps
 

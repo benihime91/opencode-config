@@ -1,7 +1,7 @@
 # Module Codemap
 
-**Last Updated:** 2026-03-17
-**Entry Points:** `opencode.json`, `AGENTS.md`, `commands/*.md`, `agents/*.md`, `plugins/planning-with-files.ts`, `skills/*/SKILL.md`
+**Last Updated:** 2026-03-18
+**Entry Points:** `opencode.json`, `AGENTS.md`, `commands/*.md`, `agents/*.md`, `plugins/*.ts`, `skills/*/SKILL.md`
 
 ## Root Configuration
 
@@ -45,7 +45,7 @@
 
 ---
 
-## Executable Module
+## Executable Modules
 
 ### Planning Plugin
 
@@ -77,6 +77,32 @@
 import { PlanningWithFilesPlugin } from "./plugins/planning-with-files"
 ```
 
+### Using Skills Plugin
+
+**Purpose**: Injects a system prompt that enforces skill invocation before any agent response.
+
+**Location**: `plugins/`
+
+**Key Files**:
+
+- `plugins/using-skills.ts` - Plugin that prepends skill enforcement prompt to system messages.
+
+**Dependencies**:
+
+- `@opencode-ai/plugin` type definitions
+- OpenCode plugin runtime
+
+**Exports**:
+
+- `UsingSkillsPlugin` - Plugin factory
+- `SKILL_PROMPT` - The enforcement prompt text
+
+**Usage Example**:
+
+```typescript
+import { UsingSkillsPlugin } from "./plugins/using-skills"
+```
+
 ---
 
 ## Agent Modules
@@ -90,6 +116,7 @@ import { PlanningWithFilesPlugin } from "./plugins/planning-with-files"
 **Key Files**:
 
 - `agents/orchestrator.md` - Primary coordinator and delegation policy.
+- `agents/planner.md` - Implementation planning specialist with risk assessment.
 - `agents/designer.md` - UI and visual design specialist.
 - `agents/explorer.md` - Codebase discovery specialist.
 - `agents/fixer.md` - Fast implementation specialist.
@@ -97,7 +124,6 @@ import { PlanningWithFilesPlugin } from "./plugins/planning-with-files"
 - `agents/oracle.md` - High-stakes technical advisor.
 - `agents/doc-updater.md` - Documentation and codemap specialist.
 - `agents/refactor-cleaner.md` - Dead-code and duplication cleanup specialist.
-- `agents/security-reviewer.md` - Security review specialist.
 
 **Dependencies**:
 
@@ -108,6 +134,7 @@ import { PlanningWithFilesPlugin } from "./plugins/planning-with-files"
 **Exports**:
 
 - `orchestrator`
+- `planner`
 - `designer`
 - `explorer`
 - `fixer`
@@ -115,12 +142,11 @@ import { PlanningWithFilesPlugin } from "./plugins/planning-with-files"
 - `oracle`
 - `doc-updater`
 - `refactor-cleaner`
-- `security-reviewer`
 
 **Usage Example**:
 
 ```yaml
-agent: doc-updater
+agent: planner
 ```
 
 ---
@@ -135,10 +161,11 @@ agent: doc-updater
 
 **Key Files**:
 
-- `plan.md` - Planning workflow routed to `orchestrator`.
-- `checkpoint.md` - Progress checkpoint workflow routed to `doc-updater`.
+- `plan.md` - Planning workflow routed to `planner` agent.
+- `checkpoint.md` - Progress checkpoint workflow.
 - `code-review.md` - Review workflow routed to `oracle`.
 - `refactor-clean.md` - Cleanup workflow routed to `refactor-cleaner`.
+- `rollback.md` - Git rollback and checkpoint restoration workflow.
 - `update-docs.md` - Documentation sync workflow routed to `doc-updater`.
 - `update-codemaps.md` - Codemap refresh workflow routed to `doc-updater`.
 - `learn.md` - Session learning capture routed to `doc-updater`.
@@ -158,6 +185,7 @@ agent: doc-updater
 - `/checkpoint`
 - `/code-review`
 - `/refactor-clean`
+- `/rollback`
 - `/update-docs`
 - `/update-codemaps`
 - `/learn`
@@ -215,6 +243,37 @@ Use the `planning-with-files` skill before starting a complex task.
 
 ---
 
+## Theme Modules
+
+### Theme Pack
+
+**Purpose**: Color theme definitions for OpenCode UI customization.
+
+**Location**: `themes/`
+
+**Key Files**:
+
+- `themes/poimandres.json` - Dark theme based on Poimandres color palette.
+- `themes/poimandres-accessible.json` - Accessible variant with higher contrast.
+- `themes/poimandres-turquoise-expanded.json` - Turquoise-accented variant.
+
+**Dependencies**:
+
+- OpenCode theme loader
+- JSON theme schema
+
+**Exports**:
+
+- `poimandres` - Main dark theme
+- `poimandres-accessible` - High contrast variant
+- `poimandres-turquoise-expanded` - Turquoise accent variant
+
+**Usage Example**:
+
+Theme selection is configured through OpenCode settings UI or config.
+
+---
+
 ## Documentation Modules
 
 ### Planning and Codemap Docs
@@ -249,16 +308,18 @@ Use the `planning-with-files` skill before starting a complex task.
 
 ```text
 README.md -> install.sh
-install.sh -> opencode.json + AGENTS.md + dcp.jsonc + agents/ + commands/ + plugins/ + skills/
+install.sh -> opencode.json + AGENTS.md + dcp.jsonc + agents/ + commands/ + plugins/ + skills/ + themes/
 
 opencode.json -> plugin packages + MCP servers + LSP servers
 
 commands/*.md -> agents/*.md
 commands/update-codemaps.md -> agents/doc-updater.md -> docs/CODEMAPS/*.md
-commands/plan.md -> agents/orchestrator.md -> specialist agents
+commands/plan.md -> agents/planner.md -> implementation plans
+commands/rollback.md -> git operations
 
 plugins/planning-with-files.ts -> docs/task_plan.md
 plugins/planning-with-files.ts -> skills/planning-with-files/scripts/check-complete.sh
+plugins/using-skills.ts --------> session system prompts
 
 skills/planning-with-files/SKILL.md -> docs/task_plan.md + docs/findings.md + docs/progress.md
 skills/agentation-self-driving/SKILL.md -> references/two-session-workflow.md
