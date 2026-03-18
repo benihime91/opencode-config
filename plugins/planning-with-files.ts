@@ -15,12 +15,7 @@
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
-
-type SessionMessageItem = {
-  info: {
-    agent?: string
-  }
-}
+import type { Plugin } from '@opencode-ai/plugin'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const SKILL_DIR = path.join(__dirname, '..', 'skills', 'planning-with-files')
@@ -30,7 +25,11 @@ const PLANNING_AGENTS = new Set(['orchestrator', 'build'])
 const WATCHED_TOOLS = new Set(['read', 'write', 'edit', 'bash', 'glob', 'grep'])
 const FILE_UPDATE_TOOLS = new Set(['write', 'edit'])
 
-function append(output: { output?: string }, msg: string): void {
+type MutableToolResult = {
+  output?: string
+}
+
+function append(output: MutableToolResult, msg: string): void {
   output.output = output.output ? `${output.output}\n\n${msg}` : msg
 }
 
@@ -55,50 +54,32 @@ async function planHead(root: string): Promise<string> {
   }
 }
 
-export const PlanningWithFilesPlugin = async ({
+export const PlanningWithFilesPlugin: Plugin = async ({
   client,
   directory,
   worktree,
-}: {
-  client: {
-    session: {
-      messages: (input: { path: { id: string } }) => Promise<{ data?: SessionMessageItem[] }>
-    }
-  }
-  directory: string
-  worktree?: string
 }) => {
   const root = worktree ?? directory
-  const sessionAgentCache = new Map<string, string>()
+  const sessionAgentCache = new Map<string, boolean>()
   const lastPlanningStatus = new Map<string, string>()
+  const pendingPlanByCallID = new Map<string, string>()
 
-  async function resolveSessionAgent(sessionID?: string): Promise<string | undefined> {
-    if (!sessionID) return undefined
-
-    const cached = sessionAgentCache.get(sessionID)
-    if (cached) return cached
-
+  async function toast(title: string, message: string): Promise<void> {
     try {
-      const result = await client.session.messages({ path: { id: sessionID } })
-      const messages = result.data ?? []
-
-      for (let i = messages.length - 1; i >= 0; i -= 1) {
-        const agent = messages[i]?.info?.agent
-        if (agent) {
-          sessionAgentCache.set(sessionID, agent)
-          return agent
-        }
-      }
+      await client.tui.showToast({
+        body: {
+          message: `${title}: ${message}`,
+          variant: 'info',
+        },
+      })
     } catch {
-      return undefined
+      return
     }
-
-    return undefined
   }
 
-  async function shouldApplyPlanning(sessionID?: string): Promise<boolean> {
-    const agent = await resolveSessionAgent(sessionID)
-    return agent ? PLANNING_AGENTS.has(agent) : false
+  function isPlanningSession(sessionID?: string): boolean {
+    if (!sessionID) return false
+    return sessionAgentCache.get(sessionID) === true
   }
 
   async function planningStatus(rootDir: string): Promise<string> {
@@ -113,67 +94,83 @@ export const PlanningWithFilesPlugin = async ({
   }
 
   return {
+    'chat.message': async (input: { sessionID: string; agent?: string }) => {
+      if (!input.agent) return
+
+      const shouldPlan = PLANNING_AGENTS.has(input.agent)
+      sessionAgentCache.set(input.sessionID, shouldPlan)
+
+      if (!shouldPlan) {
+        lastPlanningStatus.delete(input.sessionID)
+      }
+    },
+
     // Nudge agent to load the skill before complex tasks
     'experimental.chat.system.transform': async (
-      input: { sessionID?: string },
-      output: { system?: string[] },
+      input: { sessionID?: string; model: unknown },
+      output: { system: string[] },
     ) => {
-      if (!(await shouldApplyPlanning(input.sessionID))) return
+      if (!isPlanningSession(input.sessionID)) return
 
-      ;(output.system ??= []).push(
+      output.system.push(
         "Use OpenCode's native `skill` tool to load `planning-with-files` before starting any complex, multi-step task.",
       )
+      await toast('Planning', 'Hint added')
     },
 
     // PreToolUse equivalent — show head of task_plan.md before every watched tool
     'tool.execute.before': async (
-      input: { tool: string; sessionID: string },
-      output: { output?: string },
+      input: { tool: string; sessionID: string; callID: string },
+      _output: { args: unknown },
     ) => {
-      if (!(await shouldApplyPlanning(input.sessionID))) return
+      if (!isPlanningSession(input.sessionID)) return
 
       const tool = input.tool.toLowerCase()
       if (!WATCHED_TOOLS.has(tool)) return
 
       const head = await planHead(root)
       if (head) {
-        append(output, planOutputBlock(head))
+        pendingPlanByCallID.set(input.callID, head)
+        await toast('Planning', `Plan queued: ${tool}`)
       }
     },
 
     // PostToolUse equivalent — remind to update plan after file writes/edits
     'tool.execute.after': async (
-      input: { tool: string; sessionID: string },
-      output: { output?: string },
+      input: { tool: string; sessionID: string; callID: string; args: unknown },
+      output: { title: string; output: string; metadata: unknown },
     ) => {
-      if (!(await shouldApplyPlanning(input.sessionID))) return
+      if (!isPlanningSession(input.sessionID)) return
 
       const tool = input.tool.toLowerCase()
-      if (!FILE_UPDATE_TOOLS.has(tool)) return
+      const mutableOutput = output as MutableToolResult
+      let changed = false
 
-      append(output, updateReminderBlock())
-
-      const status = await planningStatus(root)
-      if (!status) return
-
-      const lastStatus = lastPlanningStatus.get(input.sessionID)
-      if (lastStatus === status) return
-
-      lastPlanningStatus.set(input.sessionID, status)
-      append(output, statusOutputBlock(status))
-    },
-
-    event: async ({ event }: { event: { type: string; properties: Record<string, unknown> } }) => {
-      if (event.type === 'message.updated') {
-        const info = event.properties.info as { sessionID?: string; agent?: string } | undefined
-        if (info?.sessionID && info.agent) {
-          sessionAgentCache.set(info.sessionID, info.agent)
-        }
-
-        return
+      const head = pendingPlanByCallID.get(input.callID)
+      if (head) {
+        pendingPlanByCallID.delete(input.callID)
+        append(mutableOutput, planOutputBlock(head))
+        changed = true
       }
 
-      return
+      if (FILE_UPDATE_TOOLS.has(tool)) {
+        append(mutableOutput, updateReminderBlock())
+        changed = true
+
+        const status = await planningStatus(root)
+        if (status) {
+          const lastStatus = lastPlanningStatus.get(input.sessionID)
+          if (lastStatus !== status) {
+            lastPlanningStatus.set(input.sessionID, status)
+            append(mutableOutput, statusOutputBlock(status))
+            changed = true
+          }
+        }
+      }
+
+      if (changed) {
+        await toast('Planning', `Output added: ${tool}`)
+      }
     },
   }
 }

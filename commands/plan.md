@@ -1,6 +1,6 @@
 ---
 description: Create implementation plan with risk assessment
-agent: orchestrator
+agent: planner
 subtask: true
 ---
 

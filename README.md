@@ -15,7 +15,7 @@ The installer clones the repo, backs up your existing config, symlinks files int
 ```bash
 source ~/.zshrc   # or ~/.bashrc
 opencode auth
-auggie login
+auggie login                        # optional, if installed separately
 export EXA_API_KEY=<your-key>   # optional
 opencode
 ```
@@ -32,7 +32,8 @@ ln -sfn ~/opencode-config/agents ~/.config/opencode/agents
 ln -sfn ~/opencode-config/commands ~/.config/opencode/commands
 ln -sfn ~/opencode-config/plugins ~/.config/opencode/plugins
 ln -sfn ~/opencode-config/skills ~/.config/opencode/skills
-cd ~/opencode-config && bun install
+ln -sfn ~/opencode-config/themes ~/.config/opencode/themes
+cd ~/opencode-config && (bun install || npm install)
 ln -sfn ~/opencode-config/node_modules ~/.config/opencode/node_modules
 ```
 

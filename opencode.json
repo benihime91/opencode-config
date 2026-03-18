@@ -6,17 +6,13 @@
   ],
   "agent": {
     "orchestrator": {
-      "color": "#D97706",
-      "permission": {
-        "task": {
-          "*": "deny",
-          "designer": "allow",
-          "explorer": "allow",
-          "fixer": "allow",
-          "librarian": "allow",
-          "oracle": "allow"
-        }
-      }
+      "color": "#FE8A06"
+    },
+    "explore": {
+      "disable": true
+    },
+    "general": {
+      "disable": true
     }
   },
   "mcp": {
