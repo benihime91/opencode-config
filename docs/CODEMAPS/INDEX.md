@@ -1,42 +1,50 @@
 # Codemap Index
 
-**Last Updated:** 2026-03-18
+**Last Updated:** 2026-03-20
 
 ## Overview
 
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) - Runtime model, component relationships, integration points, and data flow.
-- [`MODULES.md`](MODULES.md) - Module inventory for config, agents, commands, plugin code, skills, themes, and docs.
-- [`FILES.md`](FILES.md) - Navigable directory tree with file purposes and starting points.
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — System overview, data flow, component relationships, and navigation guidance.
+- [`MODULES.md`](MODULES.md) — Module catalog with exported behaviors and dependency graphs.
+- [`FILES.md`](FILES.md) — Directory tree, file purposes, and navigation cues for every major surface.
 
 ## Start Here
 
-1. Open `opencode.json` for runtime wiring: plugins, MCP servers, and LSP configuration.
-2. Open `AGENTS.md` for repo-wide execution rules.
-3. Open `commands/` for user-facing entrypoints.
-4. Open `agents/` for role-specific instruction sets.
-5. Open `plugins/` for executable source modules (planning-with-files.ts, using-skills.ts).
-6. Open `skills/` for reusable workflows and capability packs.
-7. Open `themes/` for color theme definitions.
+1. Read `README.md` (or run `install.sh`) for onboarding and configuration instructions.
+2. Check `opencode.json`, `versions.json`, and `dcp.jsonc` for plugin, MCP, and context-pruning wiring.
+3. Review `AGENTS.md` for repo-wide execution policies.
+4. Browse `commands/` for slash commands and their routed agents.
+5. Open `agents/` to inspect specialist behaviors that commands invoke.
+6. Inspect `plugins/` when you need runtime hooks such as planning reminders or skill enforcement.
+7. Explore `skills/` for reusable workflows (planning, agentation, research, writing).
+8. Look at `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md` for persistent planning intelligence.
+9. Return to `docs/CODEMAPS/INDEX.md` when you need refreshed navigation after exploring the sections above.
 
 ## Primary Entry Points
 
-- `opencode.json` - Main OpenCode runtime configuration.
-- `AGENTS.md` - Global behavior and tool-use rules.
-- `plugins/planning-with-files.ts` - Plugin factory that adds planning reminders and status reporting.
-- `plugins/using-skills.ts` - Plugin that enforces skill invocation before responses.
-- `commands/update-codemaps.md` - Workflow definition for refreshing these codemaps.
-- `README.md` - Install, setup, and repo overview.
+- `README.md` / `install.sh` — Bootstraps the workspace.
+- `opencode.json` — Runtime wiring for plugins, MCPs, skill availability, and agents.
+- `AGENTS.md` — Shared policy on tool use, editing, and explorations.
+- `commands/update-codemaps.md` — Workflow that triggers these codemaps and keeps them fresh.
+- `plugins/planning-with-files.ts` — Runtime hooks that maintain `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md`.
+- `skills/planning-with-files/SKILL.md` — Templates and guidelines powering planning state updates.
+- `docs/CODEMAPS/ARCHITECTURE.md`, `MODULES.md`, `FILES.md` — Navigation details for each codemap surface.
 
 ## Current Shape
 
-- This repo is an OpenCode configuration workspace, not a conventional application service.
-- Most modules are Markdown instruction surfaces under `agents/`, `commands/`, and `skills/`.
-- Runtime code is minimal: two TypeScript source files in `plugins/`.
-- Planning state lives in `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md`.
-- `docs/CODEMAPS/` is the documentation layer for repo navigation.
+- This repo is an OpenCode configuration workspace where Markdown-driven commands, agents, and skills orchestrate documentation and navigation.
+- Runtime code is confined to `plugins/` (TypeScript) and `skills/*/scripts/` helpers.
+- Planning state is stored under `docs/`, while `docs/CODEMAPS/` houses the generated navigation maps.
+- Themes under `themes/` provide Poimandres-based color definitions for OpenCode’s UI chrome.
 
 ## Notes
 
-- `agent/` exists but is currently empty and not part of the active runtime surface.
-- `versions.json` tracks pinned versions for plugin, MCP, and tool bootstrap references.
-- `bun.lock` is a package manager artifact; it supports installation but does not define architecture.
+- Re-run `/update-codemaps` whenever you add directories, commands, or agent surfaces so `docs/CODEMAPS/` mirrors reality.
+- `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md` form the single source of truth for planning sessions.
+- `skills/search-first` and `skills/planning-with-files` help ensure research and documentation stay aligned with actual code changes.
+
+## Related Maps
+
+- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`MODULES.md`](MODULES.md)
+- [`FILES.md`](FILES.md)

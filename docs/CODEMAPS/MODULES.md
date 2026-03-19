@@ -1,45 +1,46 @@
 # Module Codemap
 
-**Last Updated:** 2026-03-18
-**Entry Points:** `opencode.json`, `AGENTS.md`, `commands/*.md`, `agents/*.md`, `plugins/*.ts`, `skills/*/SKILL.md`
+**Last Updated:** 2026-03-20
+**Entry Points:** `README.md`, `install.sh`, `opencode.json`, `versions.json`, `dcp.jsonc`, `AGENTS.md`, `commands/*.md`, `agents/*.md`, `plugins/*.ts`, `skills/*/SKILL.md`, `docs/task_plan.md`, `docs/CODEMAPS/INDEX.md`
 
 ## Root Configuration
 
 ### Runtime Configuration
 
-**Purpose**: Defines how OpenCode loads this workspace and which external runtimes it can use.
+**Purpose**: Defines how OpenCode boots this workspace—what plugins load, which MCPs are reachable, and what policies govern agents.
 
 **Location**: `./`
 
 **Key Files**:
 
-- `opencode.json` - Main runtime config for plugins, MCP servers, orchestrator permissions, and LSP.
-- `AGENTS.md` - Global execution policy for every task in the repo.
-- `README.md` - Human-facing install and setup guide.
-- `package.json` - Declares the `@opencode-ai/plugin` dependency.
-- `versions.json` - Version registry for plugin, MCP, and tool bootstrap references.
-- `dcp.jsonc` - Schema reference for dynamic context pruning configuration.
-- `CONTEXTPLUS.md` - Operating guide for semantic repo navigation.
-- `install.sh` - Bootstrap installer and symlink setup.
+- `README.md` - Installation instructions, prerequisites, and navigation tips for contributors.
+- `install.sh` - Clones the repo, links configuration into `~/.config/opencode`, and installs runtime dependencies.
+- `opencode.json` - Declares plugins, MCPs, LSP servers, and orchestrator permissions.
+- `versions.json` - Pins versions for plugin, MCP, and tooling dependencies referenced from `opencode.json`.
+- `dcp.jsonc` - Describes the dynamic context pruning schema used by the `@tarquinen/opencode-dcp` plugin.
+- `AGENTS.md` - Repository-wide policy on tools, editing expectations, and flow control.
+- `CONTEXTPLUS.md` - Guidance for using semantic navigation helpers such as Context+.
 
 **Dependencies**:
 
-- OpenCode config schema
-- Local executables referenced in `opencode.json`
-- GitHub CLI, git, bun or npm for installation
+- OpenCode configuration schema (`https://opencode.ai/config.json`).
+- Local runtime (`git`, `gh`, `bun`/`npm`).
+- JSON/Markdown support for documentation files.
 
 **Exports**:
 
-- `opencode.json#plugin` - Plugin package list
-- `opencode.json#agent.orchestrator.permission.task` - Subagent delegation rules
-- `opencode.json#mcp` - MCP server registry
-- `opencode.json#lsp` - LSP server registry
+- `opencode.json#plugin` - Plugin list consumed by the orchestrator.
+- `opencode.json#agent` - Agent declarations for dispatcher routing.
+- `opencode.json#mcp` - MCP registry (exa, context7, browsers, annotation tooling).
+- `versions.json` - Version pins referenced by `install.sh` and `opencode.json`.
+- `AGENTS.md` - Policy instructions consumed by every agent.
 
 **Usage Example**:
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json"
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["@franlol/opencode-md-table-formatter"]
 }
 ```
 
@@ -49,58 +50,57 @@
 
 ### Planning Plugin
 
-**Purpose**: Adds file-backed planning reminders and completion status checks to OpenCode sessions.
+**Purpose**: Watches chat lifecycle events and writes planning reminders plus completion hints to the planning docs.
 
 **Location**: `plugins/`
 
 **Key Files**:
 
-- `plugins/planning-with-files.ts` - Plugin factory and hook registration.
-- `skills/planning-with-files/scripts/check-complete.sh` - Completion checker invoked by the plugin.
+- `plugins/planning-with-files.ts` - Plugin factory that registers hooks for planning phases.
+- `skills/planning-with-files/scripts/check-complete.sh` - Shell helper invoked by the plugin to annotate completion status.
 
 **Dependencies**:
 
-- Node built-ins: `fs`, `path`, `url`
-- `bun` runtime import for shell execution
-- Planning files under `docs/`
-- Session message metadata from the OpenCode client
+- Node built-ins: `fs`, `path`, `url`.
+- `bun` runtime for shell execution and script launches.
+- Planning docs under `docs/` and templates from `skills/planning-with-files/templates/`.
 
 **Exports**:
 
-- `PlanningWithFilesPlugin` - Async plugin factory
-- `append()` - Shared output helper
-- `planHead()` - Reads the top of `docs/task_plan.md`
+- `PlanningWithFilesPlugin` - Async plugin factory for the OpenCode runtime.
+- `append()` - Helper for writing to planning documents.
+- `planHead()` - Reads the most recent plan section from `docs/task_plan.md`.
 
 **Usage Example**:
 
-```typescript
-import { PlanningWithFilesPlugin } from "./plugins/planning-with-files"
+```ts
+import { PlanningWithFilesPlugin } from "./plugins/planning-with-files";
 ```
 
 ### Using Skills Plugin
 
-**Purpose**: Injects a system prompt that enforces skill invocation before any agent response.
+**Purpose**: Injects the skill-enforcement system prompt so every response starts by checking skill obligations.
 
 **Location**: `plugins/`
 
 **Key Files**:
 
-- `plugins/using-skills.ts` - Plugin that prepends skill enforcement prompt to system messages.
+- `plugins/using-skills.ts` - Plugin that prepends `SKILL_PROMPT` to every session and wires the enforcement trigger.
 
 **Dependencies**:
 
-- `@opencode-ai/plugin` type definitions
-- OpenCode plugin runtime
+- `@opencode-ai/plugin` runtime interface.
+- OpenCode session metadata.
 
 **Exports**:
 
-- `UsingSkillsPlugin` - Plugin factory
-- `SKILL_PROMPT` - The enforcement prompt text
+- `UsingSkillsPlugin` - Plugin factory.
+- `SKILL_PROMPT` - The enforced instruction.
 
 **Usage Example**:
 
-```typescript
-import { UsingSkillsPlugin } from "./plugins/using-skills"
+```ts
+import { UsingSkillsPlugin } from "./plugins/using-skills";
 ```
 
 ---
@@ -109,39 +109,27 @@ import { UsingSkillsPlugin } from "./plugins/using-skills"
 
 ### Agent Pack
 
-**Purpose**: Supplies the instruction sets that commands and the runtime route work to.
+**Purpose**: Houses the instruction sets that commands wire to specific behaviors and workflows.
 
 **Location**: `agents/`
 
 **Key Files**:
 
-- `agents/orchestrator.md` - Primary coordinator and delegation policy.
-- `agents/planner.md` - Implementation planning specialist with risk assessment.
-- `agents/designer.md` - UI and visual design specialist.
-- `agents/explorer.md` - Codebase discovery specialist.
-- `agents/fixer.md` - Fast implementation specialist.
-- `agents/librarian.md` - External docs and library research specialist.
-- `agents/oracle.md` - High-stakes technical advisor.
-- `agents/doc-updater.md` - Documentation and codemap specialist.
-- `agents/refactor-cleaner.md` - Dead-code and duplication cleanup specialist.
+- `orchestrator.md` - Delegates tasks and enforces policy.
+- `planner.md` - Builds multi-phase implementation plans and assesses risk.
+- `designer.md`, `fixer.md`, `librarian.md`, `oracle.md`, `explorer.md` - Specialist behaviors for UI, fixes, research, technical advice, and discovery.
+- `doc-updater.md` - Updates documentation artifacts and codemaps.
+- `refactor-cleaner.md` - Removes duplication and dead code.
 
 **Dependencies**:
 
-- OpenCode agent loader
-- `AGENTS.md` repo-wide rules
-- Command frontmatter agent names
+- `AGENTS.md` for global rules.
+- Frontmatter-defined agent names in `commands/*.md`.
+- Skills referenced within each agent script.
 
 **Exports**:
 
-- `orchestrator`
-- `planner`
-- `designer`
-- `explorer`
-- `fixer`
-- `librarian`
-- `oracle`
-- `doc-updater`
-- `refactor-cleaner`
+- `orchestrator`, `planner`, `designer`, `explorer`, `fixer`, `librarian`, `oracle`, `doc-updater`, `refactor-cleaner` (Markdown content consumed by the orchestrator).
 
 **Usage Example**:
 
@@ -155,43 +143,25 @@ agent: planner
 
 ### Slash Command Pack
 
-**Purpose**: Defines repo-local command workflows, tool restrictions, and expected output shape.
+**Purpose**: Defines repository-specific slash commands, tool constraints, and the agent each workflow uses.
 
 **Location**: `commands/`
 
 **Key Files**:
 
-- `plan.md` - Planning workflow routed to `planner` agent.
-- `checkpoint.md` - Progress checkpoint workflow.
-- `code-review.md` - Review workflow routed to `oracle`.
-- `refactor-clean.md` - Cleanup workflow routed to `refactor-cleaner`.
-- `rollback.md` - Git rollback and checkpoint restoration workflow.
-- `update-docs.md` - Documentation sync workflow routed to `doc-updater`.
-- `update-codemaps.md` - Codemap refresh workflow routed to `doc-updater`.
-- `learn.md` - Session learning capture routed to `doc-updater`.
-- `skill-create.md` - Skill generation from git history routed to `doc-updater`.
-- `commit-push.md` - Git-only commit and push workflow.
-- `commit-push-pr.md` - Git-only commit, push, and PR workflow.
+- `plan.md`, `checkpoint.md`, `code-review.md`, `refactor-clean.md`, `rollback.md` - Planning, checkpointing, clean-up, git rollback flows.
+- `update-docs.md`, `update-codemaps.md`, `learn.md`, `skill-create.md` - Documentation-related workflows routed to `doc-updater`.
+- `commit-push.md`, `commit-push-pr.md` - Git-only commit and push stories.
 
 **Dependencies**:
 
-- Agent names declared in command frontmatter
-- Git context interpolation in command bodies
-- Allowed-tool constraints for git workflows
+- Agent names declared in each command's frontmatter.
+- Git status and context interpolations within command bodies.
+- Allowed-tool and step constraints for git and documentation workflows.
 
 **Exports**:
 
-- `/plan`
-- `/checkpoint`
-- `/code-review`
-- `/refactor-clean`
-- `/rollback`
-- `/update-docs`
-- `/update-codemaps`
-- `/learn`
-- `/skill-create`
-- `/commit-push`
-- `/commit-push-pr`
+- `/plan`, `/checkpoint`, `/code-review`, `/refactor-clean`, `/rollback`, `/update-docs`, `/update-codemaps`, `/learn`, `/skill-create`, `/commit-push`, `/commit-push-pr`.
 
 **Usage Example**:
 
@@ -205,35 +175,26 @@ agent: planner
 
 ### Skill Pack
 
-**Purpose**: Ships reusable workflows that agents can load for specialized tasks.
+**Purpose**: Packages reusable workflows (Agentation, planning, research, writing) that agents can load on demand.
 
 **Location**: `skills/`
 
 **Key Files**:
 
-- `skills/agentation/SKILL.md` - Add Agentation toolbar to a Next.js app.
-- `skills/agentation-self-driving/SKILL.md` - Autonomous visual critique workflow.
-- `skills/agentation-self-driving/references/two-session-workflow.md` - Setup notes for the self-driving workflow.
-- `skills/article-writing/SKILL.md` - Long-form writing workflow.
-- `skills/planning-with-files/SKILL.md` - Persistent planning methodology.
-- `skills/planning-with-files/templates/*.md` - Planning document templates.
-- `skills/planning-with-files/examples.md` - Example planning usage.
-- `skills/planning-with-files/reference.md` - Planning method reference.
-- `skills/search-first/SKILL.md` - Research-first workflow before implementation.
+- `skills/agentation/SKILL.md` and `skills/agentation-self-driving/SKILL.md` + references for Agentation tooling.
+- `skills/article-writing/SKILL.md` - Long-form writing workflows.
+- `skills/planning-with-files/` - Planning methodology, templates, completion scripts, references, and examples.
+- `skills/search-first/SKILL.md` - Research-before-you-code workflow.
 
 **Dependencies**:
 
-- Skill loader in OpenCode
-- External MCPs or browser tooling referenced by individual skills
-- `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md` for `planning-with-files`
+- Skill loader and skill enforcement plugin.
+- External MCPs, e.g., `exa` for research-first tasks.
+- Planning docs under `docs/` for templates used by `planning-with-files`.
 
 **Exports**:
 
-- `agentation`
-- `agentation-self-driving`
-- `article-writing`
-- `planning-with-files`
-- `search-first`
+- `agentation`, `agentation-self-driving`, `article-writing`, `planning-with-files`, `search-first` (skill labels and Markdown instructions).
 
 **Usage Example**:
 
@@ -247,82 +208,109 @@ Use the `planning-with-files` skill before starting a complex task.
 
 ### Theme Pack
 
-**Purpose**: Color theme definitions for OpenCode UI customization.
+**Purpose**: Provides Poimandres-inspired color theme definitions for OpenCode’s UI.
 
 **Location**: `themes/`
 
 **Key Files**:
 
-- `themes/poimandres.json` - Dark theme based on Poimandres color palette.
-- `themes/poimandres-accessible.json` - Accessible variant with higher contrast.
+- `themes/poimandres.json` - Base dark Poimandres palette.
+- `themes/poimandres-accessible.json` - Higher contrast variant.
 - `themes/poimandres-turquoise-expanded.json` - Turquoise-accented variant.
 
 **Dependencies**:
 
-- OpenCode theme loader
-- JSON theme schema
+- OpenCode theme loader and JSON schema validation.
 
 **Exports**:
 
-- `poimandres` - Main dark theme
-- `poimandres-accessible` - High contrast variant
-- `poimandres-turquoise-expanded` - Turquoise accent variant
+- `poimandres`, `poimandres-accessible`, `poimandres-turquoise-expanded`.
 
 **Usage Example**:
 
-Theme selection is configured through OpenCode settings UI or config.
+Theme selection occurs through OpenCode’s UI or config files.
 
 ---
 
 ## Documentation Modules
 
-### Planning and Codemap Docs
+### Planning State Docs
 
-**Purpose**: Stores persistent task memory and generated navigation docs.
+**Purpose**: Stores persistent planning output, findings, and verification history for multi-phase tasks.
 
 **Location**: `docs/`
 
 **Key Files**:
 
-- `docs/task_plan.md` - Current multi-phase task plan.
-- `docs/findings.md` - Discoveries, corrections, and repo-specific rules.
-- `docs/progress.md` - Session log and validation notes.
-- `docs/CODEMAPS/INDEX.md` - Codemap overview.
-- `docs/CODEMAPS/ARCHITECTURE.md` - System overview and relationships.
-- `docs/CODEMAPS/MODULES.md` - Module inventory.
-- `docs/CODEMAPS/FILES.md` - Directory and file navigation guide.
+- `docs/task_plan.md` - Active implementation plan.
+- `docs/findings.md` - Repository-specific learnings and corrections.
+- `docs/progress.md` - Verification log for tests and validation steps.
 
 **Dependencies**:
 
-- Documentation workflows in `commands/`
-- Planning plugin reminders and checks
+- `plugins/planning-with-files.ts` for hook registration.
+- `skills/planning-with-files` for templates and completion checks.
+- Planning-focused commands such as `/plan`, `/checkpoint`, and `/commit-push`.
 
 **Exports**:
 
-- Persistent planning state
-- Repo navigation documentation
+- `docs/task_plan.md`, `docs/findings.md`, `docs/progress.md` as persistent planning artifacts.
+
+**Usage Example**:
+
+```bash
+cat docs/task_plan.md
+```
+
+### Codemap Docs
+
+**Purpose**: Provides architecture, module, file, and navigation overviews derived from the actual code layout.
+
+**Location**: `docs/CODEMAPS/`
+
+**Key Files**:
+
+- `docs/CODEMAPS/INDEX.md` - Codemap index and entry pointers.
+- `docs/CODEMAPS/ARCHITECTURE.md` - System overview, relationships, and data flow.
+- `docs/CODEMAPS/MODULES.md` - Module inventory, dependencies, and APIs.
+- `docs/CODEMAPS/FILES.md` - Directory tree, file purposes, and navigation guidance.
+
+**Dependencies**:
+
+- `commands/update-codemaps.md` and `agents/doc-updater.md` for regeneration.
+- `skills/planning-with-files` and planning docs for context.
+
+**Exports**:
+
+- Codemap index, architecture summary, module catalog, and file map.
+
+**Usage Example**:
+
+```bash
+less docs/CODEMAPS/ARCHITECTURE.md
+```
 
 ---
 
 ## Dependency Graph
 
 ```text
-README.md -> install.sh
-install.sh -> opencode.json + AGENTS.md + dcp.jsonc + agents/ + commands/ + plugins/ + skills/ + themes/
+README.md --> install.sh
+install.sh --> opencode.json + AGENTS.md + versions.json + dcp.jsonc + commands/ + agents/ + plugins/ + skills/ + docs/ + themes/
 
-opencode.json -> plugin packages + MCP servers + LSP servers
 
-commands/*.md -> agents/*.md
-commands/update-codemaps.md -> agents/doc-updater.md -> docs/CODEMAPS/*.md
-commands/plan.md -> agents/planner.md -> implementation plans
-commands/rollback.md -> git operations
+commands/*.md --> agents/*.md
+commands/update-codemaps.md --> agents/doc-updater.md --> docs/CODEMAPS/{INDEX,ARCHITECTURE,MODULES,FILES}.md
+commands/update-docs.md --> agents/doc-updater.md --> docs/{task_plan,findings,progress}.md
+commands/plan.md --> agents/planner.md --> docs/task_plan.md
+commands/checkpoint.md --> docs/progress.md
+commands/rollback.md --> git operations
 
-plugins/planning-with-files.ts -> docs/task_plan.md
-plugins/planning-with-files.ts -> skills/planning-with-files/scripts/check-complete.sh
-plugins/using-skills.ts --------> session system prompts
+plugins/planning-with-files.ts --> docs/{task_plan,findings,progress}.md
+plugins/planning-with-files.ts --> skills/planning-with-files/scripts/check-complete.sh
+plugins/using-skills.ts --> session system prompts
 
-skills/planning-with-files/SKILL.md -> docs/task_plan.md + docs/findings.md + docs/progress.md
-skills/agentation-self-driving/SKILL.md -> references/two-session-workflow.md
+skills/search-first/SKILL.md --> exa + context7 research flow
 ```
 
 ## Related Maps

@@ -1,7 +1,7 @@
 # File Codemap
 
-**Last Updated:** 2026-03-18
-**Entry Points:** `README.md`, `opencode.json`, `AGENTS.md`, `plugins/planning-with-files.ts`, `plugins/using-skills.ts`
+**Last Updated:** 2026-03-20
+**Entry Points:** `README.md`, `install.sh`, `opencode.json`, `AGENTS.md`, `commands/*.md`, `docs/CODEMAPS/INDEX.md`
 
 ## Directory Structure
 
@@ -10,44 +10,34 @@
 |- AGENTS.md
 |- CONTEXTPLUS.md
 |- README.md
-|- bun.lock
-|- dcp.jsonc
 |- install.sh
 |- opencode.json
-|- package.json
 |- versions.json
-|- agent/
+|- dcp.jsonc
+|- package.json
+|- bun.lock
+|- commands/
+|  |- plan.md
+|  |- checkpoint.md
+|  |- code-review.md
+|  |- refactor-clean.md
+|  |- rollback.md
+|  |- update-docs.md
+|  |- update-codemaps.md
+|  |- learn.md
+|  |- skill-create.md
+|  |- commit-push.md
+|  `- commit-push-pr.md
 |- agents/
+|  |- orchestrator.md
+|  |- planner.md
 |  |- designer.md
-|  |- doc-updater.md
-|  |- explorer.md
 |  |- fixer.md
 |  |- librarian.md
 |  |- oracle.md
-|  |- orchestrator.md
-|  |- planner.md
+|  |- explorer.md
+|  |- doc-updater.md
 |  `- refactor-cleaner.md
-|- commands/
-|  |- checkpoint.md
-|  |- code-review.md
-|  |- commit-push-pr.md
-|  |- commit-push.md
-|  |- learn.md
-|  |- plan.md
-|  |- refactor-clean.md
-|  |- rollback.md
-|  |- skill-create.md
-|  |- update-codemaps.md
-|  `- update-docs.md
-|- docs/
-|  |- CODEMAPS/
-|  |  |- ARCHITECTURE.md
-|  |  |- FILES.md
-|  |  |- INDEX.md
-|  |  `- MODULES.md
-|  |- findings.md
-|  |- progress.md
-|  `- task_plan.md
 |- plugins/
 |  |- planning-with-files.ts
 |  `- using-skills.ts
@@ -72,74 +62,81 @@
 |  |  `- SKILL.md
 |  `- search-first/
 |     `- SKILL.md
-`- themes/
-   |- poimandres-accessible.json
-   |- poimandres-turquoise-expanded.json
-   `- poimandres.json
+|- themes/
+|  |- poimandres.json
+|  |- poimandres-accessible.json
+|  `- poimandres-turquoise-expanded.json
+`- docs/
+   |- CODEMAPS/
+   |  |- INDEX.md
+   |  |- ARCHITECTURE.md
+   |  |- MODULES.md
+   |  `- FILES.md
+   |- task_plan.md
+   |- findings.md
+   `- progress.md
 ```
 
 ## Key File Purposes
 
 | Path | Purpose |
 | ---- | ------- |
-| `README.md` | Human-facing install, setup, and repo overview. |
-| `install.sh` | Bootstrap installer that clones the repo, links config files, and installs prerequisites. |
-| `opencode.json` | Runtime configuration for plugins, MCPs, LSP, and orchestrator task permissions. |
-| `AGENTS.md` | Global rules for task execution, tool usage, and editing behavior. |
-| `CONTEXTPLUS.md` | Repo-specific usage guide for Context+ semantic navigation. |
-| `package.json` | JavaScript dependency manifest. |
-| `versions.json` | Version registry for plugin, MCP, and tool bootstrap dependencies. |
-| `plugins/planning-with-files.ts` | Executable source module; adds planning reminders and completion checks. |
-| `plugins/using-skills.ts` | Executable source module; enforces skill invocation before responses. |
-| `agents/orchestrator.md` | Primary coordinator agent that delegates to specialists. |
-| `agents/planner.md` | Planning specialist for creating implementation plans with risk assessment. |
-| `agents/doc-updater.md` | Documentation and codemap maintenance agent. |
-| `commands/plan.md` | Workflow definition for creating implementation plans. |
-| `commands/rollback.md` | Workflow definition for git rollback and checkpoint restoration. |
-| `commands/update-codemaps.md` | Workflow definition for refreshing codemap docs. |
-| `commands/update-docs.md` | Workflow definition for documentation sync. |
-| `skills/planning-with-files/SKILL.md` | Canonical planning methodology referenced by the plugin and docs. |
-| `skills/planning-with-files/scripts/check-complete.sh` | Verifies phase completion status for planning docs. |
-| `skills/search-first/SKILL.md` | Research-before-coding workflow. |
-| `skills/agentation/SKILL.md` | Agentation toolbar setup workflow. |
-| `skills/agentation-self-driving/SKILL.md` | Autonomous browser-based annotation workflow. |
-| `themes/poimandres.json` | Dark theme color definition. |
-| `themes/poimandres-accessible.json` | High contrast accessible theme variant. |
-| `themes/poimandres-turquoise-expanded.json` | Turquoise accent theme variant. |
-| `docs/task_plan.md` | Active task plan memory. |
-| `docs/findings.md` | Findings, corrections, and learned rules. |
-| `docs/progress.md` | Session progress and verification log. |
+| `README.md` | Onboarding, installation overview, and repo orientation. |
+| `install.sh` | Bootstraps the repo into `~/.config/opencode`, links configs, and installs dependencies. |
+| `opencode.json` | Runtime configuration for plugins, MCPs, LSPs, skills, and orchestrator permissions. |
+| `versions.json` | Version registry for plugins, MCPs, and tools referenced by `opencode.json`. |
+| `AGENTS.md` | Global rules for tooling, editing, and workflow boundaries. |
+| `CONTEXTPLUS.md` | Documentation on semantic navigation helpers like Context+ within this repo. |
+| `commands/plan.md` | Planning workflow routed to `agents/planner`. |
+| `commands/update-codemaps.md` | Codemap refresh workflow routed to `agents/doc-updater`. |
+| `commands/skill-create.md` | Skill generation helper routed to `doc-updater`. |
+| `agents/doc-updater.md` | Documentation and codemap maintenance specialist. |
+| `plugins/planning-with-files.ts` | Adds planning reminders and completion checks to every session. |
+| `plugins/using-skills.ts` | Enforces skill invocation via a system prompt. |
+| `skills/planning-with-files/SKILL.md` | Planning methodology, templates, and references used by the planning plugin. |
+| `skills/planning-with-files/scripts/check-complete.sh` | Validates the completion status of planning phases. |
+| `skills/search-first/SKILL.md` | Research-before-code workflow referencing `exa` + Context7. |
+| `docs/task_plan.md` | Active multi-phase plan for the current session. |
+| `docs/findings.md` | Repository-specific discoveries, corrections, and process updates. |
+| `docs/progress.md` | Verification and testing log for the session. |
+| `docs/CODEMAPS/INDEX.md` | Top-level navigation hub for codemaps. |
+| `docs/CODEMAPS/ARCHITECTURE.md` | High-level system overview, data flow, and navigation guide. |
+| `docs/CODEMAPS/MODULES.md` | Module inventory, dependencies, and exported behaviors. |
+| `docs/CODEMAPS/FILES.md` | Directory tree, file purposes, and quick navigation reference. |
+| `themes/poimandres.json` | Base Poimandres color theme definition. |
 
 ## Directory Purposes
 
 | Directory | Purpose |
 | --------- | ------- |
-| `agents/` | Agent definitions and role-specific instructions. |
-| `commands/` | Slash-command workflows. |
-| `docs/` | Persistent planning memory and generated codemaps. |
-| `plugins/` | Runtime plugin code (TypeScript source files). |
-| `skills/` | Reusable workflow packages. |
-| `themes/` | Color theme definitions for UI customization. |
-| `agent/` | Present but currently empty; not part of the active runtime path. |
+| `commands/` | Slash-command workflows that gate agent selection, tool restrictions, and output expectations. |
+| `agents/` | Markdown instructions for orchestrator-specialist routing (planner, doc-updater, fixer, etc.). |
+| `plugins/` | TypeScript plugins (`planning-with-files`, `using-skills`) that hook into the OpenCode runtime. |
+| `skills/` | Reusable skills (planning, agentation, article writing, research) that agents can load. |
+| `themes/` | JSON theme definitions for Poimandres-inspired UI skins. |
+| `docs/` | Persistent memory: planning output, findings, progress, and generated codemaps. |
+| `docs/CODEMAPS/` | Navigation docs (architecture, modules, files, index) derived from actual structure. |
+| `skills/planning-with-files/templates/` | Templates (`task_plan`, `findings`, `progress`) that the planning skill and plugin copy/update. |
 
 ## Navigation Guide
 
-- Want setup and install flow? Open `README.md` and `install.sh`.
-- Want runtime wiring? Open `opencode.json` and `versions.json`.
-- Want repo-wide rules? Open `AGENTS.md`.
-- Want executable behavior? Open `plugins/planning-with-files.ts` and `plugins/using-skills.ts`.
-- Want user entrypoints? Browse `commands/`.
-- Want specialist behaviors? Browse `agents/`.
-- Want reusable playbooks? Browse `skills/`.
-- Want UI themes? Browse `themes/`.
-- Want active task memory or generated docs? Browse `docs/`.
+- Need onboarding? Read `README.md` and run `install.sh`.
+- Want runtime wiring? Inspect `opencode.json`, `versions.json`, and `dcp.jsonc`.
+- Need policy? Read `AGENTS.md`.
+- Looking for entrypoints? Browse `commands/` and run `/plan` or `/update-codemaps` as needed.
+- Want specialist behavior? Open `agents/` for planners, designers, doc-updaters, and more.
+- Care about runtime logic? Inspect `plugins/planning-with-files.ts` and `plugins/using-skills.ts`.
+- Need reusable playbooks? Check `skills/` and their `SKILL.md` guides.
+- Curious about codemaps? Start at `docs/CODEMAPS/INDEX.md`, then follow links to `ARCHITECTURE.md`, `MODULES.md`, and `FILES.md`.
+- Want live planning state? Read `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md`.
+- Need color palettes? Browse `themes/`.
 
 ## Notes
 
-- The repo surface is mostly Markdown; two TypeScript source files in `plugins/` contain program logic.
-- `bun.lock` is kept for dependency reproducibility but is not a primary navigation target.
-- `agent/` is intentionally listed so the tree matches the current filesystem exactly.
-- `themes/` directory was added for color theme customization support.
+- The repository surface is mostly Markdown instructions; the only runtime code lives in `plugins/*.ts`.
+- `docs/CODEMAPS/` is the canonical navigation layer updated by `/update-codemaps` and `agents/doc-updater`.
+- `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md` capture the active planning cycle watched by the planning plugin.
+- `bun.lock` and `package.json` keep dependencies reproducible for plugin compilation.
 
 ## Related Maps
 
