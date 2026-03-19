@@ -1,7 +1,7 @@
 ---
 description: Fast codebase search and pattern matching. Use for finding files, locating code patterns, and answering 'where is X?' questions.
 mode: subagent
-model: openrouter/moonshotai/kimi-k2.5
+model: anthropic/claude-sonnet-4-5
 temperature: 0.1
 hidden: true
 ---

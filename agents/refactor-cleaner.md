@@ -1,6 +1,7 @@
 ---
 name: refactor-cleaner
 description: Dead code cleanup and consolidation specialist. Use for removing unused code, duplicates, and refactoring.
+model: openai/gpt-5.3-codex
 tools:
   read: true
   write: true

@@ -1,6 +1,7 @@
 ---
 name: doc-updater
 description: Documentation and codemap specialist. Use for updating codemaps and documentation.
+model: openai/gpt-5.1-codex-mini
 tools:
   read: true
   write: true
