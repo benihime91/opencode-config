@@ -262,6 +262,7 @@ symlink_config() {
 
   local files=(
     "opencode.json"
+    "agent-permissions.jsonc"
     "AGENTS.md"
     "dcp.jsonc"
   )

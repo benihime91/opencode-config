@@ -9,13 +9,13 @@ curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/hea
 ```
 
 The installer clones the repo, backs up your existing config, symlinks files into `~/.config/opencode`, and installs dependencies.
+It also links `agent-permissions.jsonc` for per-agent skill and MCP rules.
 
 ## Finish Setup
 
 ```bash
 source ~/.zshrc   # or ~/.bashrc
 opencode auth
-auggie login                        # optional, if installed separately
 export EXA_API_KEY=<your-key>   # optional
 opencode
 ```
@@ -26,6 +26,7 @@ opencode
 git clone https://github.com/benihime91/opencode-config.git ~/opencode-config
 mkdir -p ~/.config/opencode
 ln -sf ~/opencode-config/opencode.json ~/.config/opencode/opencode.json
+ln -sf ~/opencode-config/agent-permissions.jsonc ~/.config/opencode/agent-permissions.jsonc
 ln -sf ~/opencode-config/AGENTS.md ~/.config/opencode/AGENTS.md
 ln -sf ~/opencode-config/dcp.jsonc ~/.config/opencode/dcp.jsonc
 ln -sfn ~/opencode-config/agents ~/.config/opencode/agents

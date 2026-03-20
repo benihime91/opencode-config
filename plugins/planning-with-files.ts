@@ -60,7 +60,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
   worktree,
 }) => {
   const root = worktree ?? directory
-  const sessionAgentCache = new Map<string, boolean>()
+  const sessionAgentCache = new Map<string, string>()
   const lastPlanningStatus = new Map<string, string>()
   const pendingPlanByCallID = new Map<string, string>()
 
@@ -79,7 +79,14 @@ export const PlanningWithFilesPlugin: Plugin = async ({
 
   function isPlanningSession(sessionID?: string): boolean {
     if (!sessionID) return false
-    return sessionAgentCache.get(sessionID) === true
+    const agent = sessionAgentCache.get(sessionID)
+    return agent ? PLANNING_AGENTS.has(agent) : false
+  }
+
+  function isNonPlanningSession(sessionID?: string): boolean {
+    if (!sessionID) return false
+    const agent = sessionAgentCache.get(sessionID)
+    return !!agent && !PLANNING_AGENTS.has(agent)
   }
 
   async function planningStatus(rootDir: string): Promise<string> {
@@ -98,7 +105,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       if (!input.agent) return
 
       const shouldPlan = PLANNING_AGENTS.has(input.agent)
-      sessionAgentCache.set(input.sessionID, shouldPlan)
+      sessionAgentCache.set(input.sessionID, input.agent)
 
       if (!shouldPlan) {
         lastPlanningStatus.delete(input.sessionID)
@@ -110,12 +117,19 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       input: { sessionID?: string; model: unknown },
       output: { system: string[] },
     ) => {
-      if (!isPlanningSession(input.sessionID)) return
+      if (isPlanningSession(input.sessionID)) {
+        output.system.push(
+          "Use OpenCode's native `skill` tool to load `planning-with-files` before starting any complex, multi-step task.",
+        )
+        await toast('Planning', 'Hint added')
+        return
+      }
 
-      output.system.push(
-        "Use OpenCode's native `skill` tool to load `planning-with-files` before starting any complex, multi-step task.",
-      )
-      await toast('Planning', 'Hint added')
+      if (isNonPlanningSession(input.sessionID)) {
+        output.system.push(
+          'Do not load `planning-with-files` in this session. If planning context is relevant, read `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md` first.',
+        )
+      }
     },
 
     // PreToolUse equivalent — show head of task_plan.md before every watched tool

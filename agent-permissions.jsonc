@@ -1,0 +1,75 @@
+{
+  "defaults": {
+    "skills": [
+      "!*"
+    ],
+    "mcps": [
+      "!*"
+    ]
+  },
+  "agents": {
+    "orchestrator": {
+      "skills": [
+        "*"
+      ],
+      "mcps": [
+        "*"
+      ]
+    },
+    "explorer": {
+      "skills": [
+        "search-first"
+      ],
+      "mcps": [
+        "contextplus",
+        "exa"
+      ]
+    },
+    "librarian": {
+      "skills": [
+        "search-first"
+      ],
+      "mcps": [
+        "contextplus",
+        "context7",
+        "exa"
+      ]
+    },
+    "oracle": {
+      "skills": [
+        "search-first"
+      ],
+      "mcps": [
+        "contextplus",
+        "context7",
+        "exa"
+      ]
+    },
+    "designer": {
+      "skills": [
+        "search-first"
+      ],
+      "mcps": [
+        "contextplus",
+        "agentation",
+        "chrome-devtools"
+      ]
+    },
+    "fixer": {
+      "skills": [
+        "search-first"
+      ],
+      "mcps": [
+        "contextplus"
+      ]
+    },
+    "build": {
+      "skills": [
+        "*"
+      ],
+      "mcps": [
+        "*"
+      ]
+    }
+  }
+}
