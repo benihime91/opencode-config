@@ -1,4 +1,5 @@
 ---
+name: designer
 description: UI/UX design and implementation. Use for styling, responsive design, component architecture and visual polish.
 mode: subagent
 model: google/gemini-3.1-pro-preview

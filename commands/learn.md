@@ -1,6 +1,6 @@
 ---
 description: Extract patterns and learnings from current session
-agent: doc-updater
+agent: orchestrator
 ---
 
 # Learn Command
@@ -19,20 +19,20 @@ Analyze the session, planning files, and recent work to extract:
 ## Required Workflow (AGENTS + planning-with-files compatible)
 
 1. **Read project memory first**
-   - Read `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md` if present.
+   - Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` if present.
    - Treat these as source-of-truth memory before drawing conclusions.
 
 2. **Synthesize learnings from both session + files**
    - Combine current conversation context with persisted findings.
    - Prefer concrete, evidence-backed insights over generic advice.
 
-3. **Write back to `docs/findings.md`**
-   - If `docs/findings.md` exists: edit in place and prepend a new "Learn" entry at the top (newest-first).
-   - If missing: create `docs/findings.md` using existing project conventions, then add the entry.
+3. **Write back to `.plans/findings.md`**
+   - If `.plans/findings.md` exists: edit in place and prepend a new "Learn" entry at the top (newest-first).
+   - If missing: create `.plans/findings.md` using existing project conventions, then add the entry.
    - Never rewrite the whole file from scratch when it already exists.
 
 4. **Respect AGENTS correction loop**
-   - If this session includes a user correction/redirection, update `docs/lessons.md` with:
+   - If this session includes a user correction/redirection, update `.plans/findings.md` with:
      - What I did
      - What the user instructed instead
      - Why my approach was incorrect or misaligned
@@ -68,11 +68,11 @@ Analyze the session, planning files, and recent work to extract:
 
 ### Findings File Update
 
-- Path updated: `docs/findings.md`
+- Path updated: `.plans/findings.md`
 - Entry title: `Learn - [short topic]`
 - What was added: 3-7 bullets of durable takeaways
 - Evidence: references to files/changes/observations used
 
 ---
 
-**TIP**: Run `/learn` periodically during long sessions to capture insights before context compaction, and keep `docs/findings.md` as the long-term memory log.
+**TIP**: Run `/learn` periodically during long sessions to capture insights before context compaction, and keep `.plans/findings.md` as the long-term memory log.

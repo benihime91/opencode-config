@@ -13,7 +13,8 @@ Create a detailed implementation plan for: $ARGUMENTS
 1. **Restate Requirements** - Clarify what needs to be built
 2. **Identify Risks** - Surface potential issues, blockers, and dependencies
 3. **Create Step Plan** - Break down implementation into phases
-4. **Wait for Confirmation** - MUST receive user approval before proceeding
+4. **Write Durable Plan Artifact** - Save the finalized plan to `.plans/YYYY-MM-DD-HHMM-<task-key>.md`
+5. **Respect Ownership** - Do not edit `.plans/task_plan.md`, `.plans/findings.md`, or `.plans/progress.md`
 
 ## Output Format
 
@@ -49,8 +50,12 @@ Create a detailed implementation plan for: $ARGUMENTS
 
 [HIGH/MEDIUM/LOW with time estimates]
 
-**WAITING FOR CONFIRMATION**: Proceed with this plan? (yes/no/modify)
+### Plan Artifact
+
+- Path created: `.plans/YYYY-MM-DD-HHMM-<task-key>.md`
+- Includes: requirements, phases, dependencies, risks, and complexity
+- Ownership note: planning trio (`task_plan.md`, `findings.md`, `progress.md`) unchanged by planner
 
 ---
 
-**CRITICAL**: Do NOT write any code until the user explicitly confirms with "yes", "proceed", or similar affirmative response.
+**CRITICAL**: This command is planning-only. Do not write or modify implementation code.

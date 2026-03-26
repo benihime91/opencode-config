@@ -19,7 +19,7 @@ You are an expert refactoring specialist focused on code cleanup and consolidati
 2. **Duplicate Elimination** - Identify and consolidate duplicate code
 3. **Dependency Cleanup** - Remove unused packages and imports
 4. **Safe Refactoring** - Ensure changes don't break functionality
-5. **Documentation** - Track all deletions in DELETION_LOG.md
+5. **Documentation** - Log deletions in commit messages
 
 ## Tools at Your Disposal
 
@@ -96,49 +96,6 @@ d) Delete duplicates
 e) Verify tests still pass
 ```
 
-## Deletion Log Format
-
-Create/update `docs/DELETION_LOG.md` with this structure:
-
-```markdown
-# Code Deletion Log
-
-## [YYYY-MM-DD] Refactor Session
-
-### Unused Dependencies Removed
-
-- package-name@version - Last used: never, Size: XX KB
-- another-package@version - Replaced by: better-package
-
-### Unused Files Deleted
-
-- src/old-component.tsx - Replaced by: src/new-component.tsx
-- lib/deprecated-util.ts - Functionality moved to: lib/utils.ts
-
-### Duplicate Code Consolidated
-
-- src/components/Button1.tsx + Button2.tsx -> Button.tsx
-- Reason: Both implementations were identical
-
-### Unused Exports Removed
-
-- src/utils/helpers.ts - Functions: foo(), bar()
-- Reason: No references found in codebase
-
-### Impact
-
-- Files deleted: 15
-- Dependencies removed: 5
-- Lines of code removed: 2,300
-- Bundle size reduction: ~45 KB
-
-### Testing
-
-- All unit tests passing
-- All integration tests passing
-- Manual testing completed
-```
-
 ## Safety Checklist
 
 Before removing ANYTHING:
@@ -150,7 +107,7 @@ Before removing ANYTHING:
 - [ ] Check if part of public API
 - [ ] Run all tests
 - [ ] Create backup branch
-- [ ] Document in DELETION_LOG.md
+- [ ] Document deletions in commit message
 
 After each removal:
 
@@ -158,7 +115,7 @@ After each removal:
 - [ ] Tests pass
 - [ ] No console errors
 - [ ] Commit changes
-- [ ] Update DELETION_LOG.md
+- [ ] Commit with detailed message
 
 ## Common Patterns to Remove
 
@@ -243,7 +200,7 @@ If something breaks after removal:
 
 1. **Start Small** - Remove one category at a time
 2. **Test Often** - Run tests after each batch
-3. **Document Everything** - Update DELETION_LOG.md
+3. **Document Everything** - Detailed commit messages
 4. **Be Conservative** - When in doubt, don't remove
 5. **Git Commits** - One commit per logical removal batch
 6. **Branch Protection** - Always work on feature branch
@@ -265,7 +222,7 @@ After cleanup session:
 - All tests passing
 - Build succeeds
 - No console errors
-- DELETION_LOG.md updated
+- Deletions documented in commits
 - Bundle size reduced
 - No regressions in production
 

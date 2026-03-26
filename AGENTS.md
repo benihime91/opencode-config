@@ -90,7 +90,7 @@ DO NOT WRITE TESTS OR DOCUMENTATION UNLESS EXPLICITLY INSTRUCTED TO DO SO.
 
 ## Lessons & Findings Loop (Mandatory After Corrections)
 
-After any user correction or redirection, update `docs/findings.md`.
+After any user correction or redirection, update `.plans/findings.md`.
 
 Each entry must include:
 
@@ -107,7 +107,7 @@ If I implement something and the user requests a different approach:
 
 - I must not defend the prior approach reflexively
 - I must adapt immediately
-- I must record the misalignment in `docs/findings.md`
+- I must record the misalignment in `.plans/findings.md`
 - I must operationalize the correction into a concrete rule
 
 Not updating findings is process non-compliance.

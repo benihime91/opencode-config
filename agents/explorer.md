@@ -1,4 +1,5 @@
 ---
+name: explorer
 description: Fast codebase search and pattern matching. Use for finding files, locating code patterns, and answering 'where is X?' questions.
 mode: subagent
 model: anthropic/claude-sonnet-4-5
@@ -32,7 +33,6 @@ Instructions:
 # When to use which
 
 - **Text/regex patterns** (strings, comments, variable names): grep
-- **Structural patterns** (function shapes, class structures): ast_grep_search
 - **File discovery** (find by name/extension): glob
 
 # Behavior

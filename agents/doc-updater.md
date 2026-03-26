@@ -1,7 +1,7 @@
 ---
 name: doc-updater
 description: Documentation and codemap specialist. Use for updating codemaps and documentation.
-model: openai/gpt-5.1-codex-mini
+model: google/gemini-3.1-pro-preview-customtools
 tools:
   read: true
   write: true

@@ -8,9 +8,9 @@
  * OpenCode's skill runner) so similar behaviour is active at runtime:
  *
  *   User prompt submit                              → inject current plan + recent progress
- *   PreToolUse  (Write|Edit|Bash|Read|Glob|Grep)   → show head of docs/task_plan.md
+ *   PreToolUse  (Write|Edit|Bash|Read|Glob|Grep)   → show head of .plans/task_plan.md
  *   PostToolUse (Write|Edit)                       → owner reminder or subagent handoff reminder
- *   Planning file ownership                        → only orchestrator/build may write docs/{task_plan,findings,progress}.md
+ *   Planning file ownership                        → only orchestrator/build may write .plans/{task_plan,findings,progress}.md
  */
 
 import path from 'path'
@@ -24,9 +24,9 @@ const CHECK_COMPLETE = path.join(SKILL_DIR, 'scripts', 'check-complete.sh')
 const PLANNING_SKILL_AGENTS = new Set(['orchestrator'])
 const PLANNING_FILE_OWNERS = new Set(['orchestrator', 'build'])
 const PLANNING_FILES = new Set([
-  path.join('docs', 'task_plan.md'),
-  path.join('docs', 'findings.md'),
-  path.join('docs', 'progress.md'),
+  path.join('.plans', 'task_plan.md'),
+  path.join('.plans', 'findings.md'),
+  path.join('.plans', 'progress.md'),
 ])
 
 const WATCHED_TOOLS = new Set(['read', 'write', 'edit', 'bash', 'glob', 'grep'])
@@ -64,7 +64,7 @@ function promptContextBlock(plan: string, progress: string): string {
   }
 
   parts.push(
-    '[planning-with-files] Read `docs/findings.md` for research context. Continue from the current phase.',
+    '[planning-with-files] Read `.plans/findings.md` for research context. Continue from the current phase.',
   )
 
   return parts.join('\n')
@@ -73,14 +73,14 @@ function promptContextBlock(plan: string, progress: string): string {
 function updateReminderBlock(): string {
   return [
     'Planning with Files',
-    'Reminder: Update `docs/progress.md` with what you just did. If this completed a phase, update `docs/task_plan.md` status.',
+    'Reminder: Update `.plans/progress.md` with what you just did. If this completed a phase, update `.plans/task_plan.md` status.',
   ].join('\n')
 }
 
 function readOnlyReminderBlock(): string {
   return [
     'Planning with Files',
-    'Reminder: Planning files are orchestrator/build-owned in this session. Hand results back so `docs/progress.md` and `docs/task_plan.md` stay current.',
+    'Reminder: Planning files are orchestrator/build-owned in this session. Hand results back so `.plans/progress.md` and `.plans/task_plan.md` stay current.',
   ].join('\n')
 }
 
@@ -90,7 +90,10 @@ function statusOutputBlock(status: string): string {
 
 async function planHead(root: string): Promise<string> {
   try {
-    const content = await fs.promises.readFile(path.join(root, 'docs', 'task_plan.md'), 'utf8')
+    const content = await fs.promises.readFile(
+      path.join(root, '.plans', 'task_plan.md'),
+      'utf8',
+    )
     return content.split('\n').slice(0, 30).join('\n').trim()
   } catch {
     return ''
@@ -99,7 +102,10 @@ async function planHead(root: string): Promise<string> {
 
 async function recentProgress(root: string): Promise<string> {
   try {
-    const content = await fs.promises.readFile(path.join(root, 'docs', 'progress.md'), 'utf8')
+    const content = await fs.promises.readFile(
+      path.join(root, '.plans', 'progress.md'),
+      'utf8',
+    )
     return content.split('\n').slice(-20).join('\n').trim()
   } catch {
     return ''
@@ -193,8 +199,10 @@ export const PlanningWithFilesPlugin: Plugin = async ({
   async function planningStatus(rootDir: string): Promise<string> {
     try {
       const { $ } = await import('bun')
-      const docsDir = path.join(rootDir, 'docs')
-      const result = await $`sh ${CHECK_COMPLETE} ${path.join(docsDir, 'task_plan.md')}`.cwd(docsDir).text()
+      const plansDir = path.join(rootDir, '.plans')
+      const result = await $`sh ${CHECK_COMPLETE} ${path.join(plansDir, 'task_plan.md')}`
+        .cwd(plansDir)
+        .text()
       return result.trim()
     } catch {
       return ''
@@ -233,7 +241,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       }
 
       output.system.push(
-        'Do not load `planning-with-files` in this session. Read `docs/task_plan.md`, `docs/findings.md`, and `docs/progress.md` before doing anything. Treat those planning files as read-only unless you are the orchestrator or build agent.',
+        'Do not load `planning-with-files` in this session. Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before doing anything. Treat those planning files as read-only unless you are the orchestrator or build agent.',
       )
     },
 
@@ -249,7 +257,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       if ((tool === 'write' || tool === 'edit') && !isPlanningFileOwner(input.sessionID)) {
         if (touchesPlanningFile(root, output.args)) {
           throw new Error(
-            'Only the orchestrator or build agent may create or update `docs/task_plan.md`, `docs/findings.md`, or `docs/progress.md`.',
+            'Only the orchestrator or build agent may create or update `.plans/task_plan.md`, `.plans/findings.md`, or `.plans/progress.md`.',
           )
         }
       }

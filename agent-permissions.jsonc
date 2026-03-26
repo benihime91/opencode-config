@@ -17,18 +17,14 @@
       ]
     },
     "explorer": {
-      "skills": [
-        "search-first"
-      ],
+      "skills": [],
       "mcps": [
         "contextplus",
         "exa"
       ]
     },
     "librarian": {
-      "skills": [
-        "search-first"
-      ],
+      "skills": [],
       "mcps": [
         "contextplus",
         "context7",
@@ -36,9 +32,7 @@
       ]
     },
     "oracle": {
-      "skills": [
-        "search-first"
-      ],
+      "skills": [],
       "mcps": [
         "contextplus",
         "context7",
@@ -46,19 +40,14 @@
       ]
     },
     "designer": {
-      "skills": [
-        "search-first"
-      ],
+      "skills": [],
       "mcps": [
         "contextplus",
-        "agentation",
-        "chrome-devtools"
+        "agentation"
       ]
     },
     "fixer": {
-      "skills": [
-        "search-first"
-      ],
+      "skills": [],
       "mcps": [
         "contextplus"
       ]

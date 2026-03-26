@@ -50,6 +50,6 @@ Symlinks keep changes live immediately.
 
 - `agents/` - custom agents like `orchestrator`, `explorer`, `fixer`, `librarian`, `designer`, and `oracle`
 - `commands/` - slash commands such as `/plan`, `/learn`, `/code-review`, `/commit-push`, and `/update-docs`
-- `skills/` - reusable workflows including `planning-with-files`, `search-first`, and `article-writing`
+- `skills/` - reusable workflows
 - `plugins/` - local plugins
 - MCP servers for browser automation, semantic search, research, annotations, and live docs

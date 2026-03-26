@@ -1,4 +1,5 @@
 ---
+name: fixer
 description: Fast implementation specialist. Receives complete context and task spec, executes code changes efficiently.
 mode: subagent
 model: openai/gpt-5.3-codex

@@ -26,13 +26,6 @@
       "enabled": true,
       "environment": {}
     },
-    "chrome-devtools": {
-      "type": "local",
-      "command": [
-        "bunx",
-        "chrome-devtools-mcp@latest"
-      ]
-    },
     "context7": {
       "type": "local",
       "command": [
