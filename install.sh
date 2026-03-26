@@ -165,7 +165,7 @@ ensure_bun_or_node() {
   fi
 }
 
-# jq is used to parse opencode.json and versions.json for dynamic discovery.
+# jq is used to parse opencode.json for dynamic discovery.
 ensure_jq() {
   if check_command jq; then return; fi
   info "jq not found. Installing..."
@@ -342,27 +342,13 @@ install_deps() {
 }
 
 # ── Install OpenCode plugins ─────────────────
-# Reads from versions.json (preferred) → opencode.json .plugin[] → hardcoded fallback.
+# Reads from opencode.json .plugin[] → hardcoded fallback.
 
 install_opencode_plugins() {
-  local versions="$CLONE_DIR/versions.json"
   local config="$CLONE_DIR/opencode.json"
   local pkgs=()
 
-  if [[ -f "$versions" ]] && check_command jq; then
-    # versions.json: { "plugins": { "pkg-name": "version" } }
-    while IFS= read -r entry; do
-      [[ -n "$entry" ]] && pkgs+=("$entry")
-    done < <(jq -r '
-      (.plugins // {})
-      | to_entries[]?
-      | select((.key | type) == "string" and (.key | length) > 0)
-      | select((.value | type) == "string" and (.value | length) > 0)
-      | "\(.key)@\(.value)"
-    ' "$versions" 2>/dev/null)
-  fi
-
-  if (( ${#pkgs[@]} == 0 )) && [[ -f "$config" ]] && check_command jq; then
+  if [[ -f "$config" ]] && check_command jq; then
     while IFS= read -r pkg; do
       [[ -n "$pkg" ]] && pkgs+=("$pkg")
     done < <(jq -r '.plugin[]?' "$config" 2>/dev/null)
@@ -382,38 +368,24 @@ install_opencode_plugins() {
   done
 }
 
-# ── Pre-cache npx-based MCP servers ──────────
-# Reads from versions.json (preferred) → opencode.json (pattern match) → hardcoded fallback.
+# ── Pre-cache local MCP servers ──────────────
+# Reads from opencode.json .mcp (bunx/npx commands) → hardcoded fallback.
 
 install_mcp_deps() {
-  local versions="$CLONE_DIR/versions.json"
   local config="$CLONE_DIR/opencode.json"
   local pkgs=()
 
-  if [[ -f "$versions" ]] && check_command jq; then
-    # versions.json: { "mcp": { "pkg-name": "version" } }
-    while IFS= read -r entry; do
-      [[ -n "$entry" ]] && pkgs+=("$entry")
-    done < <(jq -r '
-      (.mcp // {})
-      | to_entries[]?
-      | select((.key | type) == "string" and (.key | length) > 0)
-      | select((.value | type) == "string" and (.value | length) > 0)
-      | "\(.key)@\(.value)"
-    ' "$versions" 2>/dev/null)
-  fi
-
-  if (( ${#pkgs[@]} == 0 )) && [[ -f "$config" ]] && check_command jq; then
-    # Extract package name via pattern match — not positional index, which breaks
-    # if extra flags are added before the package name in the command array,
-    # and avoids capturing trailing command args.
+  if [[ -f "$config" ]] && check_command jq; then
+    # Extract package name from local MCP entries using bunx or npx as runner.
+    # Pattern match avoids positional index issues when extra flags precede
+    # the package name in the command array.
     while IFS= read -r pkg; do
       [[ -n "$pkg" ]] && pkgs+=("$pkg")
     done < <(jq -r '
       .mcp
       | to_entries[]?
       | select(.value.type == "local")
-      | select((.value.command[0]? // "") == "npx")
+      | select((.value.command[0]? // "") | test("^(bunx|npx)$"))
       | (.value.command[1:] // [])
       | map(select(type == "string"))
       | map(select(startswith("-") | not))
@@ -424,12 +396,12 @@ install_mcp_deps() {
   if (( ${#pkgs[@]} == 0 )); then
     pkgs=(
       "agentation-mcp@latest"
-      "chrome-devtools-mcp@latest"
       "@upstash/context7-mcp@latest"
+      "contextplus@latest"
     )
   fi
 
-  info "Pre-caching npx-based MCP servers..."
+  info "Pre-caching local MCP servers..."
   for pkg in "${pkgs[@]}"; do
     info "  mcp: $pkg"
     pm_global_install "$pkg" 2>/dev/null || warn_optional "Could not pre-cache $pkg (will auto-download on first use)"
@@ -502,7 +474,6 @@ main() {
   echo ""
   echo "  3. Optional: login to auggie (if installed separately)"
   echo "     auggie login"
-  echo "     ↳ This installer does not auto-install tools from versions.json.tools"
   echo ""
   echo "  4. Optional: set MCP API keys"
   echo "     export EXA_API_KEY=<your-key>   # exa web search MCP"
