@@ -1,0 +1,254 @@
+{
+  "$schema": "https://opencode.ai/theme.json",
+  "defs": {
+    "vhBg": "#0b0d0f",
+    "vhSurface": "#0a0c0e",
+    "vhPanel": "#151c1b",
+    "vhElevated": "#1d2625",
+    "vhBorder": "#394d49",
+    "vhAccent": "#BFFFF4",
+    "vhForeground": "#f8f8f2",
+    "vhMuted": "#708ca9",
+    "vhPurple": "#9580ff",
+    "vhPink": "#ff80bf",
+    "vhCyan": "#80ffea",
+    "vhGreen": "#8aff80",
+    "vhOrange": "#ffca80",
+    "vhYellow": "#ffff80",
+    "vhRed": "#ff9580",
+    "vhError": "#e67070",
+    "vhWarning": "#e6e370",
+    "vhSuccess": "#7de972",
+    "vhInfo": "#75ece0",
+    "vhComment": "#708ca9",
+    "vhSelection": "#9580ff33",
+    "vhHighlight": "#414d58",
+    "vhDimWhite": "#c6c6c2"
+  },
+  "theme": {
+    "primary": {
+      "dark": "vhCyan",
+      "light": "vhCyan"
+    },
+    "secondary": {
+      "dark": "vhPurple",
+      "light": "vhPurple"
+    },
+    "accent": {
+      "dark": "vhAccent",
+      "light": "vhAccent"
+    },
+    "error": {
+      "dark": "vhError",
+      "light": "vhError"
+    },
+    "warning": {
+      "dark": "vhWarning",
+      "light": "vhWarning"
+    },
+    "success": {
+      "dark": "vhSuccess",
+      "light": "vhSuccess"
+    },
+    "info": {
+      "dark": "vhInfo",
+      "light": "vhInfo"
+    },
+    "text": {
+      "dark": "vhForeground",
+      "light": "vhForeground"
+    },
+    "textMuted": {
+      "dark": "vhMuted",
+      "light": "vhMuted"
+    },
+    "background": {
+      "dark": "vhBg",
+      "light": "vhBg"
+    },
+    "backgroundPanel": {
+      "dark": "vhPanel",
+      "light": "vhPanel"
+    },
+    "backgroundElement": {
+      "dark": "vhElevated",
+      "light": "vhElevated"
+    },
+    "border": {
+      "dark": "vhBorder",
+      "light": "vhBorder"
+    },
+    "borderActive": {
+      "dark": "vhAccent",
+      "light": "vhAccent"
+    },
+    "borderSubtle": {
+      "dark": "vhBorder",
+      "light": "vhBorder"
+    },
+    "diffAdded": {
+      "dark": "vhGreen",
+      "light": "vhGreen"
+    },
+    "diffRemoved": {
+      "dark": "vhRed",
+      "light": "vhRed"
+    },
+    "diffContext": {
+      "dark": "vhMuted",
+      "light": "vhMuted"
+    },
+    "diffHunkHeader": {
+      "dark": "vhMuted",
+      "light": "vhMuted"
+    },
+    "diffHighlightAdded": {
+      "dark": "vhGreen",
+      "light": "vhGreen"
+    },
+    "diffHighlightRemoved": {
+      "dark": "vhRed",
+      "light": "vhRed"
+    },
+    "diffAddedBg": {
+      "dark": "vhElevated",
+      "light": "vhElevated"
+    },
+    "diffRemovedBg": {
+      "dark": "vhElevated",
+      "light": "vhElevated"
+    },
+    "diffContextBg": {
+      "dark": "vhPanel",
+      "light": "vhPanel"
+    },
+    "diffLineNumber": {
+      "dark": "vhMuted",
+      "light": "vhMuted"
+    },
+    "diffAddedLineNumberBg": {
+      "dark": "vhElevated",
+      "light": "vhElevated"
+    },
+    "diffRemovedLineNumberBg": {
+      "dark": "vhElevated",
+      "light": "vhElevated"
+    },
+    "markdownText": {
+      "dark": "vhForeground",
+      "light": "vhForeground"
+    },
+    "markdownHeading": {
+      "dark": "vhPurple",
+      "light": "vhPurple"
+    },
+    "markdownLink": {
+      "dark": "vhCyan",
+      "light": "vhCyan"
+    },
+    "markdownLinkText": {
+      "dark": "vhPink",
+      "light": "vhPink"
+    },
+    "markdownCode": {
+      "dark": "vhGreen",
+      "light": "vhGreen"
+    },
+    "markdownBlockQuote": {
+      "dark": "vhComment",
+      "light": "vhComment"
+    },
+    "markdownEmph": {
+      "dark": "vhYellow",
+      "light": "vhYellow"
+    },
+    "markdownStrong": {
+      "dark": "vhOrange",
+      "light": "vhOrange"
+    },
+    "markdownHorizontalRule": {
+      "dark": "vhBorder",
+      "light": "vhBorder"
+    },
+    "markdownListItem": {
+      "dark": "vhCyan",
+      "light": "vhCyan"
+    },
+    "markdownListEnumeration": {
+      "dark": "vhPurple",
+      "light": "vhPurple"
+    },
+    "markdownImage": {
+      "dark": "vhCyan",
+      "light": "vhCyan"
+    },
+    "markdownImageText": {
+      "dark": "vhPink",
+      "light": "vhPink"
+    },
+    "markdownCodeBlock": {
+      "dark": "vhForeground",
+      "light": "vhForeground"
+    },
+    "syntaxComment": {
+      "dark": "vhComment",
+      "light": "vhComment"
+    },
+    "syntaxKeyword": {
+      "dark": "vhPink",
+      "light": "vhPink"
+    },
+    "syntaxFunction": {
+      "dark": "vhGreen",
+      "light": "vhGreen"
+    },
+    "syntaxVariable": {
+      "dark": "vhForeground",
+      "light": "vhForeground"
+    },
+    "syntaxString": {
+      "dark": "vhYellow",
+      "light": "vhYellow"
+    },
+    "syntaxNumber": {
+      "dark": "vhPurple",
+      "light": "vhPurple"
+    },
+    "syntaxType": {
+      "dark": "vhCyan",
+      "light": "vhCyan"
+    },
+    "syntaxOperator": {
+      "dark": "vhPink",
+      "light": "vhPink"
+    },
+    "syntaxPunctuation": {
+      "dark": "vhForeground",
+      "light": "vhForeground"
+    },
+    "inputBackground": {
+      "dark": "vhBg",
+      "light": "vhBg"
+    },
+    "InputBorder": {
+      "dark": "vhBorder",
+      "light": "vhBorder"
+    },
+    "InputBorderActive": {
+      "dark": "vhAccent",
+      "light": "vhAccent"
+    },
+    "inputPrompt": {
+      "dark": "vhCyan",
+      "light": "vhCyan"
+    },
+    "inputCursor": {
+      "dark": "vhPurple",
+      "light": "vhPurple"
+    },
+    "inputText": {
+      "dark": "vhForeground",
+      "light": "vhForeground"
+    }
+  }
+}
