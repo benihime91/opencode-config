@@ -551,6 +551,21 @@ Audit the local OpenCode config in this directory for remaining contradictions a
 - Ran the diagnostic against `miyagi-trace`; the current workspace still does not contain that skill in either global or project `skills/`, so wildcard permission alone cannot allow it yet.
 - Added a `Planning Persistence After Tool Results` section to `agents/cursor.md` requiring the same progress/task-plan/findings discipline after meaningful tool and subagent outputs.
 
+## Orchestrator Context+ Handoff Tightening (2026-03-31)
+
+- The user observed that `agents/orchestrator.md` was still too easy to interpret as "subagents can figure out Context+ usage themselves" when repo understanding was needed.
+- The approved fix was the smallest prompt-only change: tighten the existing delegation-package rule instead of adding a separate broad policy section.
+- `agents/orchestrator.md` now states that when a subagent must understand repo structure, architecture, symbol usage, blast radius, or prompt/runtime workflow, the delegation package must explicitly name the Context+ workflow in `REQUIRED TOOLS`.
+- The prompt now also says not to rely on `CONTEXT` alone to imply Context+ usage, and to explicitly say when a task does not need repo-understanding work instead of silently omitting that guidance.
+
+## Orchestrator Explorer Priority Tightening (2026-03-31)
+
+- The user reported that `@explorer` still did not feel operationally central in `agents/orchestrator.md`, despite being important to the local workflow.
+- The chosen policy is a mix of "default first" and "mandatory when needed": use `@explorer` as the default repo-understanding lane, and require it before implementation delegation whenever exact files, architecture, symbol paths, or change surface are not already concrete.
+- `agents/orchestrator.md` now says direct `@fixer` delegation is appropriate only when the exact files, scope, and approach are already concrete.
+- The prompt now also says `@explorer` handoffs should carry explicit Context+ workflow by default for repo-facing work, not merely when the orchestrator happens to remember to add it.
+- A follow-up wording pass aligned `@librarian` with that policy: explorer is now the repo-grounding lane, librarian is the external-docs lane, and they should run together only when both kinds of grounding are needed.
+
 ## Planning Hook Robustness Follow-up (2026-03-30)
 
 - The user shared an OpenCode hook example showing `task`-argument caching and `subagent_type` inspection.

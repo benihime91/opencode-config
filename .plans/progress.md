@@ -566,3 +566,18 @@
 - Verified the refactored plugin modules import cleanly with `bun --eval "await import('./plugins/agent-permissions.ts'); await import('./plugins/agent-permissions/filesystem.ts'); await import('./plugins/agent-permissions/tooling.ts'); console.log('ok')"`.
 - Added `commands/agent-permissions-debug.md` for on-demand reporting of global/project/merged skill discovery and configured MCP families.
 - Extended `plugins/agent-permissions/filesystem.ts` with `readDiscoveredSkills()` and used a Bun eval diagnostic to confirm `miyagi-trace` is still absent from both global and project `skills/` in this workspace.
+
+## 2026-03-31 — Orchestrator Context+ Handoff Tightening
+
+- Re-read `agents/orchestrator.md` plus the planning trio after the user reported that Context+ instructions were not being sent clearly enough to subagents.
+- Presented a minimal design with three options and got approval for the smallest prompt-only change.
+- Tightened the existing delegation-package rule in `agents/orchestrator.md` so repo-understanding tasks must explicitly pass the Context+ workflow in `REQUIRED TOOLS`.
+- Added wording that the orchestrator must not rely on `CONTEXT` alone to imply Context+ usage, and must explicitly say when repo-understanding work is unnecessary.
+
+## 2026-03-31 — Orchestrator Explorer Priority Tightening
+
+- Re-read the current `agents/orchestrator.md` after the user reported that `@explorer` was still not being used strongly enough by the orchestrator.
+- Asked one targeted design question to choose how strict the `@explorer` rule should be, then refined the final direction based on the user's preference for a mix of default-first and mandatory-when-needed behavior.
+- Updated `agents/orchestrator.md` so `@explorer` is the default repo-understanding lane and is mandatory before implementation delegation whenever exact files, architecture, symbol paths, or change surface are not already concrete.
+- Tightened the `@explorer` section so explorer handoffs are expected to carry explicit Context+ workflow by default for repo-facing work.
+- Ran a follow-up wording pass on `@librarian` so external-doc research is now framed as complementary to explorer-first repo grounding instead of a parallel default.
