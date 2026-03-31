@@ -23,6 +23,9 @@
   - Updated `README.md` to document reusable install and override-based bootstrap usage.
   - Verified `install.sh` syntax with `bash -n`.
   - Confirmed GitHub auth, detected that `benihime91/opencode-config` already exists, initialized local git on `main`, and added `origin` pointing at the existing GitHub repo.
+  - Anchored local `main` to `origin/main`, which surfaced the full unpublished local config delta against the existing remote history.
+  - Committed the current config as `80fb08a` with message `chore: tighten agent workflow and bootstrap packaging`.
+  - Pushed `main` to `origin` successfully.
 - Files modified so far:
   - `.plans/task_plan.md`
   - `.plans/findings.md`

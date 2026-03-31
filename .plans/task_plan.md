@@ -61,3 +61,4 @@ Phase 4 — complete
 - Because the request changes packaging/bootstrap behavior, design approval is required before implementation.
 - The current installer and README are still personal-repo oriented and must be generalized before publication.
 - Verification in this pass used file inspection, `bash -n install.sh`, and git/gh remote checks; a full destructive installer run was intentionally skipped.
+- The final published push included both the packaging/bootstrap updates from this pass and earlier unpublished local config changes that were already present relative to `origin/main`.

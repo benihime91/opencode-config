@@ -46,6 +46,8 @@
 - `README.md` now presents the repo as reusable rather than personal and documents override variables for forks and custom clone paths.
 - GitHub CLI is authenticated as `benihime91`, and the target public repository `https://github.com/benihime91/opencode-config` already exists.
 - The local config directory has now been initialized as a git repository on `main` and connected to `origin` at `git@github.com:benihime91/opencode-config.git`.
+- Local `main` was anchored to the existing remote history at `origin/main`, which exposed a larger unpublished config delta than the packaging-only edits; the published commit therefore includes both the new packaging/bootstrap work and prior local agent/workflow changes.
+- Published commit: `80fb08a` (`chore: tighten agent workflow and bootstrap packaging`).
 
 ## Current Task (2026-03-31)
 
