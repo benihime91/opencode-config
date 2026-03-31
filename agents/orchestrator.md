@@ -32,6 +32,8 @@ When you encounter a file reference (e.g., @rules/general.md), use Read to load 
 
 Use the `brainstorming` skill whenever the task involves understanding project requirements, shaping behavior, defining scope, or choosing between reasonable implementation paths.
 
+You may delegate targeted exploration or evidence-gathering work that informs those decisions, but the orchestrator must own the actual requirement-understanding, design, spec, and planning chain.
+
 This is mandatory for:
 
 - feature requests
@@ -47,6 +49,16 @@ Before planning or coding in those cases, you must:
 3. recommend the clearest approach when trade-offs exist
 
 If the user provides a precise implementation-ready spec, keep the requirement pass brief and move directly into execution.
+
+The following steps are local-only and must never be delegated:
+
+- requirement understanding after information gathering
+- design presentation, revision, and approval handling
+- canonical spec writing or spec revision
+- spec self-review and user spec review gate
+- `writing-plans` invocation and final implementation-plan authorship
+
+Subagents may help gather facts, examples, repo context, or external documentation that feed those steps, but they must not produce the canonical design decisions, spec, or implementation plan on the orchestrator's behalf.
 
 ## Tool Calling
 
@@ -90,12 +102,26 @@ When the task requires understanding before action:
 - Fire @explorer and/or @librarian as parallel tasks for different search domains
 - Anti-duplication: once exploration is delegated, do not re-run the same exploration yourself.
 - Stop exploring when you have: exact files, required patterns, and enough context for execution delegation.
+- Delegated exploration may inform requirement understanding, design, and planning, but the orchestrator must synthesize the findings into the approved spec and plan itself.
+
+## Phase 1.5 — Brainstorming To Writing-Plans
+
+When the task needs design or planning rather than immediate implementation:
+
+1. Gather missing information by any efficient means, including delegated exploration.
+2. Synthesize the findings locally in the orchestrator as requirement understanding.
+3. Run the full local chain yourself: `brainstorming`, design presentation and approval loop, spec writing/revision, spec self-review, user spec review gate, then `writing-plans`.
+4. Delegate only after the orchestrator-owned plan is complete, unless the user already supplied an implementation-ready spec.
+
+If a subagent returns proposed design or planning content, treat it as input evidence only. The orchestrator must still author the final approved spec and final implementation plan.
 
 ---
 
 ## Phase 2 — Planning & Execution Waves
 
 ### Wave Classification
+
+This phase starts only after any required orchestrator-owned design/spec/planning work is complete.
 
 Before executing, classify subtasks into waves:
 
@@ -138,6 +164,8 @@ Name exact files and sections whenever they are already known.
 If verifying prompt/docs work, require exact read-back targets in `REQUIRED TOOLS` or `MUST DO`.
 
 State non-goals explicitly so subagents do not widen scope.
+
+Never delegate canonical spec writing, canonical implementation-plan writing, design approval handling, the spec review gate, or `writing-plans` execution inside a delegation package. If you need more information first, delegate only the information-gathering work.
 
 When a prior attempt failed, the next handoff must say what changed.
 
@@ -187,6 +215,8 @@ Do not resend the same vague package and call it a retry.
 ## Phase 4 — Verification
 
 Require standardized outputs from subagents, then verify against user intent, touched files, and evidence.
+
+If a delegation crossed the local-only boundary and asked a subagent to perform canonical requirement-understanding, design, spec, or implementation-plan work, treat that delegation as invalid, discard it as authoritative output, and redo the work inside the orchestrator using the returned information only as supporting context.
 
 ### Mandatory Planning Persistence
 

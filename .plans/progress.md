@@ -1,5 +1,25 @@
 # Progress Log
 
+## Session: 2026-03-31 (orchestrator design-chain ownership)
+
+### Current Session
+
+- **Status:** complete
+- **Focus:** Tighten `agents/orchestrator.md` so research and evidence gathering may be delegated, while canonical design/spec/plan work remains orchestrator-owned.
+- Actions taken:
+  - Loaded the required skills before responding because this is a workflow/prompt-behavior change.
+  - Re-read the planning trio to recover current local workflow decisions.
+  - Clarified the exact delegation boundary with the user: information gathering may be delegated, but the full design/spec/planning chain must remain local to the orchestrator.
+  - Updated `agents/orchestrator.md` to mark the design/spec/planning chain as local-only while explicitly allowing delegated exploration and evidence gathering.
+  - Added a dedicated local-only phase stating that the orchestrator must synthesize findings itself and run `brainstorming` through `writing-plans` locally.
+  - Hardened delegation and verification language so canonical design/spec/plan delegation is treated as invalid and any such output is only supporting context.
+  - Ran a final wording pass to match the `brainstorming` skill more closely, especially around requirement understanding, the design approval loop, the user spec review gate, and final implementation-plan authorship.
+  - Renamed the intermediate phase label to `Brainstorming To Writing-Plans` so the prompt structure now matches the intended local-only workflow more directly.
+- Files modified in this session:
+  - `.plans/findings.md`
+  - `.plans/progress.md`
+  - `agents/orchestrator.md`
+
 ## Session: 2026-03-31 (packaging and bootstrap)
 
 ### Current Session

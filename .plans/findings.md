@@ -103,6 +103,15 @@
   - `agents/cursor.md`
 - This confirmed the refactor and prompt-file updates remain loadable in the local harness.
 
+## Orchestrator Design-Chain Ownership Update (2026-03-31)
+
+- The user clarified the desired boundary for `agents/orchestrator.md`: subagents may be used freely to gather information or evidence during requirement understanding, but the orchestrator itself must synthesize that material into the canonical design, spec, and implementation plan.
+- The non-delegable chain is now: requirement synthesis after information gathering, design presentation/approval handling, spec writing or revision, spec self-review plus user review gate, and `writing-plans` invocation plus final plan authorship.
+- Delegated design or planning output should be treated only as supporting input, not as authoritative spec/plan output.
+- If the orchestrator accidentally delegates canonical design/spec/plan work, that delegation should be treated as invalid and the orchestrator must redo the authoritative work locally.
+- A follow-up wording pass aligned the prompt more closely with the `brainstorming` skill vocabulary: requirement understanding, design approval loop, user spec review gate, and final implementation-plan authorship.
+- The phase label now mirrors that workflow more literally: `Phase 1.5 — Brainstorming To Writing-Plans`.
+
 ## Second Pass — Orchestrator Delegation Tightening (2026-03-31)
 
 - `agents/orchestrator.md` got a follow-up wording pass focused only on delegation quality and post-subagent handling.
