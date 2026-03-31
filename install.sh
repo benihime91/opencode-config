@@ -3,13 +3,17 @@ set -euo pipefail
 
 # ─────────────────────────────────────────────
 # OpenCode Config Bootstrap Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/heads/main/install.sh | bash
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/heads/main/install.sh | bash
+#   OPENCODE_CONFIG_CLONE_DIR="$HOME/src/opencode-config" \
+#     curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/heads/main/install.sh | bash
 # ─────────────────────────────────────────────
 
-REPO_SLUG="benihime91/opencode-config"
-REPO_URL="https://github.com/$REPO_SLUG.git"
-CLONE_DIR="$HOME/opencode-config"
-CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+DEFAULT_REPO_SLUG="benihime91/opencode-config"
+REPO_SLUG="${OPENCODE_CONFIG_REPO_SLUG:-$DEFAULT_REPO_SLUG}"
+REPO_URL="${OPENCODE_CONFIG_REPO_URL:-https://github.com/$REPO_SLUG.git}"
+CLONE_DIR="${OPENCODE_CONFIG_CLONE_DIR:-$HOME/opencode-config}"
+CONFIG_DIR="${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}"
 BACKUP_DIR="$HOME/.config/opencode.bak.$(date +%Y%m%d_%H%M%S)"
 CONFLICT_BACKUP_DIR="$BACKUP_DIR/conflicts"
 
@@ -115,16 +119,28 @@ verify_symlink_target() {
   [[ "$actual" == "$src" ]] || error "Symlink target mismatch for $dst (expected: $src, actual: ${actual:-none})"
 }
 
+normalize_repo_ref() {
+  local ref="$1"
+  ref="${ref%.git}"
+  ref="${ref%/}"
+  ref="${ref#git@github.com:}"
+  ref="${ref#ssh://git@github.com/}"
+  ref="${ref#https://github.com/}"
+  ref="${ref#http://github.com/}"
+  printf '%s' "$ref"
+}
+
 repo_matches_expected_origin() {
   local origin="$1"
-  case "$origin" in
-    *"$REPO_SLUG"|*"$REPO_SLUG.git"|*":$REPO_SLUG"|*":$REPO_SLUG.git")
-      return 0
-      ;;
-    *)
-      return 1
-      ;;
-  esac
+  local normalized_origin
+  local normalized_slug
+  local normalized_url
+
+  normalized_origin="$(normalize_repo_ref "$origin")"
+  normalized_slug="$(normalize_repo_ref "$REPO_SLUG")"
+  normalized_url="$(normalize_repo_ref "$REPO_URL")"
+
+  [[ "$normalized_origin" == "$normalized_slug" || "$normalized_origin" == "$normalized_url" ]]
 }
 
 ensure_git() {
@@ -219,7 +235,7 @@ clone_repo() {
     info "To update: git -C \"$CLONE_DIR\" pull"
     return
   fi
-  info "Cloning opencode-config to $CLONE_DIR..."
+  info "Cloning OpenCode config from $REPO_URL to $CLONE_DIR..."
   git clone "$REPO_URL" "$CLONE_DIR"
 }
 
@@ -263,7 +279,6 @@ symlink_config() {
   local files=(
     "opencode.json"
     "agent-permissions.jsonc"
-    "AGENTS.md"
     "dcp.jsonc"
   )
 
@@ -488,7 +503,7 @@ main() {
   echo "  ── Keeping up to date ──────────────────────────"
   echo ""
   echo "  Pull latest config + reinstall deps:"
-  echo "    cd ~/opencode-config && git pull && bash install.sh"
+  echo "    cd $CLONE_DIR && git pull && bash install.sh"
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""

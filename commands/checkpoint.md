@@ -1,126 +1,76 @@
----
-description: Create a named checkpoint for easy rollback. Saves current state with a memorable name.
----
+# Checkpoint Command
 
-# Create Checkpoint
+Create or verify a checkpoint in your workflow.
 
-## Current State
+## Usage
 
-!`git status --short 2>/dev/null || echo "Not a git repo"`
-!`git stash list 2>/dev/null | grep "checkpoint:" | head -5`
-!`git tag -l "checkpoint/*" 2>/dev/null | tail -5`
+`/checkpoint [create|verify|list] [name]`
 
----
+## Create Checkpoint
 
-## Checkpoint Protocol
+When creating a checkpoint:
 
-### Checkpoint Name
-
-Name: $ARGUMENTS
-
-If no name provided, generate: `checkpoint-$(date +%Y%m%d-%H%M%S)`
-
-### 1. Save Current State
-
-**Stage all changes:**
+1. Create a git stash or commit with checkpoint name
+2. Log checkpoint to `.plans/checkpoints.log`:
 
 ```bash
-git add -A
+echo "$(date +%Y-%m-%d-%H:%M) | $CHECKPOINT_NAME | $(git rev-parse --short HEAD)" >> .plans/checkpoints.log
 ```
 
-**Create stash checkpoint:**
+4. Report checkpoint created
 
-```bash
-git stash push -m "checkpoint:$NAME"
-```
+## Verify Checkpoint
 
-**Create tag checkpoint (persistent):**
+When verifying against a checkpoint:
 
-```bash
-git tag -a "checkpoint/$NAME" -m "Checkpoint: $NAME - $(date)"
-```
+1. Read checkpoint from log
+2. Compare current state to checkpoint:
+   - Files added since checkpoint
+   - Files modified since checkpoint
+   - Test pass rate now vs then
+   - Coverage now vs then
 
-### 2. Checkpoint Types
-
-| Type   | Storage     | Persistence   | Use Case             |
-| ------ | ----------- | ------------- | -------------------- |
-| Stash  | Local stash | Until dropped | Quick saves          |
-| Tag    | Git tags    | Until deleted | Important milestones |
-| Branch | Git branch  | Permanent     | Major features       |
-
-### 3. Execute
-
-For quick checkpoint (stash):
-
-```bash
-git add -A
-git stash push -m "checkpoint:$NAME"
-echo "📍 Checkpoint created: $NAME"
-```
-
-For persistent checkpoint (tag):
-
-```bash
-git add -A
-git commit -m "checkpoint: $NAME" --allow-empty
-git tag "checkpoint/$NAME"
-echo "📍 Persistent checkpoint: $NAME"
-```
-
-### 4. Report
+3. Report:
 
 ```
-📍 Checkpoint Created
-
-Name: [checkpoint name]
-Type: [stash/tag]
-Time: [timestamp]
-Files included: [count]
-
-Restore with: /rollback [name]
-List checkpoints: /checkpoints
+CHECKPOINT COMPARISON: $NAME
+============================
+Files changed: X
+Tests: +Y passed / -Z failed
+Coverage: +X% / -Y%
+Build: [PASS/FAIL]
 ```
 
-### 5. Record in Memory Bank
+## List Checkpoints
 
-Update `.claude/memory/activeContext.md`:
+Show all checkpoints with:
 
-```markdown
-## Checkpoints
+- Name
+- Timestamp
+- Git SHA
+- Status (current, behind, ahead)
 
-- [name] created at [time] - [reason]
-```
+## Workflow
 
----
-
-## Usage Examples
-
-**Create named checkpoint:**
+Typical checkpoint flow:
 
 ```
-/checkpoint before-refactor
+[Start] --> /checkpoint create "feature-start"
+   |
+[Implement] --> /checkpoint create "core-done"
+   |
+[Test] --> /checkpoint verify "core-done"
+   |
+[Refactor] --> /checkpoint create "refactor-done"
+   |
+[PR] --> /checkpoint verify "feature-start"
 ```
 
-**Create auto-named checkpoint:**
+## Arguments
 
-```
-/checkpoint
-```
+$ARGUMENTS:
 
-**With description:**
-
-```
-/checkpoint pre-auth-changes
-```
-
----
-
-## Checkpoint Best Practices
-
-1. **Before major refactors** - Always checkpoint first
-2. **After working code** - Save good states
-3. **Before risky changes** - Insurance policy
-4. **End of session** - Preserve work state
-5. **Clear names** - `pre-auth` not `cp1`
-
-**TIP**: Run `/checkpoint` after each meaningful phase, before refactors, and after verification passes so the planning files stay aligned with the current state.
+- `create <name>` - Create named checkpoint
+- `verify <name>` - Verify against named checkpoint
+- `list` - Show all checkpoints
+- `clear` - Remove old checkpoints (keeps last 5)

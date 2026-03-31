@@ -1,7 +1,5 @@
 node_modules/
 bun.lock
 docs/*
-!docs/CODEMAPS/
-!docs/CODEMAPS/**
 .mcp_data/*
 .logs/*

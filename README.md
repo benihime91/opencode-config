@@ -1,6 +1,6 @@
 # opencode-config
 
-Personal [OpenCode](https://opencode.ai) config for agents, commands, skills, plugins, and MCP servers.
+Reusable [OpenCode](https://opencode.ai) config for agents, commands, skills, plugins, and MCP servers.
 
 ## Install
 
@@ -10,6 +10,25 @@ curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/hea
 
 The installer clones the repo, backs up your existing config, symlinks files into `~/.config/opencode`, and installs dependencies.
 It also links `agent-permissions.jsonc` for per-agent skill and MCP rules.
+
+### Override defaults
+
+You can point the installer at a fork or a different clone path with environment variables:
+
+```bash
+OPENCODE_CONFIG_REPO_SLUG="your-user/opencode-config" \
+OPENCODE_CONFIG_CLONE_DIR="$HOME/src/opencode-config" \
+curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/heads/main/install.sh | bash
+```
+
+Supported overrides:
+
+- `OPENCODE_CONFIG_REPO_SLUG`
+- `OPENCODE_CONFIG_REPO_URL`
+- `OPENCODE_CONFIG_CLONE_DIR`
+- `OPENCODE_CONFIG_DIR`
+
+To bootstrap from a local git checkout instead of GitHub, set `OPENCODE_CONFIG_REPO_URL` to that local repository path.
 
 ## Finish Setup
 
@@ -27,7 +46,6 @@ git clone https://github.com/benihime91/opencode-config.git ~/opencode-config
 mkdir -p ~/.config/opencode
 ln -sf ~/opencode-config/opencode.json ~/.config/opencode/opencode.json
 ln -sf ~/opencode-config/agent-permissions.jsonc ~/.config/opencode/agent-permissions.jsonc
-ln -sf ~/opencode-config/AGENTS.md ~/.config/opencode/AGENTS.md
 ln -sf ~/opencode-config/dcp.jsonc ~/.config/opencode/dcp.jsonc
 ln -sfn ~/opencode-config/agents ~/.config/opencode/agents
 ln -sfn ~/opencode-config/commands ~/.config/opencode/commands
@@ -45,6 +63,8 @@ cd ~/opencode-config && git pull && bash install.sh
 ```
 
 Symlinks keep changes live immediately.
+
+If you installed to a different clone directory, run the same command from that directory instead.
 
 ## What's Included
 

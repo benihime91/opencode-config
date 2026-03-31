@@ -1,18 +1,18 @@
 ---
 description: Generate skills from git history analysis
-agent: doc-updater
+agent: fixer
 ---
 
 # Skill Create Command
 
 Analyze git history to generate Claude Code skills: $ARGUMENTS
+Always load the skill `writing-skills`.
 
 ## Your Task
 
 1. **Analyze commits** - Pattern recognition from history
 2. **Extract patterns** - Common practices and conventions
 3. **Generate SKILL.md** - Structured skill documentation
-4. **Create instincts** - For continuous-learning-v2
 
 ## Analysis Process
 
@@ -98,32 +98,8 @@ git log --pretty=format: --name-only | sort | uniq -c | sort -rn | head -20
 // What not to do
 ```
 
-````
-
-### Step 4: Generate Instincts
-
-For continuous-learning-v2:
-
-```json
-{
-  "instincts": [
-    {
-      "trigger": "[situation]",
-      "action": "[response]",
-      "confidence": 0.8,
-      "source": "git-history-analysis"
-    }
-  ]
-}
-````
-
 ## Output
 
 Creates:
 
 - `skills/[name]/SKILL.md` - Skill documentation
-- `skills/[name]/instincts.json` - Instinct collection
-
----
-
-**TIP**: Run `/skill-create --instincts` to also generate instincts for continuous learning.

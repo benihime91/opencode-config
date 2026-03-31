@@ -1,54 +1,63 @@
-# Task Plan: config spa day consolidation
+# Task Plan: package and bootstrap opencode config
 
 ## Goal
 
-Consolidate agent rules, skills, and planning conventions so the system has one clear orchestration workflow: the orchestrator handles clarification and owns planning memory, the planner writes durable plan artifacts under `.plans/`, and obsolete or contradictory skill/prompt guidance is removed.
-
-## Active Plan Artifact
-
-- No planner artifact was needed for this consolidation pass; the approved workflow for future tasks is that planner-created artifacts live under `.plans/YYYY-MM-DD-HHMM-<task-key>.md`.
+Turn the current local OpenCode config into a reusable, configurable package, update `install.sh` so it can bootstrap that package cleanly, and prepare the repo for publication as a GitHub repository.
 
 ## Current Phase
 
-Phase 3 — complete
+Phase 4 — complete
 
 ## Phases
 
-### Phase 1: Workflow and path consolidation
-- [x] Confirm orchestrator edit policy exception for planning files and brainstorming/spec docs
-- [x] Confirm `search-first` should be removed entirely
-- [x] Confirm `brainstorming` should be removed and its useful workflow moved into orchestrator behavior
-- [x] Confirm planner-owned durable plans belong in a dedicated planning directory
-- [x] Confirm orchestrator remains sole owner of `task_plan.md`, `findings.md`, and `progress.md`
+### Phase 1: Context recovery and packaging scope
+- [x] Re-read planning memory and current repo structure
+- [x] Inspect current packaging/bootstrap surfaces (`install.sh`, config manifest, docs)
+- [x] Identify decisions needed for configurable packaging and GitHub publication
 - **Status:** complete
 
-### Phase 2: Prompt, skill, and config cleanup
-- [x] Remove stale `search-first` references and permissions
-- [x] Remove or retire `brainstorming` usage and references
-- [x] Update planning file path references away from legacy `docs/*.md`
-- [x] Update planner/orchestrator responsibilities and descriptions
-- [x] Resolve contradictory prompt guidance discovered during review
+### Phase 2: Design and approval
+- [x] Ask the minimum clarifying questions needed
+- [x] Propose packaging/bootstrap approaches with recommendation
+- [x] Present the design and get user approval before implementation
 - **Status:** complete
 
-### Phase 3: `.plans/` migration and verification
-- [x] Confirm live planning trio should move into `.plans/`
-- [x] Update active references to `.plans/*`
-- [x] Remove obsolete redirect stubs and old planning-file copies
-- [x] Run targeted validation and summarize follow-up, if any
+### Phase 3: Implementation
+- [x] Update packaging/bootstrap files with the approved design
+- [x] Add any missing repo metadata needed for reusable publication
+- [x] Prepare local git repository state for GitHub publication
 - **Status:** complete
 
-## Key Rules
+### Phase 4: Verification and publication handoff
+- [x] Verify the bootstrap flow as far as possible locally
+- [x] Create the GitHub repository if credentials and naming are available
+- [x] Summarize what changed and any remaining manual steps
+- **Status:** complete
 
-- The orchestrator never edits implementation files directly; it may only update valid planning files and brainstorming/spec docs.
-- The planner may write only durable plan artifacts under `.plans/`.
-- The orchestrator is the single owner of `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md`.
-- Subagents consume planning context but do not update the planning trio.
+## Key Questions
+
+1. What should be configurable in the packaged bootstrap flow versus copied verbatim from this local config?
+2. How should `install.sh` source the package: local clone only, GitHub URL, or both?
+3. What repository name and visibility should be used for GitHub publication? → `opencode-config`, public
+
+## Decisions Made
+
+| Decision | Rationale |
+| -------- | --------- |
+| Use the current `~/.config/opencode` directory as the source package | The user asked to package the current config and bootstrap it |
+| Treat this as a reusable config repo rather than an npm package | The current repo already packages prompts, plugins, config JSON, and an installer, while `package.json` only supports local plugin dependencies |
+| Target a public GitHub repo named `opencode-config` | The user selected `opencode-config public` when asked for the publication target |
+| Use repo-driven bootstrap with overridable defaults | This keeps one-command install simple while still supporting forks, alternate owners, and custom clone locations |
 
 ## Errors Encountered
 
-- An intermediate path migration left stale references inside the `planning-with-files` skill and one codemap file table entry; follow-up cleanup resolved both.
-- The user later corrected the chosen planning directory to `.plans/`; this follow-up migration removed compatibility stubs instead of preserving them.
+| Error | Attempt | Resolution |
+| ----- | ------- | ---------- |
+| `git diff --stat` unsupported in this non-git config directory | 1 | Treat prior `.plans/*` files as the session catch-up source instead |
 
-## Remaining Follow-up
+## Notes
 
-- None required for this migration pass.
+- This is now a packaging/publishing task, not another harness-comparison pass.
+- Because the request changes packaging/bootstrap behavior, design approval is required before implementation.
+- The current installer and README are still personal-repo oriented and must be generalized before publication.
+- Verification in this pass used file inspection, `bash -n install.sh`, and git/gh remote checks; a full destructive installer run was intentionally skipped.

@@ -16,40 +16,12 @@
         "*"
       ]
     },
-    "explorer": {
-      "skills": [],
+    "cursor": {
+      "skills": [
+        "*"
+      ],
       "mcps": [
-        "contextplus",
-        "exa"
-      ]
-    },
-    "librarian": {
-      "skills": [],
-      "mcps": [
-        "contextplus",
-        "context7",
-        "exa"
-      ]
-    },
-    "oracle": {
-      "skills": [],
-      "mcps": [
-        "contextplus",
-        "context7",
-        "exa"
-      ]
-    },
-    "designer": {
-      "skills": [],
-      "mcps": [
-        "contextplus",
-        "agentation"
-      ]
-    },
-    "fixer": {
-      "skills": [],
-      "mcps": [
-        "contextplus"
+        "*"
       ]
     },
     "build": {
@@ -58,6 +30,108 @@
       ],
       "mcps": [
         "*"
+      ]
+    },
+    "general": {
+      "skills": [
+        "*"
+      ],
+      "mcps": [
+        "*"
+      ]
+    },
+    "plan": {
+      "skills": [
+        "*"
+      ],
+      "mcps": [
+        "*"
+      ]
+    },
+    "explorer": {
+      "skills": [
+        "!brainstorming",
+        "!writing-plans"
+      ],
+      "mcps": [
+        "contextplus",
+        "exa"
+      ]
+    },
+    "librarian": {
+      "skills": [
+        "!brainstorming",
+        "!writing-plans"
+      ],
+      "mcps": [
+        "contextplus",
+        "context7",
+        "exa"
+      ]
+    },
+    "oracle": {
+      "skills": [
+        "!brainstorming",
+        "!writing-plans"
+      ],
+      "mcps": [
+        "contextplus",
+        "context7",
+        "exa"
+      ]
+    },
+    "designer": {
+      "skills": [
+        "!brainstorming",
+        "!writing-plans"
+      ],
+      "mcps": [
+        "contextplus",
+        "agentation"
+      ]
+    },
+    "fixer": {
+      "skills": [
+        "!brainstorming",
+        "!writing-plans"
+      ],
+      "mcps": [
+        "contextplus"
+      ]
+    },
+    "planner": {
+      "skills": [
+        "writing-plans"
+      ],
+      "mcps": [
+        "contextplus"
+      ]
+    },
+    "code-reviewer": {
+      "skills": [
+        "!brainstorming",
+        "!writing-plans"
+      ],
+      "mcps": [
+        "contextplus"
+      ]
+    },
+    "doc-updater": {
+      "skills": [
+        "!brainstorming",
+        "writing-plans"
+      ],
+      "mcps": [
+        "contextplus"
+      ]
+    },
+    "refactor-cleaner": {
+      "skills": [
+        "!brainstorming",
+        "!writing-plans"
+      ],
+      "mcps": [
+        "contextplus"
       ]
     }
   }
