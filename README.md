@@ -89,7 +89,7 @@ If you installed to a different clone directory, run the same command from that 
 
 ## What's Included
 
-- `agents/` - custom agents like `zeus`, `artemis`, `hephaestus`, `athena`, `aphrodite`, and `apollo`
+- `agents/` - custom primary agents and specialist subagents
 - `commands/` - slash commands such as `/plan`, `/learn`, `/code-review`, `/commit-push`, and `/update-docs`
 - `skills/` - reusable workflows, including repo discovery, docs research, deep research, direct Firecrawl operation, annotation sync, and direct mcporter access
 - `plugins/` - local plugins
@@ -97,3 +97,61 @@ If you installed to a different clone directory, run the same command from that 
 - `firecrawl/.env.default` - repo-owned Firecrawl env that the local checkout links to, with Ollama defaults managed from one place
 - `mcporter.json` - shared CLI-backed server definitions used by the skills
 - `tui.json` - top-level TUI configuration
+
+## Agent Topology
+
+This config ships with two primary agents and a set of hidden specialist subagents.
+
+### Primary agents
+
+| Agent | Role |
+| --- | --- |
+| `hermes` | Default pair-programming agent. Handles direct coding tasks end-to-end, explores the repo, makes focused edits, and verifies the result. |
+| `zeus` | Orchestration controller. Delegates repo discovery, research, implementation, review, cleanup, and docs work to specialists, then verifies the outcome before replying. |
+
+### Specialist subagents
+
+| Agent | What it does |
+| --- | --- |
+| `artemis` | Fast repo discovery. Finds files, traces symbols, maps architecture, and answers “where does this live?” questions. |
+| `hephaestus` | Deep implementation worker. Executes scoped code changes locally and runs the strongest relevant verification. |
+| `athena` | External docs and library researcher. Pulls official docs, examples, and version-sensitive guidance. |
+| `apollo` | Strategic advisor. Helps with architecture choices, stubborn bugs, risk analysis, and high-level technical review. |
+| `aphrodite` | UI/UX specialist. Improves visual direction, responsive layouts, interaction design, and polish. |
+| `hestia` | Documentation specialist. Updates README files, guides, and operational docs to match current behavior. |
+| `themis` | Review specialist. Checks completed work against the plan, constraints, and code-quality expectations. |
+| `cronus` | Cleanup specialist. Removes dead code, consolidates duplication, and handles safe refactors. |
+
+## Current Zeus Orchestrator Workflow
+
+The current orchestrator flow in `agents/zeus.md` follows a delegated, wave-based loop:
+
+```mermaid
+flowchart TD
+    A[User request] --> B[Zeus classifies intent]
+    B --> C{Need repo or external grounding?}
+    C -->|Repo| D[Delegate discovery to Artemis]
+    C -->|External docs or research| E[Delegate research to Athena]
+    C -->|No| F{Need design or planning?}
+    D --> F
+    E --> F
+    F -->|Yes| G[Zeus owns requirements, brainstorming, spec, and plan]
+    F -->|No| H[Split work into execution waves]
+    G --> H
+    H --> I[Delegate concrete work to specialists]
+    I --> J[Hephaestus implementation]
+    I --> K[Aphrodite UI or UX work]
+    I --> L[Hestia docs updates]
+    I --> M[Cronus cleanup]
+    J --> N[Zeus verifies files and evidence]
+    K --> N
+    L --> N
+    M --> N
+    N --> O{Issues or uncertainty remain?}
+    O -->|Yes| P[Apollo advises or Zeus redelegates]
+    P --> H
+    O -->|No| Q[Optional Themis review for major work]
+    Q --> R[Zeus reports completion]
+```
+
+In short: Zeus delegates by specialty, works in waves when tasks can be parallelized safely, and never trusts completion claims without its own verification pass.

@@ -1,5 +1,20 @@
 # Progress Log
 
+## Session: 2026-03-31 (README agent docs refresh)
+
+### Current Session
+
+- **Status:** complete
+- **Focus:** Update `README.md` with accurate custom-agent documentation and add a Mermaid diagram for the current Zeus workflow.
+- Actions taken:
+  - Loaded the required planning, requirement, repo-discovery, and writing skills before acting because this is a repo-grounded documentation change.
+  - Re-ran session catch-up via `git diff --stat` and the planning trio.
+  - Read `README.md` plus the current custom agent files to ground the documentation in the live prompt surface rather than older naming/history.
+  - Confirmed the active agent topology: `hermes` and `zeus` are the primary agents, and `artemis`, `hephaestus`, `athena`, `apollo`, `aphrodite`, `hestia`, `themis`, and `cronus` are the specialist subagents.
+  - Confirmed the current Zeus workflow shape from `agents/zeus.md`: classify intent, delegate exploration/research as needed, keep design/planning local to Zeus, execute in waves via specialists, then verify before completion.
+  - Updated `README.md` to document the current agent topology and added a Mermaid workflow diagram for Zeus.
+  - Re-read the updated README section and reviewed the diff to verify the new agent tables and Mermaid flow are on disk as intended.
+
 ## Session: 2026-03-31 (rules distillation)
 
 ### Current Session

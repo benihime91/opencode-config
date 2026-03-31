@@ -1,5 +1,12 @@
 # Findings & Decisions
 
+## Current Follow-Up (2026-03-31, README agent docs refresh)
+
+- The user wants `README.md` updated so it properly documents the custom agents/subagents and includes a Mermaid diagram for the current Zeus orchestrator workflow.
+- The relevant grounding for this pass is concentrated in `README.md` plus the current agent definitions in `agents/zeus.md`, `agents/hermes.md`, `agents/artemis.md`, `agents/hephaestus.md`, `agents/athena.md`, `agents/apollo.md`, `agents/aphrodite.md`, `agents/hestia.md`, `agents/themis.md`, and `agents/cronus.md`.
+- Current repo reality is: `hermes` and `zeus` are the two primary agents, while the rest of the custom roster are hidden specialist subagents with clear role boundaries.
+- The Zeus workflow that should be diagrammed is phase-driven: intent classification, optional exploration/research delegation, Zeus-owned design/planning when needed, wave-based specialist execution, Zeus verification, optional Apollo escalation / Themis review, then completion.
+
 ## Current Task (2026-03-31, MCP-to-CLI port)
 
 - The user wants the current OpenCode workflow moved away from MCPs toward a CLI + skills model and explicitly pointed to `https://github.com/steipete/mcporter` as the enabling reference.
