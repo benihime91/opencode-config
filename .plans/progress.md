@@ -554,3 +554,15 @@
 | Orchestrator always-load    | `agents/orchestrator.md`        | direct `@../skills/brainstorming/SKILL.md` load present                | confirmed via read spot-check | complete |
 | Planner always-load         | `agents/planner.md`             | direct `@../skills/writing-plans/SKILL.md` load present                | confirmed via read spot-check | complete |
 | Explicit skill scoping      | `agent-permissions.jsonc`       | allow intended agents, explicitly block orchestrator-managed subagents | confirmed via read spot-check | complete |
+
+## 2026-03-31 — Agent Permissions Debugging
+
+- Investigated why `orchestrator` with `skills: ["*"]` still rejects `miyagi-trace`.
+- Verified `plugins/agent-permissions.ts` expands `"*"` against the locally discovered `skills/` directories and then checks `policy.skills.includes(skillName)` at tool execution time.
+- Verified the workspace `skills/` directory does not contain `miyagi-trace`, so the rejection is expected under the current implementation.
+- Confirmed the current discovery path is config-local only: `SKILLS_DIR = path.join(__dirname, '..', 'skills')`, so project-level workspace skills are not part of wildcard expansion today.
+- Refactored `plugins/agent-permissions.ts` into `plugins/agent-permissions.ts`, `plugins/agent-permissions/filesystem.ts`, and `plugins/agent-permissions/tooling.ts`.
+- Updated wildcard skill discovery to merge the config repo `skills/` directory with the active workspace root `skills/` directory using the plugin's `directory`/`worktree` context.
+- Verified the refactored plugin modules import cleanly with `bun --eval "await import('./plugins/agent-permissions.ts'); await import('./plugins/agent-permissions/filesystem.ts'); await import('./plugins/agent-permissions/tooling.ts'); console.log('ok')"`.
+- Added `commands/agent-permissions-debug.md` for on-demand reporting of global/project/merged skill discovery and configured MCP families.
+- Extended `plugins/agent-permissions/filesystem.ts` with `readDiscoveredSkills()` and used a Bun eval diagnostic to confirm `miyagi-trace` is still absent from both global and project `skills/` in this workspace.

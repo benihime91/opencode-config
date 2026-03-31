@@ -537,6 +537,18 @@ Audit the local OpenCode config in this directory for remaining contradictions a
 
 - Added a `Mandatory Planning Persistence` section to `agents/orchestrator.md` requiring updates to `.plans/progress.md`, `.plans/findings.md`, and `.plans/task_plan.md` after meaningful tool/subagent results and before the next wave or synthesis.
 - Strengthened the orchestrator's planning ownership section so it explicitly says not to advance while important context remains only in transient chat history.
+
+## Agent Permissions Wildcard Discovery Note (2026-03-31)
+
+- `plugins/agent-permissions.ts` resolves `"*"` by enumerating the local `skills/` directory and configured MCP families from `opencode.json`; it does not treat `"*"` as an unconstrained pass-through for unknown external names.
+- The skill gate checks `policy.skills.includes(skillName)`, so a requested skill must exist in the discovered skill set after wildcard expansion.
+- In this workspace, `skills/` contains 16 local skills and does not include `miyagi-trace`, so `orchestrator` with `skills: ["*"]` still rejects `miyagi-trace`.
+- More specifically, the plugin's `SKILLS_DIR` is hard-coded to `path.join(__dirname, '..', 'skills')`, so wildcard expansion currently sees only the config-repo/global skill folder and not per-project `skills/` directories from the active workspace.
+- Updated the agent-permissions implementation to merge skill discovery from both the config repo's `skills/` directory and the active workspace root's `skills/` directory via the plugin's `directory`/`worktree` inputs.
+- Refactored `plugins/agent-permissions.ts` into focused helper modules under `plugins/agent-permissions/` so the main plugin file stays under the 200-LOC architecture limit.
+- Added `commands/agent-permissions-debug.md` as an on-demand diagnostic command for inspecting global skills, project skills, merged skills, and MCP families in the current workspace.
+- Expanded `plugins/agent-permissions/filesystem.ts` with `readDiscoveredSkills()` so diagnostics and future checks can distinguish global vs project skill discovery while the plugin still consumes the merged set.
+- Ran the diagnostic against `miyagi-trace`; the current workspace still does not contain that skill in either global or project `skills/`, so wildcard permission alone cannot allow it yet.
 - Added a `Planning Persistence After Tool Results` section to `agents/cursor.md` requiring the same progress/task-plan/findings discipline after meaningful tool and subagent outputs.
 
 ## Planning Hook Robustness Follow-up (2026-03-30)
