@@ -6,6 +6,7 @@
 
 import {
   FINDINGS_REMINDER,
+  NUDGE_ONLY_PLANNING_AGENT_LABEL,
   PERSIST_RESULT_REMINDER,
   PRIMARY_PLANNING_AGENT_LABEL,
   PROGRESS_REMINDER,
@@ -48,7 +49,8 @@ export function primarySystemBlock(): string {
 export function readOnlySystemBlock(): string {
   return [
     'Planning with Files',
-    'Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before acting.',
+    `This is a nudge-only planning session for ${NUDGE_ONLY_PLANNING_AGENT_LABEL}.`,
+    'Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before acting when they matter.',
     'Treat those planning files as shared memory and read-only in this session.',
     `Hand durable outcomes back so the ${PRIMARY_PLANNING_AGENT_LABEL} can persist them.`,
   ].join('\n')

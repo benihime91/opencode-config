@@ -80,15 +80,20 @@ export const PlanningWithFilesPlugin: Plugin = async ({
     ) => {
       if (!cache.hasKnownAgent(input.sessionID)) return
 
-      const [head, progress] = await Promise.all([
-        planHead(root),
-        recentProgress(root),
-      ])
-      if (head || progress) {
-        output.system.push(promptContextBlock(head, progress))
-      }
+      const isPlanningSkill = cache.isPlanningSkillSession(input.sessionID)
+      const isPlanningNudge = cache.isPlanningNudgeSession(input.sessionID)
 
-      if (cache.isPlanningSkillSession(input.sessionID)) {
+      if (!isPlanningSkill && !isPlanningNudge) return
+
+      if (isPlanningSkill) {
+        const [head, progress] = await Promise.all([
+          planHead(root),
+          recentProgress(root),
+        ])
+        if (head || progress) {
+          output.system.push(promptContextBlock(head, progress))
+        }
+
         output.system.push(primarySystemBlock())
         await toast('Planning', 'Hint added')
         return
@@ -104,13 +109,18 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       if (!cache.hasKnownAgent(input.sessionID)) return
 
       const tool = input.tool.toLowerCase()
+      const isPlanningOwner = cache.isPlanningFileOwner(input.sessionID)
+      const isPlanningNudge = cache.isPlanningNudgeSession(input.sessionID)
+
+      if (!isPlanningOwner && !isPlanningNudge) return
+
       if (
         FILE_UPDATE_TOOLS.has(tool) &&
-        !cache.isPlanningFileOwner(input.sessionID) &&
+        !isPlanningOwner &&
         touchesPlanningFile(root, output.args)
       ) {
         throw new Error(
-          'Only the orchestrator, cursor, or build agent may create or update `.plans/task_plan.md`, `.plans/findings.md`, or `.plans/progress.md`.',
+          'Only Zeus or Hermes may create or update `.plans/task_plan.md`, `.plans/findings.md`, or `.plans/progress.md`.',
         )
       }
 
@@ -134,6 +144,11 @@ export const PlanningWithFilesPlugin: Plugin = async ({
 
       const tool = input.tool.toLowerCase()
       const mutableOutput = output as MutableToolResult
+      const isPlanningOwner = cache.isPlanningFileOwner(input.sessionID)
+      const isPlanningNudge = cache.isPlanningNudgeSession(input.sessionID)
+
+      if (!isPlanningOwner && !isPlanningNudge) return
+
       let changed = false
       const delegatedAgent = cache.takePendingTaskAgent(input.callID)
 
@@ -144,10 +159,10 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       }
 
       const reminder = tool === 'task'
-        ? cache.isPlanningFileOwner(input.sessionID)
+        ? isPlanningOwner
           ? ownerTaskReminderBlock(delegatedAgent)
           : readOnlyTaskReminderBlock(delegatedAgent)
-        : cache.isPlanningFileOwner(input.sessionID)
+        : isPlanningOwner
           ? ownerReminderBlock(tool)
           : readOnlyReminderBlock(tool)
 

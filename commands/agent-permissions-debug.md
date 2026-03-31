@@ -1,11 +1,11 @@
 ---
-description: Inspect resolved agent permission discovery for skills and MCPs
+description: Inspect resolved agent permission discovery for skills and CLI workflow config
 agent: build
 ---
 
 # Agent Permissions Debug Command
 
-Inspect the current workspace's agent-permissions skill and MCP discovery.
+Inspect the current workspace's agent-permissions skill discovery and CLI workflow config.
 
 ## Your Task
 
@@ -16,7 +16,7 @@ Inspect the current workspace's agent-permissions skill and MCP discovery.
    - global skills
    - project skills
    - merged skills
-   - configured MCP families
+   - whether `mcporter.json` exists
 4. If `$ARGUMENTS` is non-empty, treat it as a target skill name and also print whether that skill exists in each set.
 5. Summarize the result concisely.
 
@@ -28,7 +28,7 @@ Inspect the current workspace's agent-permissions skill and MCP discovery.
 - Global skills: `...`
 - Project skills: `...`
 - Merged skills: `...`
-- MCP families: `...`
+- `mcporter.json` present: yes/no
 
 ### Target Skill
 

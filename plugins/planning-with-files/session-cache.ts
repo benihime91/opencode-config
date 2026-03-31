@@ -4,7 +4,7 @@
  * Tracks session agent roles plus per-call planning metadata.
  */
 
-import { PLANNING_FILE_OWNERS, PLANNING_SKILL_AGENTS } from './constants'
+import { PLANNING_FILE_OWNERS, PLANNING_NUDGE_AGENTS, PLANNING_SKILL_AGENTS } from './constants'
 
 export class PlanningSessionCache {
   private sessionAgents = new Map<string, string>()
@@ -33,6 +33,11 @@ export class PlanningSessionCache {
   isPlanningFileOwner(sessionID?: string): boolean {
     const agent = sessionID ? this.sessionAgents.get(sessionID) : undefined
     return agent ? PLANNING_FILE_OWNERS.has(agent) : false
+  }
+
+  isPlanningNudgeSession(sessionID?: string): boolean {
+    const agent = sessionID ? this.sessionAgents.get(sessionID) : undefined
+    return agent ? PLANNING_NUDGE_AGENTS.has(agent) : false
   }
 
   shouldAppendStatus(sessionID: string, status: string): boolean {

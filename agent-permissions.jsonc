@@ -2,136 +2,99 @@
   "defaults": {
     "skills": [
       "!*"
-    ],
-    "mcps": [
-      "!*"
     ]
   },
   "agents": {
-    "orchestrator": {
+    "zeus": {
       "skills": [
-        "*"
-      ],
-      "mcps": [
         "*"
       ]
     },
-    "cursor": {
+    "hermes": {
       "skills": [
-        "*"
-      ],
-      "mcps": [
         "*"
       ]
     },
     "build": {
       "skills": [
-        "*"
-      ],
-      "mcps": [
-        "*"
+        "*",
+        "!planning-with-files"
       ]
     },
     "general": {
       "skills": [
-        "*"
-      ],
-      "mcps": [
         "*"
       ]
     },
     "plan": {
       "skills": [
         "*"
-      ],
-      "mcps": [
-        "*"
       ]
     },
-    "explorer": {
+    "artemis": {
       "skills": [
-        "!brainstorming",
-        "!writing-plans"
-      ],
-      "mcps": [
-        "contextplus",
-        "exa"
+        "repo-discovery",
+        "mcporter"
       ]
     },
-    "librarian": {
+    "athena": {
       "skills": [
-        "!brainstorming",
-        "!writing-plans"
-      ],
-      "mcps": [
-        "contextplus",
-        "context7",
-        "exa"
+        "repo-discovery",
+        "docs-research",
+        "deep-research",
+        "firecrawl",
+        "mcporter"
       ]
     },
-    "oracle": {
+    "apollo": {
       "skills": [
-        "!brainstorming",
-        "!writing-plans"
-      ],
-      "mcps": [
-        "contextplus",
-        "context7",
-        "exa"
+        "repo-discovery",
+        "docs-research",
+        "deep-research",
+        "firecrawl",
+        "mcporter"
       ]
     },
-    "designer": {
+    "aphrodite": {
       "skills": [
-        "!brainstorming",
-        "!writing-plans"
-      ],
-      "mcps": [
-        "contextplus",
-        "agentation"
+        "agentation",
+        "annotation-sync",
+        "agentation-self-driving",
+        "mcporter"
       ]
     },
-    "fixer": {
+    "hephaestus": {
       "skills": [
-        "!brainstorming",
-        "!writing-plans"
-      ],
-      "mcps": [
-        "contextplus"
+        "repo-discovery",
+        "mcporter"
       ]
     },
     "planner": {
       "skills": [
-        "writing-plans"
-      ],
-      "mcps": [
-        "contextplus"
+        "repo-discovery",
+        "writing-plans",
+        "mcporter"
       ]
     },
-    "code-reviewer": {
+    "themis": {
       "skills": [
-        "!brainstorming",
-        "!writing-plans"
-      ],
-      "mcps": [
-        "contextplus"
+        "repo-discovery",
+        "mcporter"
       ]
     },
-    "doc-updater": {
+    "hestia": {
       "skills": [
-        "!brainstorming",
-        "writing-plans"
-      ],
-      "mcps": [
-        "contextplus"
+        "docs-research",
+        "writing-plans",
+        "repo-discovery",
+        "firecrawl",
+        "mcporter"
       ]
     },
-    "refactor-cleaner": {
+    "cronus": {
       "skills": [
-        "!brainstorming",
-        "!writing-plans"
-      ],
-      "mcps": [
-        "contextplus"
+        "repo-discovery",
+        "mcporter"
       ]
     }
   }

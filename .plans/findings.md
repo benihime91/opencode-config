@@ -1,5 +1,271 @@
 # Findings & Decisions
 
+## Current Task (2026-03-31, MCP-to-CLI port)
+
+- The user wants the current OpenCode workflow moved away from MCPs toward a CLI + skills model and explicitly pointed to `https://github.com/steipete/mcporter` as the enabling reference.
+- Because this is both a research task and a behavior-change task, the correct sequence is: inspect current MCP usage, research `mcporter`, present migration options, get approval, then port.
+- Early local scan shows MCPs are not isolated to `opencode.json`; they are also embedded in capability policy (`agent-permissions.jsonc`, `plugins/agent-permissions.ts`), install/bootstrap messaging (`install.sh`, `README.md`), and skill guidance.
+- Current configured MCP families in `opencode.json`: `agentation`, `context7`, `exa`, and `contextplus`.
+- The permissions plugin derives allowed MCP families from `opencode.json` and blocks tool usage by MCP family prefix, so a real port likely requires a new capability/governance model for CLI-backed equivalents rather than a simple config deletion.
+- Initial design question to resolve: should this pass fully remove MCP config from the repo now, or port the subset that has a clean CLI + skills replacement first and leave any non-portable pieces explicit?
+- Migration scope is now explicit: the user wants full MCP removal in this pass, not a staged first wave.
+- Additional blast-radius scan confirms the highest-value prompt/documentation surfaces for the port are `CONTEXTPLUS.md`, `README.md`, `agents/explorer.md`, `agents/librarian.md`, `agents/cursor.md`, `skills/agentation/SKILL.md`, and `skills/agentation-self-driving/SKILL.md`.
+- The semantic scan reinforces that MCP coupling is concentrated in prompt/docs expectations, not only config. That means the clean design should pair CLI entrypoints with prompt rewrites instead of trying to preserve MCP-shaped behavior behind the scenes.
+- A repo grep using a pipe-separated include filter returned no results because the include pattern was malformed, so direct file reads and semantic hits remain the reliable path for the remaining design pass.
+- `CONTEXTPLUS.md` is fully MCP-shaped today: the title, environment description, runtime cache notes, and tool reference all assume a live `contextplus_*` tool family and even mandate a write path that only exists in that tooling.
+- `agents/explorer.md` and `agents/librarian.md` currently encode MCP-backed discovery as their primary contract: explorer says `contextplus_*` is primary local tooling, while librarian prefers `context7_*` and `exa_*` plus optional local `contextplus_*` for repo matching.
+- `agents/cursor.md` also hardcodes the same MCP-backed assumption at the primary-agent level by directly instructing use of `contextplus` and Exa tool families.
+- `skills/agentation/SKILL.md` is mixed: the toolbar install portion is still valid, but the last step explicitly recommends MCP setup and names MCP-only tools. `skills/agentation-self-driving/SKILL.md` is mostly already CLI-oriented because it drives `agent-browser`, but its two-session section still assumes a live annotation MCP connection and `agentation_watch_annotations` loop.
+- `plugins/agent-permissions/filesystem.ts` and `plugins/agent-permissions/tooling.ts` confirm the current governance model is literally keyed on discovered MCP family names from `opencode.json`, so full removal needs either deletion of MCP enforcement or replacement with a CLI-capability policy that no longer inspects `.mcp`.
+
+## Emerging CLI-First Design Direction (2026-03-31)
+
+- The cleanest end state appears to be: keep skills as the behavior-routing layer, introduce explicit CLI entrypoints/config for external capabilities, remove `.mcp` from `opencode.json`, and rewrite prompts so they describe when to use each CLI-backed pathway rather than naming MCP tool families.
+- `mcporter` fits best as a migration/runtime bridge, not as a hidden way to preserve `.mcp` forever. The repo should likely own a new CLI-oriented config surface and optionally use `mcporter` under the hood to generate or run wrappers for servers that still originate from MCP ecosystems.
+- The biggest architectural choice now is whether to standardize on: (1) direct `mcporter call/list` commands, (2) generated dedicated wrapper CLIs per capability family, or (3) a thin local command layer that normalizes both direct CLIs and mcporter-backed wrappers behind stable repo-owned command names.
+- Current evidence favors option 3 because it gives the repo stable, human-readable commands for prompts/skills, keeps `mcporter` replaceable, and avoids forcing agents to remember raw server/tool tuples everywhere.
+
+## User Design Direction Update (2026-03-31)
+
+- The user proposed a stronger skill-centric model: convert each current MCP capability family into a corresponding skill, and put the `mcporter` calling instructions plus family-specific operating guidance inside that skill.
+- This aligns well with the repo's desired end state. Skills can become the stable discovery/behavior layer, while `mcporter` becomes an implementation detail described inside each skill rather than a top-level workflow concept.
+- Best refinement: do not make one skill per raw MCP tool. Make one skill per capability surface or workflow family (for example semantic repo discovery, external docs research, web/browser annotation sync) so the skills stay usable and do not explode into dozens of tiny wrappers.
+- Under that model, agent prompts should mainly say: load the appropriate skill for that job. The skill itself can define the exact CLI commands, arguments, safety rules, and any family-specific heuristics.
+- This likely improves the permissions story too: the repo can govern allowed skills, while shell/CLI execution remains the mechanism used inside the approved skill workflow.
+- The user chose a hybrid granularity: family-level skills by default, plus narrower workflow-specific skills where the behavior is materially different.
+- This supports keeping broad skills for repo discovery and external research while allowing more specialized skills for cases like annotation-sync or self-driving design review.
+- The user approved the core architecture direction: skills as the stable interface, CLI/`mcporter` hidden behind skill instructions, and hybrid skill granularity.
+- The user also approved the proposed capability map: broad skills for repo discovery and docs research, plus narrower skills for annotation-sync, self-driving review, and Agentation setup.
+- The user approved the runtime direction too: skills as the public interface, stable repo-owned CLI workflows underneath, `mcporter` as an implementation detail, and permission/governance moving away from MCP-family discovery.
+- The written implementation plan lives at `.plans/2026-03-31-mcp-cli-skills-plan.md` and follows the approved sequence: move server definitions to `config/mcporter.json`, remove MCP-family permission logic, add the new skills, rewrite prompts/docs, update annotation-related skills, then rework bootstrap and verification.
+- Execution review surfaced one operational blocker before implementation: the repo is currently on `main`, and the execution skill explicitly says not to start implementation on `main/master` without explicit user consent.
+- The plan also includes commit steps because of the generic planning template, but repo policy still forbids creating commits unless the user explicitly asks. Implementation can proceed without commits once branch consent is clarified.
+- `git status` also shows a pre-existing deletion of `scratch.sh`; that file should be treated as unrelated local state unless later evidence shows it is part of this migration.
+- The user explicitly approved proceeding on `main`, so branch choice is no longer a blocker.
+- During implementation I chose the simplest correct variant of the approved design: keep `mcporter` command recipes inside skills rather than adding a separate wrapper-script layer in this pass. This still satisfies the user-approved skill-centric architecture and avoids unnecessary new moving parts.
+- The first implementation wave is now on disk: server definitions moved into `config/mcporter.json`, `.mcp` was removed from `opencode.json`, the permissions config/plugin were simplified to skill-only governance, and the debug command now reports skills plus CLI-config presence instead of MCP-family discovery.
+- The second implementation wave is also on disk: new `repo-discovery`, `docs-research`, and `annotation-sync` skills now document concrete `mcporter` command patterns; `CONTEXTPLUS.md`, `agents/explorer.md`, `agents/librarian.md`, and `agents/cursor.md` were rewritten around skill routing; Agentation setup/self-driving docs now point to the new skill split; and installer/readme guidance now describe `config/mcporter.json` plus CLI workflow bootstrap.
+- To keep the migration small, existing public skill names `agentation` and `agentation-self-driving` were preserved rather than renamed to `agentation-setup` and `self-driving-review`.
+- Verification uncovered additional prompt/reference leftovers in `agents/orchestrator.md`, `agents/fixer.md`, `agents/oracle.md`, `agents/refactor-cleaner.md`, `agents/code-reviewer.md`, and `skills/agentation-self-driving/references/two-session-workflow.md`. Those were rewritten to the repo-discovery / docs-research / annotation-sync language so the active prompt surface is now aligned with the new model.
+- Final verification results for the port: targeted grep over active repo surfaces found no remaining `.mcp`, `contextplus_*`, `context7_*`, `exa_*`, or annotation MCP-command instruction remnants outside planning/history files; `bash -n install.sh` passed; and the refactored permissions modules still import cleanly via Bun.
+- `git status --short` confirms the new deliverables are present as untracked additions (`config/mcporter.json`, the three new skill directories, and the design/plan artifacts). The deletion of `scratch.sh` remains pre-existing unrelated workspace state and was not touched by this migration.
+- Follow-up cleanup is now approved: delete `CONTEXTPLUS.md`, make `skills/repo-discovery/SKILL.md` the single source of repo-discovery guidance, and remove agent references to `@~/.config/opencode/CONTEXTPLUS.md`.
+- The user also approved flattening the CLI config path from `config/mcporter.json` to repo-root `mcporter.json`; README, installer, debug docs, skill examples, and any annotation/reference docs should all point to `~/.config/opencode/mcporter.json` after this pass.
+- Fresh grep confirms the remaining active follow-up surface is concentrated in agent prompts (`explorer`, `librarian`, `doc-updater`, `fixer`, `oracle`, `refactor-cleaner`, `code-reviewer`, `orchestrator`, `cursor`), `README.md`, `commands/agent-permissions-debug.md`, the three new skills, `skills/agentation-self-driving/references/two-session-workflow.md`, and the soon-to-be-deleted `CONTEXTPLUS.md` file itself.
+- The follow-up cleanup is now on disk: `mcporter.json` lives at repo root, `config/mcporter.json` is gone, `CONTEXTPLUS.md` has been deleted, and the remaining agent/docs surfaces now point directly to `repo-discovery` instead of an external repo-discovery markdown file.
+- `skills/repo-discovery/SKILL.md` is now the single authoritative repo-discovery guide. It covers when to use the skill, broad-to-narrow semantic search strategy, required confirmation after semantic hits, blast-radius rules, practical defaults, anti-patterns, and concrete `mcporter` command patterns.
+- Installer/manual-install/docs surfaces were flattened to match the new root config path: `install.sh` now symlinks `mcporter.json` as a top-level file, `README.md` documents `~/.config/opencode/mcporter.json`, and the permission-debug command now reports whether root `mcporter.json` exists.
+- Verification after the cleanup pass succeeded: `bash -n install.sh` passed, the permissions plugin modules still import cleanly via Bun, active agent surfaces contain no remaining `@~/.config/opencode/CONTEXTPLUS.md` references, and `config/mcporter.json` / `CONTEXTPLUS.md` hits now remain only in planning/history artifacts plus cache data.
+
+## Current Follow-Up (2026-03-31, mcporter skill)
+
+- The user now wants a dedicated `mcporter` skill added with the provided quick-start/reference content and wants that skill enabled for all agents.
+- Current repo state already uses `mcporter` as the execution detail inside capability skills like `repo-discovery`, `docs-research`, and `annotation-sync`.
+- The main design choice is whether the new `mcporter` skill should be a universal meta-skill/reference that complements those capability skills, or whether agent prompts should start preferring `mcporter` directly in places where domain skills are currently the stable interface.
+- Existing agent permissions already grant wildcard skill access to broad agents (`orchestrator`, `cursor`, `build`, `general`, `plan`), while narrower agents use explicit allowlists. Enabling `mcporter` for all agents therefore means touching `agent-permissions.jsonc` for all constrained agents.
+- The user chose the peer-skill model: `mcporter` should be first-class and directly usable alongside the capability skills, not just a fallback and not a replacement for them.
+- The new `skills/mcporter/SKILL.md` is now on disk. It covers quick start, direct tool calls, auth/config commands, daemon control, and codegen, while explicitly telling agents when to prefer domain skills instead.
+- `agent-permissions.jsonc` now enables `mcporter` for every constrained agent, so all agents can load it either through wildcard access or explicit allowlisting.
+- The new skill resolves the config-path nuance explicitly: upstream may default to `./config/mcporter.json`, but this repo should prefer `--config ~/.config/opencode/mcporter.json`.
+
+## Current Follow-Up (2026-03-31, installer symlink repair)
+
+- The user now wants `install.sh` updated to fix broken symlinks, add any newly required symlinks, and continue installing `mcporter`.
+- Current installer state confirms `mcporter@latest` is already included in `install_cli_workflow_deps()`, so the install requirement is satisfied in principle but should be preserved explicitly during the edit.
+- The active symlink bug is real: `opencode.json` loads instructions from `~/.config/opencode/rules/*.md`, but `install.sh` does not currently link the repo's `rules/` directory into `~/.config/opencode`.
+- There is also a likely missing top-level config symlink for `tui.json`; the file exists at repo root and belongs with the other top-level config surfaces, but `install.sh` does not currently link it.
+- The smallest correct fix is likely to update the installer manifest and README manual-install examples together, not redesign the installer.
+- The installer repair is now on disk: `install.sh` links `tui.json` as a top-level file, links `rules/` as a runtime directory, and still installs `mcporter@latest` through `install_cli_workflow_deps()`.
+- `README.md` manual install and inventory sections were aligned with the installer so the documented symlink set now includes both `tui.json` and `rules/`.
+- Verification for the installer follow-up succeeded: `bash -n install.sh` passed, the README now contains the new `tui.json` and `rules/` manual-install lines, and no additional installer redesign was required.
+
+## Current Follow-Up (2026-03-31, agent mythology rename)
+
+- The user now wants every agent in `agents/` reviewed and renamed to role-fitting Greek/Roman mythology names, with all live references updated consistently.
+- The active `agents/` surface is: `code-reviewer`, `cursor`, `designer`, `doc-updater`, `explorer`, `fixer`, `librarian`, `oracle`, `orchestrator`, and `refactor-cleaner`.
+- This is a behavior and naming-surface change, not a trivial file rename. It likely affects filenames, agent-loading references, prompt prose, and any docs or config that refer to the current agent names.
+- The user chose an all-Roman naming style.
+- A later follow-up asked for Greek-name alternatives and explicitly requested Exa-backed research for stronger mythology-role matching.
+- Exa search is currently rate-limited in this environment; further Exa-backed naming research will require configuring a personal Exa API key in the MCP URL.
+- The user then explicitly redirected the research to the provided `websearch` tool instead of Exa.
+- A first `websearch` attempt failed because this environment's search tool only accepts `type: auto | fast`, not `deep`; retry with a valid enum.
+- Retrying with a valid `websearch` shape still hit the same Exa-backed free-tier rate limit, so live web-backed mythology lookup is currently blocked until an Exa API key is configured.
+- Early role reads confirm the current roster maps cleanly to mythology-style roles: orchestration controller, repo navigator, implementation specialist, external research specialist, strategic advisor, design specialist, documentation specialist, review specialist, cleanup/refactor specialist, and the primary pair-programming agent.
+- A repo grep using a pipe-separated `include` pattern returned no hits because the include filter format was invalid for this search; direct reads plus a corrected reference sweep should be treated as the reliable path for the remaining blast-radius pass.
+- The user approved the Greek set for implementation. The chosen mapping is: `orchestrator→zeus`, `cursor→hermes`, `explorer→artemis`, `fixer→hephaestus`, `librarian→athena`, `oracle→apollo`, `designer→aphrodite`, `doc-updater→hestia`, `code-reviewer→themis`, `refactor-cleaner→cronus`.
+- The first rename wave is now on disk: all ten agent files were renamed, their frontmatter `name` fields were updated, command frontmatter references were updated, `agent-permissions.jsonc` agent keys were updated, `opencode.json` agent color entries were renamed to `zeus` and `hermes`, and the planning plugin's primary-agent constants/messages were updated to the new names.
+- A second cleanup wave removed remaining live `orchestrator` phrasing from the renamed agent prompts where it still referred to the agent identity rather than the generic orchestration role (for example `orchestrator-specified` and `orchestrator-owned` became `Zeus-specified` / `Zeus-owned`).
+- `planner`, `build`, `general`, and `plan` were intentionally left unchanged because the user asked to rename the agents present in `agents/`, and those names are config-only identities outside the active agent file roster.
+- Verification for the rename pass succeeded on the active runtime surface: all files in `agents/` now use the Greek names, command/config/plugin references now point to the Greek identities, and no stale old agent-name references remain in active command/config/plugin/README surfaces. Remaining grep hits in `agents/` are only generic role words like `orchestrator` in descriptions or normal English `cursor` usage, not stale agent identifiers.
+
+## Current Follow-Up (2026-03-31, deep-research skill)
+
+- The user now wants a first-class `deep-research` skill added to this repo, but adapted to the local CLI-first workflow rather than raw MCP usage.
+- The provided draft assumes raw Firecrawl and Exa MCP tools. In this repo, the correct equivalent is to route through `mcporter` config and commands, with built-in `websearch` / `webfetch` as fallback when the CLI-backed providers are unavailable.
+- The user specifically called out Zeus, Apollo, Athena, and Hermes as the most important agents for this skill.
+- Current relevant repo state:
+  - `skills/mcporter/SKILL.md` already exists as a general peer skill for direct `mcporter` usage.
+  - `skills/docs-research/SKILL.md` currently covers official docs, API examples, and targeted external research through Context7 + Exa via `mcporter`.
+  - `mcporter.json` currently defines `agentation`, `context7`, `exa`, and `contextplus`, but not `firecrawl`.
+  - `opencode.json` already allows built-in `websearch`, so fallback research via native search/fetch is feasible in this harness.
+- The Firecrawl self-host doc indicates the simplest local bootstrap path is Docker-based: create a repo-local `.env`, set `PORT`, `HOST`, `USE_DB_AUTHENTICATION=false`, and a non-default `BULL_AUTH_KEY`, then run `docker compose build` and `docker compose up`, with the API defaulting to `http://localhost:3002`.
+- The design choice that still needs approval is whether Firecrawl should be handled in this pass as:
+  1. skill-only + fallback-ready, no installer bootstrap yet,
+  2. full skill + `mcporter.json` + installer-managed self-host bootstrap, or
+  3. staged support where the skill lands now and installer bootstrap follows after the workflow proves useful.
+- The user approved the full bootstrap variant with one refinement: bootstrap Firecrawl automatically by default when Docker + `docker compose` are available, but do not try to install Docker. If Docker is missing, skip Firecrawl bootstrap or allow the installer option to disable it explicitly.
+- New implementation is now on disk:
+  - `skills/deep-research/SKILL.md` defines a CLI-first multi-source research workflow using Firecrawl via `mcporter`, Exa via `mcporter`, and fallback to built-in `websearch` / `webfetch`.
+  - `mcporter.json` now includes a `firecrawl` server entry using `firecrawl-mcp` with `FIRECRAWL_API_URL` defaulting to `http://localhost:3002`.
+  - `agent-permissions.jsonc` now explicitly allows `deep-research` for Athena and Apollo; Zeus and Hermes already inherit it through wildcard skill access.
+  - Zeus, Apollo, Athena, and Hermes prompts now mention `deep-research` where broad external synthesis is appropriate.
+  - `skills/docs-research/SKILL.md` now routes broader multi-source work to `deep-research`, and `skills/mcporter/SKILL.md` recognizes `deep-research` as a peer workflow.
+  - `install.sh` now installs `firecrawl-mcp@latest`, can clone Firecrawl into `OPENCODE_FIRECRAWL_DIR` (default `$HOME/firecrawl`), creates a minimal `.env` if missing, and runs `docker compose build` plus `docker compose up -d` by default when Docker is available.
+  - Firecrawl bootstrap is configurable with `OPENCODE_INSTALL_FIRECRAWL=0` and `OPENCODE_FIRECRAWL_DIR`; missing Docker now causes a warning and a safe skip rather than a hard failure.
+  - `README.md` now documents the new skill, the default Firecrawl bootstrap behavior, the opt-out/install variables, and the manual Docker-based Firecrawl setup.
+- Research grounding used for the implementation:
+  - Firecrawl self-host docs show the local service defaults to `http://localhost:3002` via Docker Compose with a minimal `.env` (`PORT`, `HOST`, `USE_DB_AUTHENTICATION=false`, `BULL_AUTH_KEY`).
+  - Firecrawl MCP server docs confirm `firecrawl-mcp` supports self-hosted usage via `FIRECRAWL_API_URL`, so the repo can stay CLI-first while targeting the local Firecrawl instance.
+
+## Current Follow-Up (2026-03-31, local Firecrawl bootstrap test)
+
+- The active Firecrawl `mcporter` config lives at `~/.config/opencode/mcporter.json` in the `mcpServers.firecrawl` entry.
+- That config currently points `FIRECRAWL_API_URL` at `http://localhost:3002` by default and runs Firecrawl through `bunx firecrawl-mcp`.
+- The installer already contains a dedicated Firecrawl bootstrap path in `install.sh`: it installs `firecrawl-mcp@latest`, defaults the local checkout to `$HOME/firecrawl`, creates a minimal `.env`, and starts Docker Compose when Docker is available.
+- Current environment check confirms Docker and `docker compose` are installed and available locally, so a real local Firecrawl bootstrap test should be possible from this machine.
+- A direct `bunx mcporter list firecrawl --config ~/.config/opencode/mcporter.json --output json` call already succeeds, confirming the Firecrawl MCP server definition is valid and exposes Firecrawl tools through `mcporter`.
+- There was no pre-existing local checkout at `$HOME/firecrawl`, so the local test bootstrap now uses a fresh clone there.
+- The local Firecrawl checkout now has a minimal `.env` with `PORT=3002`, `HOST=0.0.0.0`, `USE_DB_AUTHENTICATION=false`, and a local `BULL_AUTH_KEY`, matching the intended self-host shape in this repo.
+- The user redirected the setup approach again: instead of generating the default Firecrawl `.env` only in `$HOME/firecrawl`, they want the default env stored in this repo itself and then loaded/copied during bootstrap so new-machine setup is easier and more reproducible.
+- Smallest correct next design likely introduces a repo-owned Firecrawl env template (for example under a focused path like `firecrawl/` or similar), updates `install.sh` to copy it into `$HOME/firecrawl/.env` when missing, and documents which values remain machine-specific overrides.
+- That repo-owned bootstrap shape is now on disk: `firecrawl/.env.default` is the committed default, `install.sh` copies it into `$HOME/firecrawl/.env` when missing, and `README.md` now documents that template-driven bootstrap path for both installer and manual setup.
+- Verification after the change succeeded: `bash -n install.sh` passed, the repo template file exists at `firecrawl/.env.default`, README references were updated, and the current local `$HOME/firecrawl/.env` matches the repo-owned template.
+- The local Firecrawl stack is currently up through Docker Compose, with the main API exposed on `http://localhost:3002` and the supporting containers (`redis`, `rabbitmq`, `playwright-service`, `nuq-postgres`) running.
+- The user now wants more than a minimal template: they want the full Firecrawl env stored in-repo so the project can control more self-host settings intentionally.
+- Local grounding for that request: upstream Firecrawl already ships a full self-host env example at `~/firecrawl/apps/api/.env.example` with required runtime settings plus many optional knobs (Redis, Playwright, concurrency, Supabase, proxy, logging, x402, webhook, and provider keys).
+- This means the main design choice is not whether a full template is possible, but how much of that upstream example should be committed as-is versus curated for this repo's default local setup.
+- The user added a new preference before implementation: for AI-related Firecrawl settings, prefer local Ollama-backed wiring because Context+ already assumes Ollama is installed in this environment.
+- The user also added a final acceptance criterion: once the fuller Firecrawl env/bootstrap changes are done, run a real smoke test by calling Firecrawl through `mcporter` from this OpenCode workflow and confirm whether it works.
+- The smallest correct next pass is now a curated full Firecrawl template rather than a verbatim upstream dump: keep Docker-local URLs and sane defaults, add the important tuning knobs and optional placeholders, bias AI-related settings toward local Ollama where Firecrawl supports them, then verify with a real `mcporter` call.
+- Additional grounding confirms Firecrawl supports local-Ollama-aware AI wiring directly: upstream Docker Compose and config surfaces include `OPENAI_BASE_URL`, `OPENAI_API_KEY`, and `OLLAMA_BASE_URL`, and the API code prefers Ollama when `OLLAMA_BASE_URL` is set.
+- The current repo surfaces that need updating for this pass are `firecrawl/.env.default`, `install.sh` fallback env creation, and `README.md` bootstrap/setup text. The final verification should include an actual `bunx mcporter call firecrawl... --config ~/.config/opencode/mcporter.json --output json` run against the live local service.
+- The curated fuller Firecrawl template is now on disk. It keeps the required Docker-local URLs, adds the main concurrency/logging knobs, includes optional integration placeholders, and sets `OLLAMA_BASE_URL=http://host.docker.internal:11434/api` as the default AI path.
+- `install.sh` fallback env generation now mirrors the fuller repo template closely enough that bootstrap still produces a useful `.env` even if the repo template is missing.
+- `README.md` now explains that the repo-owned Firecrawl template is fuller and Ollama-first rather than only a minimal bootstrap stub.
+- Smoke test succeeded through the real OpenCode CLI workflow: `bunx mcporter call 'firecrawl.firecrawl_scrape(url: "https://example.com", formats: ["markdown"], onlyMainContent: true)' --config ~/.config/opencode/mcporter.json --output json` returned a 200 response plus scraped markdown content, which confirms the local Firecrawl service and `mcporter` wiring are functioning end to end.
+- The repo-owned `firecrawl/.env.default` has already been updated by the user to a fuller upstream-shaped template. It now includes commented Ollama settings (`OLLAMA_BASE_URL`, `MODEL_NAME`, `MODEL_EMBEDDING_NAME`) instead of the earlier minimal bootstrap shape.
+- The live local runtime env at `~/firecrawl/.env` is still the older 4-line minimal file, so honoring the user's latest instruction means any next edit should touch only the Ollama-related lines and should avoid reformatting or rewriting unrelated env content.
+- Upstream Firecrawl docs still show the Ollama example as `OLLAMA_BASE_URL=http://localhost:11434/api`, `MODEL_NAME=deepseek-r1:7b`, and `MODEL_EMBEDDING_NAME=nomic-embed-text`.
+- Upstream Firecrawl code/config confirms three important facts for the next pass: `OLLAMA_BASE_URL` is the provider switch, `MODEL_NAME` and `MODEL_EMBEDDING_NAME` are real supported envs, and the API prefers Ollama when `OLLAMA_BASE_URL` is set.
+- A live GitHub issue from 2025 (`firecrawl/firecrawl#1467`) shows at least one self-hosted Ollama user running `MODEL_NAME=deepseek-r1:8b` with `MODEL_EMBEDDING_NAME=nomic-embed-text`, but it also shows self-hosted extract issues unrelated to connectivity, so the safest default should favor compatibility over largest-possible reasoning models.
+- This suggests the best next design is a minimal-delta patch: fix Linux Ollama base URL behavior at runtime/bootstrap time, then set conservative Firecrawl Ollama defaults on the env lines only, likely keeping `nomic-embed-text` for embeddings and preferring a smaller broadly-available chat model over an aggressive reasoning-heavy default.
+
+## User Correction (2026-03-31, Firecrawl localhost vs Ollama routing)
+
+- What I did
+  - I introduced Linux-specific runtime logic around `OLLAMA_BASE_URL` and was implicitly treating the networking problem as if Firecrawl service reachability itself needed extra handling.
+- What the user instructed instead
+  - The user pointed out that Firecrawl itself is already reachable locally via `http://localhost:3002`, so the setup should stay simpler and avoid unnecessary networking shenanigans.
+- Why my approach was incorrect or misaligned
+  - I blurred two separate paths: host-to-Firecrawl API access (`localhost:3002`, already fine) and Firecrawl-container-to-Ollama access (the only path that may need special handling).
+- Early detection signal I missed
+  - The successful local curl shape to `/v1/crawl` was already a strong signal that Firecrawl port exposure was not the real problem surface.
+- Preventative rule or checklist update
+  - When debugging local networking, separate `host -> service` reachability from `container -> dependency` reachability before changing installer/runtime logic.
+  - Prefer the smallest fix that targets only the failing hop.
+- Repo-specific nuance discovered
+  - In this repo, Firecrawl API access from the host is already solved by Docker port mapping on `localhost:3002`; only Ollama reachability from inside Firecrawl containers may need platform-aware handling.
+- The user explicitly wants to move beyond `deepseek` if there is a better modern Ollama default, but still wants the patch constrained to Ollama-related env changes only.
+- Current repo state matters here: `firecrawl/.env.default` is already a fuller upstream-shaped template with the Ollama lines commented, while the live `~/firecrawl/.env` is still minimal. A safe update path is therefore to (a) symlink `~/firecrawl/.env` to the repo-owned env file and (b) touch only the Ollama lines plus Linux runtime host handling.
+- Additional research confirms Firecrawl upstream still documents `MODEL_NAME=deepseek-r1:7b` and `MODEL_EMBEDDING_NAME=nomic-embed-text` as the official Ollama example, but this appears to be an example/default rather than a strong recommendation backed by compatibility data.
+- Firecrawl source confirms only three Ollama-specific knobs matter for this pass: `OLLAMA_BASE_URL`, `MODEL_NAME`, and `MODEL_EMBEDDING_NAME`.
+- Web research found real self-hosted Ollama users running `deepseek-r1:8b` with Firecrawl, but also multiple Firecrawl extraction issues around local Ollama/self-hosted extract flows. That pushes the recommendation toward a compatibility-first general model rather than a reasoning-heavy model as the default.
+- For embeddings, `nomic-embed-text` remains the strongest low-risk default because it is the upstream example, is widely used in Ollama, and Firecrawl already references it directly in docs.
+- For the main Ollama generation model, the next design should compare at least three options: keep upstream `deepseek-r1`, switch to a stronger general-purpose modern model, or leave the value commented/documented and only set a recommendation. The smallest correct design is likely a modern general-purpose Ollama model with broad availability, with the repo template and installer runtime both choosing the Linux-safe base URL automatically.
+- Live `mcporter list firecrawl` verification shows the deep-research skill currently documents some wrong Firecrawl usage patterns. The actual stable Firecrawl tools exposed here are `firecrawl_search`, `firecrawl_scrape`, `firecrawl_map`, `firecrawl_crawl`, `firecrawl_check_crawl_status`, `firecrawl_extract`, and `firecrawl_agent`.
+- The biggest Firecrawl mismatch in `skills/deep-research/SKILL.md` is the search `sources` shape: the live tool expects `sources` as an array of objects like `[{"type":"web"}]`, not an array of strings like `["web", "news"]`.
+- The live `firecrawl_crawl` tool is asynchronous and returns an operation id; correct workflow requires `firecrawl_check_crawl_status` for progress/results instead of treating crawl like an immediate read.
+- Live `mcporter list exa` verification confirms the active Exa tool set is `web_search_exa`, `web_search_advanced_exa`, `crawling_exa`, `company_research_exa`, `people_search_exa`, and `get_code_context_exa`.
+- The Exa command examples in `skills/deep-research/SKILL.md` need tightening to the actual schema too: `web_search_exa` only accepts `type: auto|fast`, while `web_search_advanced_exa` supports `type: auto|fast|neural` plus richer filter fields; `crawling_exa.subpageTarget` is a single string, not an array.
+- The repo-owned `firecrawl/.env.default` on disk has been reverted/updated by the user to the upstream-style commented template, so the Ollama patch should only touch the commented Ollama lines and keep the rest of the file exactly as-is.
+- `README.md` currently still claims the repo template contains Ollama-first active defaults, but the actual file now has commented Ollama examples. README must be aligned to the current template shape while documenting the symlink-based workflow the user wants.
+- The installer needs one additional operational change: `~/firecrawl/.env` should become a symlink to the repo-owned env file so the user's edit point is `~/.config/opencode/firecrawl/.env.default` and Docker Compose reads that same file directly.
+- The chosen Ollama default for this pass is now `qwen3:8b` for the main generation model and `nomic-embed-text` for embeddings.
+- Rationale for the default pair:
+  - Firecrawl upstream still documents `deepseek-r1:7b` + `nomic-embed-text`, but that is an example rather than a demonstrated best-practice recommendation.
+  - `qwen3` is explicitly presented by Ollama as the latest Qwen generation with strong agent/tool capability and broad general-purpose performance, making it a better modern non-DeepSeek default for Firecrawl extraction than a reasoning-heavy R1 example.
+  - `nomic-embed-text` remains a strong low-risk embedding default with very broad Ollama usage and direct recommendation/usage in both Firecrawl docs and Ollama docs.
+- The repo-owned env file now activates the Ollama lines directly (`OLLAMA_BASE_URL`, `MODEL_NAME`, `MODEL_EMBEDDING_NAME`) instead of leaving them commented, while preserving all non-Ollama env content untouched.
+- `install.sh` now computes a runtime-safe Ollama base URL: macOS/Docker Desktop keeps `http://host.docker.internal:11434/api`, while Linux prefers the Docker bridge gateway from `docker network inspect bridge` and falls back to `http://172.17.0.1:11434/api`.
+- `install.sh` now applies only the Ollama-related env mutations (`OLLAMA_BASE_URL`, `MODEL_NAME`, `MODEL_EMBEDDING_NAME`) and then symlinks `~/firecrawl/.env` back to the repo-owned `firecrawl/.env.default` file.
+- The current live Firecrawl instance has already been switched to that model: `~/firecrawl/.env` is now a symlink to `/Users/ayushmanburagohain/.config/opencode/firecrawl/.env.default`.
+- `skills/deep-research/SKILL.md` has been corrected against the real `mcporter list` output:
+  - Firecrawl search now uses `sources: [{"type": "web"}]`
+  - Firecrawl map is documented as a first-class step before agent use
+  - Firecrawl crawl is documented as async with `firecrawl_check_crawl_status`
+  - Firecrawl extract is documented using the real `firecrawl_extract` tool
+  - Exa crawl now uses the real `subpageTarget` string shape
+  - the old `mcpporter` typo is fixed to `mcporter`
+- Runtime verification passed after the patch:
+  - `bash -n install.sh` passed
+  - `firecrawl/.env.default` now contains active Ollama lines with `qwen3:8b` and `nomic-embed-text`
+  - corrected Firecrawl search through `mcporter` succeeded
+  - corrected Exa search through `mcporter` succeeded
+
+## Current Follow-Up (2026-03-31, Firecrawl skill + localhost simplification)
+
+- The user now wants three things together: simplify Firecrawl guidance around `localhost:3002`, add a dedicated `firecrawl` skill for direct operational use, and diagnose the live `firecrawl_agent` failure surfaced from a real `mcporter` call.
+- The user has explicitly clarified the desired skill split: add a dedicated in-depth `firecrawl` skill as a peer workflow and have `deep-research` refer to it rather than trying to inline all direct Firecrawl operational guidance.
+- The user's live failing command is:
+  - `bunx mcporter call 'firecrawl.firecrawl_agent(prompt: "Find the top AI code editors in 2026 and summarize pricing, strengths, and market positioning")' --config ~/.config/opencode/mcporter.json --output json`
+  - current result: `Tool 'firecrawl_agent' execution failed ... Error ID: 9f761aef1cd6444da12c1178080a4fb7`
+- Best current interpretation: host-to-Firecrawl access is already fine on `localhost:3002`; the next pass should not add more Firecrawl API networking complexity unless direct evidence shows it is needed.
+- The next design should likely do three focused things:
+  1. keep Firecrawl host guidance simple (`localhost:3002` for the Firecrawl API)
+  2. add a dedicated `skills/firecrawl/SKILL.md` for search/scrape/map/extract/crawl/agent operations and troubleshooting
+  3. make `deep-research` point to `firecrawl` for direct Firecrawl tactics while reserving `deep-research` for synthesis and citations
+- Because `firecrawl_agent` is already failing in real usage, the new Firecrawl skill should likely recommend lower-level Firecrawl tools (`search`, `scrape`, `map`, `extract`) as the default stable path and treat `firecrawl_agent` as optional/experimental with explicit fallback guidance.
+- The approved Firecrawl follow-up is now on disk:
+  - `skills/firecrawl/SKILL.md` exists as the direct-operation Firecrawl skill.
+  - It treats `localhost:3002` as the normal host-side Firecrawl API path.
+  - It explicitly documents `firecrawl_agent` as optional/beta and points agents toward `search`, `scrape`, `map`, `extract`, and async `crawl` as the stable default path.
+- `skills/deep-research/SKILL.md` now refers agents to skill:`firecrawl` for direct Firecrawl operation instead of trying to inline every Firecrawl tactic in the research skill itself.
+- `agent-permissions.jsonc` now explicitly allows `firecrawl` for Athena, Apollo, and Hestia; Zeus and Hermes already inherit it through wildcard access.
+- `README.md` now keeps Firecrawl guidance simple: host access is `localhost:3002`, while any platform-aware logic only applies to Ollama-related env lines, not to reaching Firecrawl itself.
+- Verification for this pass succeeded:
+  - `bash -n install.sh` still passes.
+  - the new `skills/firecrawl/SKILL.md` is present and concise.
+  - grep confirms `firecrawl` permission entries for Athena, Apollo, and Hestia.
+  - README now explicitly keeps Firecrawl host access on `localhost:3002`.
+
+## Current Follow-Up (2026-03-31, planning-with-files load vs nudge split)
+
+- The user now wants `plugins/planning-with-files` narrowed so only Zeus and Hermes get the full planning skill/system load.
+- For the rest of the custom agents, the plugin should only inject planning nudges/reminders rather than the full planning-skill load behavior.
+- The relevant code surface is concentrated in:
+  - `plugins/planning-with-files/constants.ts`
+  - `plugins/planning-with-files/messages.ts`
+  - `plugins/planning-with-files.ts`
+- Current behavior already distinguishes primary planning-file owners from everyone else, but it does not yet expose an explicit policy split between “full load” agents and “nudge-only custom agents” as a first-class config/constant.
+- Current repo-grounded starting point:
+  - full-load set effectively maps to `PLANNING_SKILL_AGENTS = {zeus, hermes}`
+  - owner/update set maps to `PLANNING_FILE_OWNERS = {zeus, hermes}`
+  - every non-owner known agent currently gets the generic read-only system block, not a clearly named custom-agent-only nudge lane
+- The next design should likely introduce two explicit lists/sets:
+  1. agents that get the main planning skill load
+  2. custom agents that get nudge-only behavior
+- The user also explicitly wants those lists surfaced clearly so they can decide/adjust them.
+- Final approved split:
+  - full load: `zeus`, `hermes`
+  - nudge only: `artemis`, `athena`, `apollo`, `aphrodite`, `hephaestus`, `planner`, `themis`, `hestia`, `cronus`
+  - no planning injection from this plugin for non-custom/system agents like `build`, `general`, and `plan`
+- The approved split is now on disk:
+  - `constants.ts` exposes explicit full-load and nudge-only agent lists/sets
+  - `session-cache.ts` now distinguishes planning-skill sessions from planning-nudge sessions
+  - `planning-with-files.ts` now injects the full planning load only for Zeus/Hermes, injects nudge-only behavior only for the approved custom-agent list, and does nothing for the remaining agents
+  - only Zeus/Hermes receive the active plan/progress context block; nudge-only custom agents now get reminders without the full planning-context load
+  - `messages.ts` now labels the read-only path as a nudge-only planning session for the custom-agent lane
+
 ## Current Task (2026-03-31, packaging pass)
 
 - The user now wants the current local OpenCode config packaged so it can be configured and bootstrapped cleanly.
@@ -121,6 +387,14 @@
 - This pass did not change the response schema shape; it tightened orchestrator interpretation and enforcement, which better matches the OMO lesson that reliability comes from orchestrator distrust + follow-through more than from adding more formatting.
 
 ## Starting Point For This Pass
+
+## Current Task (2026-03-31, rules distillation)
+
+- The user asked for a `/rules-distill` style pass: scan installed skills, cross-read them against the current rules, extract only cross-cutting principles that appear in 2+ skills, and present verdicted rule candidates for approval.
+- The workflow constraint is explicit: do not modify rule files automatically. Inventory first, then LLM judgment, then present approve/modify/skip options.
+- This pass should prefer deterministic collection from the provided `rules-distill` scripts and only use judgment for clustering, matching, and verdicting.
+- Inventory results: `scan-skills.sh` found 23 installed skills and `scan-rules.sh` found 2 rule files with 23 indexed headings total.
+- Current rule coverage is narrow and code-focused: `python-coding-style.md` plus `modular-code-enforcement.md`. There is no general workflow/rules file yet for broader agent-operating principles, so any accepted cross-cutting process principle may need a new file rather than a small append.
 
 - Prior spa-day work already removed several stale contradictions, but the planning trio still contains older findings that should be reused instead of rediscovered.
 - The local config directory is still not a git repo, so planning files remain the reliable session memory.

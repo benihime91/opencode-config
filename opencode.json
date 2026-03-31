@@ -13,57 +13,17 @@
     "@tarquinen/opencode-dcp@latest"
   ],
   "agent": {
-    "cursor": {
-      "color": "#8B5CF6"
+    "hermes": {
+      "color": "#14B8A6"
     },
-    "orchestrator": {
-      "color": "#FE8A06"
+    "zeus": {
+      "color": "#D4A017"
     },
     "explore": {
       "disable": true
     },
     "general": {
       "disable": true
-    }
-  },
-  "mcp": {
-    "agentation": {
-      "type": "local",
-      "command": [
-        "bunx",
-        "agentation-mcp",
-        "server"
-      ],
-      "enabled": true,
-      "environment": {}
-    },
-    "context7": {
-      "type": "local",
-      "command": [
-        "bunx",
-        "@upstash/context7-mcp"
-      ],
-      "enabled": true
-    },
-    "exa": {
-      "type": "remote",
-      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_search_advanced_exa,get_code_context_exa,crawling_exa,company_research_exa,people_search_exa",
-      "enabled": true
-    },
-    "contextplus": {
-      "type": "local",
-      "command": [
-        "bunx",
-        "contextplus"
-      ],
-      "enabled": true,
-      "environment": {
-        "OLLAMA_EMBED_MODEL": "nomic-embed-text-v2-moe:latest",
-        "OLLAMA_CHAT_MODEL": "gemma2:27b",
-        "OLLAMA_API_KEY": "OLLAMA_API_KEY",
-        "CONTEXTPLUS_EMBED_BATCH_SIZE": "8",
-        "CONTEXTPLUS_EMBED_TRACKER": "lazy"
-      }
     }
   },
   "lsp": {

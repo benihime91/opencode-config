@@ -1,0 +1,167 @@
+{
+  "distilled_at": "2026-03-31T10:21:01Z",
+  "skills_scanned": 23,
+  "rules_scanned": 2,
+  "candidates": {
+    "design-plan-gate": {
+      "principle": "Require an explicit design or written implementation plan before executing multi-step, ambiguous, or behavior-changing work.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "brainstorming",
+        "blueprint",
+        "writing-plans",
+        "executing-plans"
+      ],
+      "status": "applied"
+    },
+    "bounded-work-and-cold-start-handoffs": {
+      "principle": "Break complex work into bounded units with exact scope, constraints, verification, and cold-start-safe handoffs.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "blueprint",
+        "writing-plans",
+        "dispatching-parallel-agents"
+      ],
+      "status": "applied"
+    },
+    "review-before-trust": {
+      "principle": "Review plans, specs, and delegated results critically before acting on them.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "brainstorming",
+        "writing-plans",
+        "executing-plans",
+        "dispatching-parallel-agents"
+      ],
+      "status": "applied"
+    },
+    "durable-planning-memory": {
+      "principle": "Store durable task state in .plans/ and update it at major discoveries, phase boundaries, errors, and resumptions.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "planning-with-files",
+        "blueprint",
+        "brainstorming",
+        "writing-plans"
+      ],
+      "status": "applied"
+    },
+    "safe-parallelism": {
+      "principle": "Parallelize only when workstreams are genuinely independent in state, files, and dependencies.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "blueprint",
+        "dispatching-parallel-agents"
+      ],
+      "status": "applied"
+    },
+    "escalate-instead-of-guessing": {
+      "principle": "Escalate when blockers persist or verification fails instead of guessing or repeating failed steps.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "planning-with-files",
+        "executing-plans"
+      ],
+      "status": "applied"
+    },
+    "skill-selection-and-stable-interface": {
+      "principle": "Use the narrowest fitting skill and keep the user-facing workflow skill-first rather than provider-first.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "repo-discovery",
+        "docs-research",
+        "deep-research",
+        "mcporter",
+        "annotation-sync"
+      ],
+      "status": "applied"
+    },
+    "canonical-cli-config": {
+      "principle": "Pass canonical repo-owned CLI config paths explicitly instead of relying on defaults.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "repo-discovery",
+        "docs-research",
+        "deep-research",
+        "mcporter",
+        "annotation-sync"
+      ],
+      "status": "applied"
+    },
+    "evidence-confirmation": {
+      "principle": "Treat search hits and snippets as leads, not proof, and verify claims against the underlying source.",
+      "verdict": "New File",
+      "target": "rules/agent-workflow.md",
+      "evidence": [
+        "repo-discovery",
+        "deep-research"
+      ],
+      "status": "applied"
+    },
+    "ui-state-freshness": {
+      "principle": "Refresh UI state after navigation or DOM-changing actions instead of reusing stale refs.",
+      "verdict": "New File",
+      "target": "rules/browser-automation.md",
+      "evidence": [
+        "agent-browser",
+        "electron",
+        "slack"
+      ],
+      "status": "applied"
+    },
+    "ui-action-verification": {
+      "principle": "Verify important UI actions with explicit observable checks instead of assuming the command worked.",
+      "verdict": "New File",
+      "target": "rules/browser-automation.md",
+      "evidence": [
+        "agent-browser",
+        "agentation-self-driving",
+        "dogfood"
+      ],
+      "status": "applied"
+    },
+    "ui-session-and-recovery-discipline": {
+      "principle": "Use isolated automation sessions and prefer minimal recovery resets that preserve evidence.",
+      "verdict": "New File",
+      "target": "rules/browser-automation.md",
+      "evidence": [
+        "agent-browser",
+        "dogfood",
+        "electron",
+        "agentation-self-driving"
+      ],
+      "status": "applied"
+    },
+    "concise-human-facing-writing": {
+      "principle": "Write human-facing guidance in short, direct, concrete language and cut filler.",
+      "verdict": "New File",
+      "target": "rules/agent-writing.md",
+      "evidence": [
+        "article-writing",
+        "writing-clearly-and-concisely",
+        "writing-skills"
+      ],
+      "status": "applied"
+    },
+    "context-budget-and-interface-validation": {
+      "principle": "Keep core guidance lean, name interfaces narrowly, and validate agent-facing guidance before promoting it.",
+      "verdict": "New File",
+      "target": "rules/agent-writing.md",
+      "evidence": [
+        "writing-skills",
+        "agent-harness-construction",
+        "writing-clearly-and-concisely",
+        "article-writing"
+      ],
+      "status": "applied"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 /**
  * Agent Permissions — filesystem helpers
  *
- * Reads config, discovers skills/MCPs, and resolves wildcard policies.
+ * Reads config, discovers skills, and resolves wildcard policies.
  */
 
 import fs from 'fs'
@@ -9,7 +9,6 @@ import path from 'path'
 
 export type CapabilityPolicy = {
   skills?: string[]
-  mcps?: string[]
 }
 
 export type PermissionsConfig = {
@@ -19,7 +18,6 @@ export type PermissionsConfig = {
 
 export type ResolvedPolicy = {
   skills: string[]
-  mcps: string[]
 }
 
 export type DiscoveredSkills = {
@@ -105,29 +103,15 @@ export async function readDiscoveredSkills(root: string, configRoot: string): Pr
   }
 }
 
-export async function readAvailableMcps(opencodeConfigPath: string): Promise<string[]> {
-  try {
-    const content = await fs.promises.readFile(opencodeConfigPath, 'utf8')
-    const parsed = JSON.parse(stripJsonComments(content)) as {
-      mcp?: Record<string, unknown>
-    }
-    return Object.keys(parsed.mcp ?? {}).sort()
-  } catch {
-    return []
-  }
-}
-
 export async function resolvePolicy(args: {
   agentName: string
   root: string
   configRoot: string
   configCandidates: string[]
-  opencodeConfigPath: string
 }): Promise<ResolvedPolicy> {
-  const [config, availableSkills, availableMcps] = await Promise.all([
+  const [config, availableSkills] = await Promise.all([
     readPermissionsConfig(args.configCandidates),
     readAvailableSkills(args.root, args.configRoot),
-    readAvailableMcps(args.opencodeConfigPath),
   ])
 
   const agentPolicy = config.agents?.[args.agentName]
@@ -135,6 +119,5 @@ export async function resolvePolicy(args: {
 
   return {
     skills: resolveList(agentPolicy?.skills ?? fallback.skills, availableSkills),
-    mcps: resolveList(agentPolicy?.mcps ?? fallback.mcps, availableMcps),
   }
 }

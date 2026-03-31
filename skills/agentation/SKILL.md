@@ -42,20 +42,15 @@ Set up the Agentation annotation toolbar in this project.
 5. **Confirm component setup**
    - Tell the user the Agentation toolbar component is configured
 
-6. **Recommend MCP server setup**
-   - Explain that for real-time annotation syncing with AI agents, they should also set up the MCP server
-   - Recommend one of the following approaches:
-     - **Universal (supports 9+ agents including Claude Code, Cursor, Codex, Windsurf, etc.):**
-       See [add-mcp](https://github.com/neondatabase/add-mcp) — run `npx add-mcp` and follow the prompts to add `agentation-mcp` as an MCP server
-     - **Claude Code only (interactive wizard):**
-       Run `agentation-mcp init` after installing the package
-   - Tell user to restart their coding agent after MCP setup to load the server
-   - Explain that once configured, annotations will sync to the agent automatically
+6. **Recommend the runtime skills**
+   - Explain that installation is separate from runtime usage.
+   - For annotation lifecycle work, tell the user to load `annotation-sync`.
+   - For autonomous visual critique, tell the user to load `agentation-self-driving`.
+   - Explain that this repo uses a CLI + skills workflow rather than exposing MCP setup as the normal user-facing path.
 
 ## Notes
 
 - The `NODE_ENV` check ensures Agentation only loads in development
 - Agentation requires React 18
-- The MCP server runs on port 4747 by default for the HTTP server
-- MCP server exposes tools like `agentation_get_all_pending`, `agentation_resolve`, and `agentation_watch_annotations`
-- Run `agentation-mcp doctor` to verify setup after installing
+- The server behind the workflow still runs through the local CLI stack, but the stable interface in this repo is skills plus mcporter-backed commands.
+- Run `agentation-mcp doctor` to verify the underlying server after installing

@@ -5,7 +5,7 @@ Full autonomous design review: one agent critiques, another fixes.
 ## Prerequisites
 
 - Agentation toolbar installed on the target page
-- MCP server running and connected (toolbar shows "MCP Connected")
+- shared CLI-backed annotation workflow available through `annotation-sync`
 - `agent-browser` skill installed
 
 ## Setup
@@ -23,33 +23,32 @@ This session opens the headed browser, scans the page, and adds design annotatio
 
 ```bash
 claude
-> Watch for agentation annotations and fix each one. Use agentation_watch_annotations
-> in a loop. For each annotation: read the target code, make the fix, then call
-> agentation_resolve with a summary of what you changed.
+> Load `annotation-sync`, pull pending annotations in batches, fix each one,
+> then resolve it with a short summary of what you changed.
 ```
 
-This session blocks on `agentation_watch_annotations`, receives each annotation as it's created by Terminal 1, and edits the codebase to address the feedback.
+This session polls or fetches pending annotations through the shared CLI workflow and edits the codebase to address the feedback.
 
 ## How It Connects
 
-1. Critic adds annotation → auto-sent via MCP webhook
-2. Fixer's `agentation_watch_annotations` unblocks with the new annotation
+1. Critic adds annotation → it appears in the shared annotation queue
+2. Fixer refreshes pending annotations through `annotation-sync`
 3. Fixer reads the annotation (element path, CSS selectors, feedback text)
 4. Fixer greps the codebase using the selectors/component names
-5. Fixer makes changes, then calls `agentation_resolve` with a summary
-6. Fixer loops back to `agentation_watch_annotations`
+5. Fixer makes changes, then resolves the annotation with a summary
+6. Fixer loops back to the next pending annotation batch
 
 ## Flow Diagram
 
 ```
 Browser (visible)          Terminal 1 (Critic)         Terminal 2 (Fixer)
 ─────────────────          ───────────────────         ──────────────────
-User watches cursor    →   Scrolls, clicks elements   Blocking on watch...
+User watches cursor    →   Scrolls, clicks elements   Polls pending annotations...
 Annotation dialog      →   Fills critique, clicks Add
                            Annotation auto-sends  →   Receives annotation
                                                       Reads code, makes fix
                                                       Resolves annotation
-                           Moves to next element  →   Blocking on watch...
+                            Moves to next element  →   Pulls next pending batch...
 ```
 
 ## Tips
@@ -57,4 +56,4 @@ Annotation dialog      →   Fills critique, clicks Add
 - Start the Fixer session first so it's ready when annotations arrive
 - The Critic can add annotations faster than the Fixer processes them — that's fine, they queue up
 - If the page hot-reloads from Fixer's changes, the Critic may need to re-expand the toolbar
-- Both sessions share the same MCP server via `.mcp.json` in the project
+- Both sessions share the same CLI-backed annotation workflow via `~/.config/opencode/mcporter.json`

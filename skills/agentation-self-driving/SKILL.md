@@ -192,9 +192,9 @@ These will silently break the workflow if you're not aware of them:
 
 ## Two-Session Workflow (Full Self-Driving)
 
-With MCP connected (toolbar shows "MCP Connected"), annotations auto-send to any listening agent. This enables:
+With the toolbar installed, use the repo's skill-based split of responsibilities:
 
 - **Session 1** (this skill): Watches the page, adds critique annotations in the visible browser
-- **Session 2**: Runs `agentation_watch_annotations` in a loop, receives annotations, edits code to address each one
+- **Session 2**: Loads `annotation-sync`, pulls pending annotations through the CLI workflow, and edits code to address each one
 
 The user watches Session 1 drive through the page in the browser while Session 2 fixes issues in the codebase — fully autonomous design review and implementation.

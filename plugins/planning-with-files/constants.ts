@@ -11,9 +11,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const SKILL_DIR = path.join(__dirname, '..', '..', 'skills', 'planning-with-files')
 
 export const CHECK_COMPLETE = path.join(SKILL_DIR, 'scripts', 'check-complete.sh')
-export const PRIMARY_PLANNING_AGENTS = ['orchestrator', 'build', 'cursor'] as const
-export const PRIMARY_PLANNING_AGENT_LABEL = 'orchestrator, cursor, or build agent'
+export const PRIMARY_PLANNING_AGENTS = ['zeus', 'hermes'] as const
+export const PRIMARY_PLANNING_AGENT_LABEL = 'Zeus, Hermes'
+export const NUDGE_ONLY_PLANNING_AGENTS = [
+  'artemis',
+  'athena',
+  'apollo',
+  'aphrodite',
+  'hephaestus',
+  'planner',
+  'themis',
+  'hestia',
+  'cronus',
+] as const
+export const NUDGE_ONLY_PLANNING_AGENT_LABEL = 'Artemis, Athena, Apollo, Aphrodite, Hephaestus, Planner, Themis, Hestia, Cronus'
 export const PLANNING_SKILL_AGENTS = new Set(PRIMARY_PLANNING_AGENTS)
+export const PLANNING_NUDGE_AGENTS = new Set(NUDGE_ONLY_PLANNING_AGENTS)
 export const PLANNING_FILE_OWNERS = new Set(PRIMARY_PLANNING_AGENTS)
 export const PLANNING_FILES = new Set([
   path.join('.plans', 'task_plan.md'),

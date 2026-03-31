@@ -14,6 +14,10 @@ REPO_SLUG="${OPENCODE_CONFIG_REPO_SLUG:-$DEFAULT_REPO_SLUG}"
 REPO_URL="${OPENCODE_CONFIG_REPO_URL:-https://github.com/$REPO_SLUG.git}"
 CLONE_DIR="${OPENCODE_CONFIG_CLONE_DIR:-$HOME/opencode-config}"
 CONFIG_DIR="${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}"
+FIRECRAWL_REPO_URL="${OPENCODE_FIRECRAWL_REPO_URL:-https://github.com/firecrawl/firecrawl.git}"
+FIRECRAWL_DIR="${OPENCODE_FIRECRAWL_DIR:-$HOME/firecrawl}"
+INSTALL_FIRECRAWL="${OPENCODE_INSTALL_FIRECRAWL:-1}"
+FIRECRAWL_ENV_TEMPLATE_REL="firecrawl/.env.default"
 BACKUP_DIR="$HOME/.config/opencode.bak.$(date +%Y%m%d_%H%M%S)"
 CONFLICT_BACKUP_DIR="$BACKUP_DIR/conflicts"
 
@@ -40,6 +44,62 @@ warn_required() {
 }
 warn()    { warn_optional "$*"; }
 error()   { echo -e "${RED}[opencode-config]${NC} $*" >&2; exit 1; }
+
+default_firecrawl_ollama_base_url() {
+  if [[ "$OSTYPE" == linux* ]]; then
+    local docker_bridge_gateway
+    docker_bridge_gateway="$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)"
+    if [[ -n "$docker_bridge_gateway" ]]; then
+      printf 'http://%s:11434/api' "$docker_bridge_gateway"
+      return
+    fi
+    printf 'http://172.17.0.1:11434/api'
+    return
+  fi
+
+  printf 'http://host.docker.internal:11434/api'
+}
+
+apply_firecrawl_ollama_defaults() {
+  local env_file="$1"
+  local ollama_base_url="$2"
+
+  [[ -f "$env_file" ]] || return
+
+  python3 - "$env_file" "$ollama_base_url" <<'PY'
+from pathlib import Path
+import sys
+
+env_path = Path(sys.argv[1])
+ollama_base_url = sys.argv[2]
+lines = env_path.read_text().splitlines()
+updated = []
+seen = {"OLLAMA_BASE_URL": False, "MODEL_NAME": False, "MODEL_EMBEDDING_NAME": False}
+
+for line in lines:
+    stripped = line.strip()
+    if stripped.startswith("# OLLAMA_BASE_URL=") or stripped.startswith("OLLAMA_BASE_URL="):
+        updated.append(f"OLLAMA_BASE_URL={ollama_base_url}")
+        seen["OLLAMA_BASE_URL"] = True
+    elif stripped.startswith("# MODEL_NAME=") or stripped.startswith("MODEL_NAME="):
+        updated.append("MODEL_NAME=qwen3:8b")
+        seen["MODEL_NAME"] = True
+    elif stripped.startswith("# MODEL_EMBEDDING_NAME=") or stripped.startswith("MODEL_EMBEDDING_NAME="):
+        updated.append("MODEL_EMBEDDING_NAME=nomic-embed-text")
+        seen["MODEL_EMBEDDING_NAME"] = True
+    else:
+        updated.append(line)
+
+if not seen["OLLAMA_BASE_URL"]:
+    updated.append(f"OLLAMA_BASE_URL={ollama_base_url}")
+if not seen["MODEL_NAME"]:
+    updated.append("MODEL_NAME=qwen3:8b")
+if not seen["MODEL_EMBEDDING_NAME"]:
+    updated.append("MODEL_EMBEDDING_NAME=nomic-embed-text")
+
+env_path.write_text("\n".join(updated) + "\n")
+PY
+}
 
 # ── Preflight ────────────────────────────────
 # Fail fast on hard requirements before mutating anything.
@@ -280,6 +340,8 @@ symlink_config() {
     "opencode.json"
     "agent-permissions.jsonc"
     "dcp.jsonc"
+    "mcporter.json"
+    "tui.json"
   )
 
   # OpenCode discovers custom agents from ~/.config/opencode/agents/.
@@ -289,6 +351,7 @@ symlink_config() {
     "agents:agents"
     "commands:commands"
     "plugins:plugins"
+    "rules:rules"
     "skills:skills"
     "themes:themes"
   )
@@ -383,44 +446,160 @@ install_opencode_plugins() {
   done
 }
 
-# ── Pre-cache local MCP servers ──────────────
-# Reads from opencode.json .mcp (bunx/npx commands) → hardcoded fallback.
+# ── Install CLI workflow dependencies ────────
 
-install_mcp_deps() {
-  local config="$CLONE_DIR/opencode.json"
-  local pkgs=()
+install_cli_workflow_deps() {
+  local pkgs=(
+    "mcporter@latest"
+    "firecrawl-mcp@latest"
+    "agentation-mcp@latest"
+    "@upstash/context7-mcp@latest"
+    "contextplus@latest"
+  )
 
-  if [[ -f "$config" ]] && check_command jq; then
-    # Extract package name from local MCP entries using bunx or npx as runner.
-    # Pattern match avoids positional index issues when extra flags precede
-    # the package name in the command array.
-    while IFS= read -r pkg; do
-      [[ -n "$pkg" ]] && pkgs+=("$pkg")
-    done < <(jq -r '
-      .mcp
-      | to_entries[]?
-      | select(.value.type == "local")
-      | select((.value.command[0]? // "") | test("^(bunx|npx)$"))
-      | (.value.command[1:] // [])
-      | map(select(type == "string"))
-      | map(select(startswith("-") | not))
-      | .[0]?
-    ' "$config" 2>/dev/null)
-  fi
-
-  if (( ${#pkgs[@]} == 0 )); then
-    pkgs=(
-      "agentation-mcp@latest"
-      "@upstash/context7-mcp@latest"
-      "contextplus@latest"
-    )
-  fi
-
-  info "Pre-caching local MCP servers..."
+  info "Installing CLI workflow dependencies..."
   for pkg in "${pkgs[@]}"; do
-    info "  mcp: $pkg"
-    pm_global_install "$pkg" 2>/dev/null || warn_optional "Could not pre-cache $pkg (will auto-download on first use)"
+    info "  cli: $pkg"
+    pm_global_install "$pkg" 2>/dev/null || warn_optional "Could not install $pkg (it may auto-download on first use)"
   done
+}
+
+ensure_firecrawl_env() {
+  local env_file="$FIRECRAWL_DIR/.env"
+  local template_file="$CLONE_DIR/$FIRECRAWL_ENV_TEMPLATE_REL"
+  local ollama_base_url
+
+  ollama_base_url="$(default_firecrawl_ollama_base_url)"
+
+  if [[ -f "$env_file" ]]; then
+    apply_firecrawl_ollama_defaults "$env_file" "$ollama_base_url"
+    return
+  fi
+
+  if [[ -f "$template_file" ]]; then
+    cp "$template_file" "$env_file"
+    apply_firecrawl_ollama_defaults "$env_file" "$ollama_base_url"
+    info "Copied Firecrawl env template to $env_file"
+    return
+  fi
+
+  cat > "$env_file" <<'EOF'
+PORT=3002
+HOST=0.0.0.0
+REDIS_URL=redis://redis:6379
+REDIS_RATE_LIMIT_URL=redis://redis:6379
+PLAYWRIGHT_MICROSERVICE_URL=http://playwright-service:3000/scrape
+USE_DB_AUTHENTICATION=false
+BULL_AUTH_KEY=opencode-firecrawl-local
+NUM_WORKERS_PER_QUEUE=8
+CRAWL_CONCURRENT_REQUESTS=10
+MAX_CONCURRENT_JOBS=5
+BROWSER_POOL_SIZE=5
+LOGGING_LEVEL=INFO
+OLLAMA_BASE_URL=$ollama_base_url
+MODEL_NAME=qwen3:8b
+MODEL_EMBEDDING_NAME=nomic-embed-text
+OPENAI_API_KEY=
+OPENAI_BASE_URL=
+LLAMAPARSE_API_KEY=
+SEARCHAPI_API_KEY=
+SEARCHAPI_ENGINE=
+SCRAPING_BEE_API_KEY=
+SUPABASE_ANON_TOKEN=
+SUPABASE_URL=
+SUPABASE_SERVICE_TOKEN=
+TEST_API_KEY=
+PROXY_SERVER=
+PROXY_USERNAME=
+PROXY_PASSWORD=
+BLOCK_MEDIA=
+SELF_HOSTED_WEBHOOK_URL=
+SELF_HOSTED_WEBHOOK_HMAC_SECRET=
+POSTHOG_API_KEY=
+POSTHOG_HOST=
+SLACK_WEBHOOK_URL=
+RESEND_API_KEY=
+EOF
+
+  info "Created fuller fallback Firecrawl .env at $env_file"
+}
+
+symlink_firecrawl_env() {
+  local env_file="$FIRECRAWL_DIR/.env"
+  local template_file="$CLONE_DIR/$FIRECRAWL_ENV_TEMPLATE_REL"
+  local backup_file
+
+  [[ -f "$template_file" ]] || {
+    warn_optional "Firecrawl env template missing at $template_file. Skipping Firecrawl .env symlink."
+    return
+  }
+
+  if [[ -e "$env_file" && ! -L "$env_file" ]]; then
+    backup_file="$FIRECRAWL_DIR/.env.pre-opencode-link.$(date +%Y%m%d_%H%M%S)"
+    mv "$env_file" "$backup_file"
+    info "Backed up existing Firecrawl .env to $backup_file"
+  fi
+
+  ln -sfn "$template_file" "$env_file"
+  info "Linked Firecrawl .env to repo template at $template_file"
+}
+
+bootstrap_firecrawl() {
+  [[ "$INSTALL_FIRECRAWL" != "0" ]] || {
+    info "Skipping Firecrawl bootstrap (OPENCODE_INSTALL_FIRECRAWL=0)."
+    return
+  }
+
+  if ! check_command docker; then
+    warn_optional "Docker not found. Skipping Firecrawl bootstrap. Install Docker and re-run, or set OPENCODE_INSTALL_FIRECRAWL=0 to silence this."
+    return
+  fi
+
+  if ! docker compose version >/dev/null 2>&1; then
+    warn_optional "'docker compose' is unavailable. Skipping Firecrawl bootstrap. Install Docker Compose support and re-run, or set OPENCODE_INSTALL_FIRECRAWL=0 to silence this."
+    return
+  fi
+
+  if [[ -e "$FIRECRAWL_DIR" ]]; then
+    [[ -d "$FIRECRAWL_DIR" ]] || {
+      warn_optional "Firecrawl path exists but is not a directory: $FIRECRAWL_DIR"
+      return
+    }
+    if git -C "$FIRECRAWL_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      local origin
+      origin="$(git -C "$FIRECRAWL_DIR" config --get remote.origin.url || true)"
+      if [[ -n "$origin" ]] && ! repo_matches_expected_origin "$origin" && [[ "$(normalize_repo_ref "$origin")" != "$(normalize_repo_ref "$FIRECRAWL_REPO_URL")" ]]; then
+        warn_optional "Existing Firecrawl checkout points to a different repo ($origin). Skipping Firecrawl bootstrap in $FIRECRAWL_DIR"
+        return
+      fi
+      info "Firecrawl repo already present at $FIRECRAWL_DIR — skipping clone."
+    else
+      warn_optional "Firecrawl path exists but is not a git repo: $FIRECRAWL_DIR"
+      return
+    fi
+  else
+    info "Cloning Firecrawl to $FIRECRAWL_DIR..."
+    git clone "$FIRECRAWL_REPO_URL" "$FIRECRAWL_DIR" || {
+      warn_optional "Failed to clone Firecrawl from $FIRECRAWL_REPO_URL"
+      return
+    }
+  fi
+
+  ensure_firecrawl_env
+  symlink_firecrawl_env
+
+  info "Bootstrapping local Firecrawl with Docker Compose..."
+  if ! docker compose -f "$FIRECRAWL_DIR/docker-compose.yaml" build; then
+    warn_optional "Firecrawl docker compose build failed. Check $FIRECRAWL_DIR"
+    return
+  fi
+
+  if ! docker compose -f "$FIRECRAWL_DIR/docker-compose.yaml" up -d; then
+    warn_optional "Firecrawl docker compose up failed. Check $FIRECRAWL_DIR"
+    return
+  fi
+
+  info "Firecrawl is bootstrapped at http://localhost:3002"
 }
 
 print_warning_summary() {
@@ -469,7 +648,8 @@ main() {
   symlink_config
   install_deps
   install_opencode_plugins
-  install_mcp_deps
+  install_cli_workflow_deps
+  bootstrap_firecrawl
   ensure_opencode
 
   echo ""
@@ -490,12 +670,17 @@ main() {
   echo "  3. Optional: login to auggie (if installed separately)"
   echo "     auggie login"
   echo ""
-  echo "  4. Optional: set MCP API keys"
-  echo "     export EXA_API_KEY=<your-key>   # exa web search MCP"
+  echo "  4. Optional: set CLI workflow API keys"
+  echo "     export EXA_API_KEY=<your-key>   # exa-backed docs/web research"
   echo "     ↳ Get a key at https://exa.ai"
   echo "     ↳ Add to ~/.zshrc / ~/.bashrc to persist"
   echo ""
-  echo "  5. Launch opencode"
+  echo "  5. Firecrawl local research endpoint"
+  echo "     default: http://localhost:3002"
+  echo "     ↳ Disable bootstrap with OPENCODE_INSTALL_FIRECRAWL=0"
+  echo "     ↳ Override location with OPENCODE_FIRECRAWL_DIR or FIRECRAWL_API_URL"
+  echo ""
+  echo "  6. Launch opencode"
   echo "     opencode"
   echo ""
   print_warning_summary

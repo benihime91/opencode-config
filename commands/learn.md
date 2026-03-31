@@ -1,6 +1,6 @@
 ---
 description: Extract patterns and learnings from current session
-agent: orchestrator
+agent: zeus
 ---
 
 # Learn Command

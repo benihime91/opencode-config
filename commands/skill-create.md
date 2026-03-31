@@ -1,6 +1,6 @@
 ---
 description: Generate skills from git history analysis
-agent: fixer
+agent: hephaestus
 ---
 
 # Skill Create Command
