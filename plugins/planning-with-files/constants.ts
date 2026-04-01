@@ -36,6 +36,12 @@ export const PLANNING_FILES = new Set([
 
 export const TASK_TOOL = 'task'
 export const FILE_UPDATE_TOOLS = new Set(['write', 'edit'])
+
+/** Tools that trigger plan-head injection before execution — matches the original skill's PreToolUse matcher. */
+export const PRE_TOOL_USE_TOOLS = new Set(['write', 'edit', 'bash', 'read', 'glob', 'grep'])
+
+/** Tools that trigger the PostToolUse reminder — matches the original skill's PostToolUse matcher. */
+export const REMINDER_TOOLS = new Set(['write', 'edit'])
+
+/** Simple one-liner matching the original skill's PostToolUse output. */
 export const PROGRESS_REMINDER = 'Update `.plans/progress.md` with what you just did. If a phase is now complete, update `.plans/task_plan.md` status.'
-export const FINDINGS_REMINDER = 'If this result produced durable discoveries, constraints, or reusable context, consolidate them into `.plans/findings.md` before continuing.'
-export const PERSIST_RESULT_REMINDER = 'After any meaningful tool result, and especially after any `task` or subagent result, persist the important outcome before continuing when shared planning memory should carry it forward.'

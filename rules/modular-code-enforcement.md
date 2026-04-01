@@ -77,19 +77,6 @@ Any `.ts`, `.tsx`, or `.py` file exceeding **200 lines of code** (excluding prom
 
 Prompt-heavy files (agent definitions, skill definitions) where the bulk of content is template literal prompt text or long prompt/docstring content are EXEMPT from the LOC count — but their non-prompt logic must still be < 200 LOC.
 
-## Rule 5: Python Runtime Type Enforcement — ALWAYS USE `beartype`
-
-For Python, runtime type enforcement is REQUIRED.
-
-- Use `beartype` on public functions, methods, and class initializers
-- Prefer strict, fully annotated signatures
-- Do not introduce untyped public APIs when typed ones are practical
-- If a Python module exposes behavior, its public surface should be compatible with `beartype`
-
-**Default rule**: if you create or modify Python application code, add or preserve `beartype` enforcement unless the user explicitly requests otherwise.
-
-**Do not** treat static hints alone as sufficient. Type hints without runtime enforcement are incomplete for this codebase policy.
-
 ### How to Count LOC
 
 **Count these** (= actual logic):

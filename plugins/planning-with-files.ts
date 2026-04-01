@@ -1,12 +1,19 @@
 /**
  * Planning with Files — plugin
  *
- * Mirrors planning-skill hook behavior at runtime and keeps planning-memory reminders active.
+ * Mirrors the original skill's hook behavior at runtime:
+ *   - PreToolUse  (Write|Edit|Bash|Read|Glob|Grep) → inject plan head
+ *   - PostToolUse (Write|Edit only)                 → simple one-liner reminder
+ *   - Task results                                  → slightly stronger reminder
+ *   - Planning-file writes                          → NO reminder (self-loop breaker)
  */
 
 import type { Plugin } from '@opencode-ai/plugin'
 import {
   FILE_UPDATE_TOOLS,
+  PRE_TOOL_USE_TOOLS,
+  REMINDER_TOOLS,
+  TASK_TOOL,
 } from './planning-with-files/constants'
 import {
   planHead,
@@ -87,7 +94,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
 
       if (isPlanningSkill) {
         const [head, progress] = await Promise.all([
-          planHead(root),
+          planHead(root, 50),
           recentProgress(root),
         ])
         if (head || progress) {
@@ -124,10 +131,13 @@ export const PlanningWithFilesPlugin: Plugin = async ({
         )
       }
 
-      if (tool === 'task') {
+      if (tool === TASK_TOOL) {
         const subagentType = requestedSubagentType(output.args)
         cache.rememberPendingTaskAgent(input.callID, subagentType)
       }
+
+      // Only cache plan head for the original PreToolUse matcher: Write|Edit|Bash|Read|Glob|Grep + Task
+      if (!PRE_TOOL_USE_TOOLS.has(tool) && tool !== TASK_TOOL) return
 
       const head = await planHead(root)
       if (!head) return
@@ -149,36 +159,42 @@ export const PlanningWithFilesPlugin: Plugin = async ({
 
       if (!isPlanningOwner && !isPlanningNudge) return
 
-      let changed = false
-      const delegatedAgent = cache.takePendingTaskAgent(input.callID)
-
+      // Inject plan head from PreToolUse cache (always, when available)
       const head = cache.takePendingPlan(input.callID)
       if (head) {
         append(mutableOutput, planOutputBlock(head))
-        changed = true
       }
 
-      const reminder = tool === 'task'
-        ? isPlanningOwner
+      const delegatedAgent = cache.takePendingTaskAgent(input.callID)
+
+      // === Reminder logic: match original skill's PostToolUse behavior ===
+      //
+      // Original skill: PostToolUse fires ONLY for Write|Edit, with a simple one-liner.
+      // Task tool: slightly stronger reminder (persist subagent outcomes).
+      // Planning-file writes: NO reminder (self-loop breaker).
+      // Everything else: NO reminder.
+
+      if (tool === TASK_TOOL) {
+        // Task/subagent results always get a reminder — these are the most important to persist
+        const reminder = isPlanningOwner
           ? ownerTaskReminderBlock(delegatedAgent)
           : readOnlyTaskReminderBlock(delegatedAgent)
-        : isPlanningOwner
-          ? ownerReminderBlock(tool)
-          : readOnlyReminderBlock(tool)
-
-      append(mutableOutput, reminder)
-      changed = true
-
-      if (await maybeAppendStatus(input.sessionID, mutableOutput)) {
-        changed = true
+        append(mutableOutput, reminder)
+      } else if (REMINDER_TOOLS.has(tool)) {
+        // Write|Edit that targets a planning file → skip reminder (self-loop breaker)
+        if (touchesPlanningFile(root, input.args)) {
+          // No reminder — the model just updated planning files, don't ask it to do so again
+        } else {
+          // Write|Edit to non-planning files → simple one-liner (matches original PostToolUse)
+          const reminder = isPlanningOwner
+            ? ownerReminderBlock()
+            : readOnlyReminderBlock()
+          append(mutableOutput, reminder)
+        }
       }
+      // All other tools (read, grep, glob, bash, etc.) → no reminder
 
-      if (changed) {
-        await toast(
-          'Planning',
-          'Update `.plans/progress.md` with what you just did. If a phase is now complete, update `.plans/task_plan.md` status.',
-        )
-      }
+      await maybeAppendStatus(input.sessionID, mutableOutput)
     },
 
     event: async (input: { event: SessionEvent }) => {

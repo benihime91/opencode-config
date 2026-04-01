@@ -2,15 +2,14 @@
  * Planning with Files — messages
  *
  * Output blocks and reminder text for planning hook injections.
+ * Matches the original skill's hook behavior: simple one-liner PostToolUse
+ * reminders instead of per-tool-call mandates.
  */
 
 import {
-  FINDINGS_REMINDER,
   NUDGE_ONLY_PLANNING_AGENT_LABEL,
-  PERSIST_RESULT_REMINDER,
   PRIMARY_PLANNING_AGENT_LABEL,
   PROGRESS_REMINDER,
-  TASK_TOOL,
 } from './constants'
 
 export type MutableToolResult = {
@@ -41,7 +40,6 @@ export function primarySystemBlock(): string {
     'Planning with Files',
     'This session is a primary planning-memory agent. Always follow the planning-with-files workflow in this repo.',
     'Treat `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` as shared memory.',
-    PERSIST_RESULT_REMINDER,
     'For complex or multi-step work, load `planning-with-files` before continuing.',
   ].join('\n')
 }
@@ -56,63 +54,40 @@ export function readOnlySystemBlock(): string {
   ].join('\n')
 }
 
-export function ownerReminderBlock(tool: string): string {
-  const lines = [
-    'Planning with Files',
-    `Reminder: ${PERSIST_RESULT_REMINDER}`,
-    `Reminder: ${PROGRESS_REMINDER}`,
-    FINDINGS_REMINDER,
-  ]
-
-  if (tool === TASK_TOOL) {
-    lines.push('This result came from delegated work. Persist the durable outcome before the next wave or decision.')
-  }
-
-  return lines.join('\n')
+/** Simple PostToolUse reminder — matches the original skill's one-liner. */
+export function ownerReminderBlock(): string {
+  return `[planning-with-files] ${PROGRESS_REMINDER}`
 }
 
+/** Reminder after a task/subagent result — slightly stronger since subagent outcomes are durable. */
 export function ownerTaskReminderBlock(subagentType?: string): string {
   const lines = [
-    'Planning with Files',
-    `Reminder: ${PERSIST_RESULT_REMINDER}`,
-    `Reminder: ${PROGRESS_REMINDER}`,
+    '[planning-with-files]',
+    PROGRESS_REMINDER,
   ]
 
   if (subagentType) {
     lines.push(
-      `You just received results from @${subagentType}. Persist the durable outcome before starting the next wave or delegation.`,
+      `You just received results from @${subagentType}. If the result produced durable findings, consolidate them into \`.plans/findings.md\`.`,
     )
   }
 
-  lines.push(FINDINGS_REMINDER)
   return lines.join('\n')
 }
 
-export function readOnlyReminderBlock(tool: string): string {
-  const lines = [
-    'Planning with Files',
-    `Reminder: Hand results back so the ${PRIMARY_PLANNING_AGENT_LABEL} can update the shared planning memory.`,
-  ]
-
-  if (tool === TASK_TOOL) {
-    lines.push('If this result contains reusable findings, make sure they are consolidated into `.plans/findings.md` before the next step.')
-  }
-
-  return lines.join('\n')
+export function readOnlyReminderBlock(): string {
+  return `[planning-with-files] Hand results back so the ${PRIMARY_PLANNING_AGENT_LABEL} can update the shared planning memory.`
 }
 
 export function readOnlyTaskReminderBlock(subagentType?: string): string {
   const lines = [
-    'Planning with Files',
-    `Reminder: Hand results back so the ${PRIMARY_PLANNING_AGENT_LABEL} can update the shared planning memory.`,
+    `[planning-with-files] Hand results back so the ${PRIMARY_PLANNING_AGENT_LABEL} can update the shared planning memory.`,
   ]
 
   if (subagentType) {
     lines.push(
       `This came from @${subagentType}. If it produced reusable findings, make sure they are consolidated into .plans/findings.md before the next step.`,
     )
-  } else {
-    lines.push('If this result contains reusable findings, make sure they are consolidated into `.plans/findings.md` before the next step.')
   }
 
   return lines.join('\n')

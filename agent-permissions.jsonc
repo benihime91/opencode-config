@@ -55,11 +55,22 @@
         "mcporter"
       ]
     },
+    "daedalus": {
+      "skills": [
+        "repo-discovery",
+        "docs-research",
+        "deep-research",
+        "firecrawl",
+        "mcporter"
+      ]
+    },
     "aphrodite": {
       "skills": [
+        "repo-discovery",
         "agentation",
         "annotation-sync",
         "agentation-self-driving",
+        "agent-browser",
         "mcporter"
       ]
     },
@@ -86,6 +97,7 @@
       "skills": [
         "docs-research",
         "writing-plans",
+        "writing-clearly-and-concisely",
         "repo-discovery",
         "firecrawl",
         "mcporter"

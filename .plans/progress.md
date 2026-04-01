@@ -895,3 +895,26 @@
 - Updated `agents/orchestrator.md` so `@explorer` is the default repo-understanding lane and is mandatory before implementation delegation whenever exact files, architecture, symbol paths, or change surface are not already concrete.
 - Tightened the `@explorer` section so explorer handoffs are expected to carry explicit Context+ workflow by default for repo-facing work.
 - Ran a follow-up wording pass on `@librarian` so external-doc research is now framed as complementary to explorer-first repo grounding instead of a parallel default.
+
+## 2026-04-01 — Daedalus Agent + Permissions Audit + Repo-Discovery Context+ Enforcement
+
+- Created `agents/daedalus.md` as a new read-only technical architect subagent (no bash, no edit, no task tools).
+- Added @daedalus to `agents/zeus.md` agent roster with clear routing guidance vs @apollo.
+- Updated failure recovery flow in zeus.md to mention @daedalus for architecture-specific escalation.
+- Added `daedalus` entry to `agent-permissions.jsonc` with skills: repo-discovery, docs-research, deep-research, firecrawl, mcporter.
+- Full agent-permissions skill audit completed:
+  - Added `repo-discovery` to aphrodite (needs to understand component structure for UI work).
+  - Added `agent-browser` to aphrodite (browser automation for UI testing).
+  - Added `writing-clearly-and-concisely` to hestia (documentation quality).
+- Updated `skills/repo-discovery/SKILL.md` to enforce Context+ as the primary discovery mechanism:
+  - Core Sequence now explicitly states "Always start with Context+ tools" and marks grep/glob as fallback-only.
+  - Practical Defaults section now leads with "Context+ first, always."
+  - Anti-patterns list now includes "defaulting to grep/glob instead of Context+" as the #1 mistake.
+- Updated `README.md` agent table to include Daedalus.
+- Files modified:
+  - `agents/daedalus.md` (new)
+  - `agents/zeus.md`
+  - `agent-permissions.jsonc`
+  - `skills/repo-discovery/SKILL.md`
+  - `README.md`
+  - `.plans/progress.md`

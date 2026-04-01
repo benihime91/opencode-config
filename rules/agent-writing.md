@@ -30,3 +30,12 @@ See skills: `writing-clearly-and-concisely`, `writing-skills`, `agent-harness-co
 - Validate prose, process docs, skills, and agent workflows with explicit quality checks before promoting them as trusted guidance.
 
 See skills: `writing-skills`, `agent-harness-construction`, `article-writing`
+
+## 4. Source-Backed External Claims
+
+- Cite source URLs when summarizing externally researched facts, recommendations, or comparisons.
+- Do not present factual claims without traceable supporting sources.
+- If support is thin or single-sourced, label the claim as tentative rather than settled.
+- Verify factual prose against the cited material before delivering it.
+
+See skills: `deep-research`, `docs-research`, `article-writing`

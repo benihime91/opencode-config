@@ -131,16 +131,6 @@ Treat `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` as t
 - Read the planning trio before major work when the task depends on current session context.
 - Keep subagents read-only on these files; they should hand durable outcomes back for consolidation.
 
-## Planning Persistence After Tool Results
-
-After any meaningful tool result, and especially after any `task`/subagent result, persist the important outcome before continuing when shared planning memory should carry it forward.
-
-- Update `.plans/progress.md` with what you just did.
-- If a phase is now complete, update `.plans/task_plan.md` status before moving on.
-- If the result produced durable discoveries, decisions, constraints, failed-attempt lessons, or reusable context, write them to `.plans/findings.md` before the next major action.
-- Do not leave important multi-step context only in transient conversation history when later work will depend on it.
-- Exploration or research results that will inform later implementation should usually be consolidated into `.plans/findings.md`.
-
 After any user correction or redirection, update `.plans/findings.md`.
 
 Each entry must include:

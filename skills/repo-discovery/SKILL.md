@@ -32,12 +32,16 @@ Skip this skill when the task is already limited to one known file and no broade
 
 ## Core Sequence
 
-1. Start broad with structure.
-2. Narrow with semantic search.
-3. Trace identifiers when the question becomes symbol-specific.
-4. Confirm exact paths and lines with direct file reads.
-5. Inspect blast radius before editing or deleting existing symbols.
-6. Run static analysis after edits when available.
+**Always start with Context+ tools.** Context+ (via mcporter) is the primary discovery mechanism. `grep`, `glob`, and raw file reads are fallback-only tools — use them after Context+ results are insufficient, not as a default starting point.
+
+1. Start broad with Context+ structure (`get_context_tree`, `get_file_skeleton`).
+2. Narrow with Context+ semantic search (`semantic_code_search`, `semantic_identifier_search`).
+3. Trace identifiers with Context+ when the question becomes symbol-specific.
+4. Confirm exact paths and lines with direct file reads — only after Context+ has identified the targets.
+5. Inspect blast radius with Context+ (`get_blast_radius`) before editing or deleting existing symbols.
+6. Run static analysis with Context+ (`run_static_analysis`) after edits when available.
+
+**Fallback rule**: Use `grep` or `glob` only when Context+ semantic search returns no useful results for a specific query, or when you need exact-string matching that semantic search cannot provide (e.g., a precise regex). Do not default to `grep`/`glob` out of habit.
 
 Do not jump straight into broad file-body reads unless the task is truly tiny and the target file is already known.
 
@@ -122,22 +126,24 @@ bunx mcporter call 'contextplus.run_static_analysis(target_path: "plugins")' --c
 
 ## Practical Defaults
 
-- Prefer one structural call before many raw reads.
-- Prefer multiple semantic searches with different wording over one overly narrow query.
-- Use direct file reads only after likely targets are identified.
-- Use `grep` or `glob` only for exact confirmation after semantic discovery, not as the first resort for non-trivial repo questions.
+- **Context+ first, always.** Every repo-understanding task should begin with Context+ structural and semantic tools. Do not start with `grep`, `glob`, or raw file reads.
+- Prefer one structural call (`get_context_tree`, `get_file_skeleton`) before any raw reads.
+- Prefer multiple Context+ semantic searches with different wording over one overly narrow query.
+- Use direct file reads only after Context+ has identified likely targets.
+- Use `grep` or `glob` only for exact-string confirmation or regex matching after semantic discovery has narrowed the search area.
 - Keep the search surface bounded to the relevant directory or feature area once you know it.
 
 ## Anti-Patterns
 
 Avoid these mistakes:
 
-1. searching only once, then assuming the first result is complete
-2. reading entire large files before checking structure or skeleton
-3. reporting guessed symbol relationships without direct confirmation
-4. editing or deleting a symbol before checking blast radius
-5. turning implementation work into open-ended repo archaeology
-6. describing this as an MCP workflow instead of a skill-driven CLI workflow
+1. **defaulting to `grep`/`glob` instead of Context+** — this is the most common error; always reach for Context+ semantic tools first
+2. searching only once, then assuming the first result is complete
+3. reading entire large files before checking structure or skeleton with Context+
+4. reporting guessed symbol relationships without direct confirmation
+5. editing or deleting a symbol before checking blast radius
+6. turning implementation work into open-ended repo archaeology
+7. describing this as an MCP workflow instead of a skill-driven CLI workflow
 
 ## Output Expectations
 

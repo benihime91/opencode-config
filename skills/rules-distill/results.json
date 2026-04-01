@@ -1,165 +1,106 @@
 {
-  "distilled_at": "2026-03-31T10:21:01Z",
-  "skills_scanned": 23,
-  "rules_scanned": 2,
+  "distilled_at": "2026-04-01T06:30:00Z",
+  "skills_scanned": 24,
+  "rules_scanned": 5,
   "candidates": {
-    "design-plan-gate": {
-      "principle": "Require an explicit design or written implementation plan before executing multi-step, ambiguous, or behavior-changing work.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
+    "plan-reread-before-resuming": {
+      "principle": "Re-read active plan and shared planning files before resuming after a gap and before major decisions.",
+      "verdict": "Append",
+      "target": "rules/agent-workflow.md §4. Durable Planning Memory",
       "evidence": [
-        "brainstorming",
+        "planning-with-files",
         "blueprint",
-        "writing-plans",
         "executing-plans"
       ],
       "status": "applied"
     },
-    "bounded-work-and-cold-start-handoffs": {
-      "principle": "Break complex work into bounded units with exact scope, constraints, verification, and cold-start-safe handoffs.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
+    "explicit-retry-bounds": {
+      "principle": "Define explicit stop conditions and retry bounds for recovery work instead of open-ended retries.",
+      "verdict": "Revise",
+      "target": "rules/agent-workflow.md §6. Escalate Instead Of Guessing",
       "evidence": [
-        "blueprint",
-        "writing-plans",
-        "dispatching-parallel-agents"
-      ],
-      "status": "applied"
-    },
-    "review-before-trust": {
-      "principle": "Review plans, specs, and delegated results critically before acting on them.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
-      "evidence": [
-        "brainstorming",
-        "writing-plans",
-        "executing-plans",
-        "dispatching-parallel-agents"
-      ],
-      "status": "applied"
-    },
-    "durable-planning-memory": {
-      "principle": "Store durable task state in .plans/ and update it at major discoveries, phase boundaries, errors, and resumptions.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
-      "evidence": [
-        "planning-with-files",
-        "blueprint",
-        "brainstorming",
-        "writing-plans"
-      ],
-      "status": "applied"
-    },
-    "safe-parallelism": {
-      "principle": "Parallelize only when workstreams are genuinely independent in state, files, and dependencies.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
-      "evidence": [
-        "blueprint",
-        "dispatching-parallel-agents"
-      ],
-      "status": "applied"
-    },
-    "escalate-instead-of-guessing": {
-      "principle": "Escalate when blockers persist or verification fails instead of guessing or repeating failed steps.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
-      "evidence": [
+        "agent-harness-construction",
         "planning-with-files",
         "executing-plans"
       ],
       "status": "applied"
     },
-    "skill-selection-and-stable-interface": {
-      "principle": "Use the narrowest fitting skill and keep the user-facing workflow skill-first rather than provider-first.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
-      "evidence": [
-        "repo-discovery",
-        "docs-research",
-        "deep-research",
-        "mcporter",
-        "annotation-sync"
-      ],
-      "status": "applied"
-    },
-    "canonical-cli-config": {
-      "principle": "Pass canonical repo-owned CLI config paths explicitly instead of relying on defaults.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
-      "evidence": [
-        "repo-discovery",
-        "docs-research",
-        "deep-research",
-        "mcporter",
-        "annotation-sync"
-      ],
-      "status": "applied"
-    },
-    "evidence-confirmation": {
-      "principle": "Treat search hits and snippets as leads, not proof, and verify claims against the underlying source.",
-      "verdict": "New File",
-      "target": "rules/agent-workflow.md",
-      "evidence": [
-        "repo-discovery",
-        "deep-research"
-      ],
-      "status": "applied"
-    },
-    "ui-state-freshness": {
-      "principle": "Refresh UI state after navigation or DOM-changing actions instead of reusing stale refs.",
-      "verdict": "New File",
-      "target": "rules/browser-automation.md",
+    "match-observation-mode": {
+      "principle": "Choose the browser observation mode that matches the task instead of defaulting to one capture style.",
+      "verdict": "New Section",
+      "target": "rules/browser-automation.md §4",
       "evidence": [
         "agent-browser",
-        "electron",
+        "dogfood",
         "slack"
       ],
       "status": "applied"
     },
-    "ui-action-verification": {
-      "principle": "Verify important UI actions with explicit observable checks instead of assuming the command worked.",
-      "verdict": "New File",
-      "target": "rules/browser-automation.md",
+    "shell-safe-browser-eval": {
+      "principle": "Use shell-safe input methods for complex browser eval commands instead of brittle nested quoting.",
+      "verdict": "New Section",
+      "target": "rules/browser-automation.md §5",
       "evidence": [
         "agent-browser",
-        "agentation-self-driving",
-        "dogfood"
-      ],
-      "status": "applied"
-    },
-    "ui-session-and-recovery-discipline": {
-      "principle": "Use isolated automation sessions and prefer minimal recovery resets that preserve evidence.",
-      "verdict": "New File",
-      "target": "rules/browser-automation.md",
-      "evidence": [
-        "agent-browser",
-        "dogfood",
-        "electron",
         "agentation-self-driving"
       ],
       "status": "applied"
     },
-    "concise-human-facing-writing": {
-      "principle": "Write human-facing guidance in short, direct, concrete language and cut filler.",
-      "verdict": "New File",
-      "target": "rules/agent-writing.md",
+    "reuse-auth-state": {
+      "principle": "Prefer reusing authenticated browser sessions over repeating login flows.",
+      "verdict": "New Section",
+      "target": "rules/browser-automation.md §6",
       "evidence": [
-        "article-writing",
-        "writing-clearly-and-concisely",
-        "writing-skills"
+        "agent-browser",
+        "dogfood",
+        "slack"
       ],
       "status": "applied"
     },
-    "context-budget-and-interface-validation": {
-      "principle": "Keep core guidance lean, name interfaces narrowly, and validate agent-facing guidance before promoting it.",
-      "verdict": "New File",
-      "target": "rules/agent-writing.md",
+    "source-backed-claims": {
+      "principle": "Cite source URLs for externally researched claims and label tentative ones explicitly.",
+      "verdict": "New Section",
+      "target": "rules/agent-writing.md §4",
       "evidence": [
-        "writing-skills",
-        "agent-harness-construction",
-        "writing-clearly-and-concisely",
+        "deep-research",
+        "docs-research",
         "article-writing"
+      ],
+      "status": "applied"
+    },
+    "source-hierarchy": {
+      "principle": "Prefer highest-authority sources first for research; use secondary sources as supporting context only.",
+      "verdict": "New Section",
+      "target": "rules/agent-workflow.md §10",
+      "evidence": [
+        "docs-research",
+        "deep-research",
+        "article-writing"
+      ],
+      "status": "applied"
+    },
+    "live-schema-confirmation": {
+      "principle": "Inspect live tool schemas before assuming argument shapes for CLI-backed tools.",
+      "verdict": "New Section",
+      "target": "rules/agent-workflow.md §11",
+      "evidence": [
+        "docs-research",
+        "deep-research",
+        "repo-discovery",
+        "annotation-sync",
+        "firecrawl",
+        "mcporter"
+      ],
+      "status": "applied"
+    },
+    "fallback-and-failure-classification": {
+      "principle": "Try documented fallback paths before escalating; classify failure type before redesigning.",
+      "verdict": "New Section",
+      "target": "rules/agent-workflow.md §12",
+      "evidence": [
+        "deep-research",
+        "firecrawl",
+        "mcporter"
       ],
       "status": "applied"
     }

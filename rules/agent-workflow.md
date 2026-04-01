@@ -31,6 +31,8 @@ See skills: `brainstorming`, `writing-plans`, `executing-plans`, `dispatching-pa
 
 - Store durable task state in `.plans/` instead of relying on chat history alone.
 - Update planning memory when phases change, important discoveries happen, errors occur, or work resumes after a gap.
+- Re-read the active plan and shared planning files before resuming after a gap and before major decisions.
+- Treat `.plans/` as the current source of task truth when it exists; do not rely on stale chat context alone.
 - Do not keep important progress only in transient conversation context.
 
 See skills: `planning-with-files`, `blueprint`, `brainstorming`, `writing-plans`
@@ -46,8 +48,10 @@ See skills: `blueprint`, `dispatching-parallel-agents`
 
 ## 6. Escalate Instead Of Guessing
 
-- When instructions are unclear, a blocker prevents safe progress, or verification keeps failing, stop and escalate with the exact issue and attempted remedies.
-- Do not repeat the same failed action or guess past missing information.
+- Define explicit stop conditions and retry bounds for recovery work.
+- When instructions are unclear, a blocker prevents safe progress, or the same class of failure persists after bounded attempts, stop and escalate with the exact issue and attempted remedies.
+- Do not repeat the same failed action; either change the approach deliberately or stop and ask for guidance.
+- Do not guess past missing information just to keep momentum.
 
 See skills: `planning-with-files`, `executing-plans`
 
@@ -76,3 +80,27 @@ See skills: `repo-discovery`, `docs-research`, `deep-research`, `mcporter`, `ann
 - Do not present guessed ownership, symbol paths, call chains, or research conclusions as confirmed without direct verification.
 
 See skills: `repo-discovery`, `deep-research`
+
+## 10. Source Hierarchy For Research
+
+- Prefer official, primary, or highest-authority sources first when researching APIs, libraries, products, companies, or market facts.
+- Use lower-authority sources as supporting context, not the default basis for conclusions.
+- When higher-authority sources are unavailable, say so explicitly and lower confidence accordingly.
+
+See skills: `docs-research`, `deep-research`, `article-writing`
+
+## 11. Live Schema Confirmation For CLI Tools
+
+- Inspect the live tool schema or signature before making ad hoc CLI-backed tool calls when argument shapes may be uncertain.
+- If a command example conflicts with actual behavior, trust the live schema and update your approach.
+- Re-check schemas during troubleshooting before assuming the provider or config is broken.
+
+See skills: `mcporter`, `docs-research`, `repo-discovery`, `annotation-sync`, `firecrawl`
+
+## 12. Fallback And Failure Classification
+
+- When a provider-specific path fails, use the documented fallback or recovery path before escalating if an equivalent route still exists.
+- Distinguish likely failure classes first: schema mismatch, feature gating, provider availability, auth/config, or environment/runtime issues.
+- Do not redesign the workflow or report a hard blocker until the narrower fallback or recovery path has been tried or ruled out.
+
+See skills: `deep-research`, `firecrawl`, `mcporter`

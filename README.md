@@ -116,7 +116,8 @@ This config ships with two primary agents and a set of hidden specialist subagen
 | `artemis` | Fast repo discovery. Finds files, traces symbols, maps architecture, and answers “where does this live?” questions. |
 | `hephaestus` | Deep implementation worker. Executes scoped code changes locally and runs the strongest relevant verification. |
 | `athena` | External docs and library researcher. Pulls official docs, examples, and version-sensitive guidance. |
-| `apollo` | Strategic advisor. Helps with architecture choices, stubborn bugs, risk analysis, and high-level technical review. |
+| `apollo` | Strategic advisor. Helps with stubborn bugs, risk analysis, and high-level technical review. |
+| `daedalus` | Technical architect. Produces high-level designs, pattern selections, directory structures, trade-off analysis, and ADRs without implementation code. |
 | `aphrodite` | UI/UX specialist. Improves visual direction, responsive layouts, interaction design, and polish. |
 | `hestia` | Documentation specialist. Updates README files, guides, and operational docs to match current behavior. |
 | `themis` | Review specialist. Checks completed work against the plan, constraints, and code-quality expectations. |

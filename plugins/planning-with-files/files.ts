@@ -8,10 +8,11 @@ import fs from 'fs'
 import path from 'path'
 import { CHECK_COMPLETE, PLANNING_FILES } from './constants'
 
-export async function planHead(root: string): Promise<string> {
+/** Read the first N lines of task_plan.md. Original skill: 50 for UserPromptSubmit, 30 for PreToolUse. */
+export async function planHead(root: string, lines = 30): Promise<string> {
   try {
     const content = await fs.promises.readFile(path.join(root, '.plans', 'task_plan.md'), 'utf8')
-    return content.split('\n').slice(0, 30).join('\n').trim()
+    return content.split('\n').slice(0, lines).join('\n').trim()
   } catch {
     return ''
   }
