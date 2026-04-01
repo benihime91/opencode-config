@@ -19,7 +19,8 @@
   - Removed `contextplus` from `mcporter.json` while keeping the other mcporter-backed servers intact.
   - Rewrote `skills/repo-discovery/SKILL.md` so Context+ is again described as the native MCP-backed repo-discovery path.
   - Verified the changed files by direct read-back and validated `opencode.json` plus `mcporter.json` with JSON parsing through Node.
-  - During later Gemini diagnosis, generated a fresh sample config from the released `bunx contextplus` CLI and confirmed it still emits Ollama-only environment settings, which strengthens the docs/package mismatch diagnosis.
+- During later Gemini diagnosis, generated a fresh sample config from the released `bunx contextplus` CLI and confirmed it still emits Ollama-only environment settings, which strengthens the docs/package mismatch diagnosis.
+- Updated agent model prefixes from `google/` to `google-vertex/` in `agents/aphrodite.md`, `agents/athena.md`, and `agents/hestia.md`, then verified all three file headers directly.
   - Confirmed via npm metadata that `contextplus@1.0.8` is still the latest published release, so there is no newer npm version available to upgrade to right now.
   - Ran a native runtime smoke check: `opencode mcp list` showed `contextplus` connected, `opencode mcp debug contextplus` confirmed the server is local, and a minimal `contextplus_get_context_tree` call returned the repo tree successfully.
   - Ran a wider native tool smoke check across the Context+ surface.

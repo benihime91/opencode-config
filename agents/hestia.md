@@ -2,7 +2,7 @@
 name: hestia
 description: Documentation specialist. Use for updating docs, guides, and operational instructions.
 mode: subagent
-model: google/gemini-3.1-pro-preview-customtools
+model: google-vertex/gemini-3.1-pro-preview-customtools
 tools:
   read: true
   write: true

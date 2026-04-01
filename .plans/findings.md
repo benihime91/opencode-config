@@ -66,6 +66,9 @@
     - `CONTEXTPLUS_EMBED_TRACKER`
   - The generated config contains no `CONTEXTPLUS_EMBED_PROVIDER` or `CONTEXTPLUS_OPENAI_*` fields.
   - This is direct evidence that the currently published CLI/package path reached through `bunx contextplus` is still Ollama-oriented and does not match the Gemini/OpenAI-compatible README on the main branch.
+- Model-prefix rename result:
+  - Replaced `google/gemini-3.1-pro-preview-customtools` with `google-vertex/gemini-3.1-pro-preview-customtools` in exactly three agent files: `agents/aphrodite.md`, `agents/athena.md`, and `agents/hestia.md`.
+  - A repo grep after the edit showed only the `google-vertex/` form for those three agent declarations.
 - Latest-release confirmation:
   - `npm view contextplus version dist-tags time --json` confirms the latest npm release is still `1.0.8` with `dist-tags.latest = 1.0.8`.
   - Re-running `bunx contextplus init opencode` still resolves the currently published release and reproduces the Ollama-only generated config, so there is no newer npm release available yet to fix this by simple upgrade.

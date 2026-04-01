@@ -2,7 +2,7 @@
 name: athena
 description: External documentation and library research. Use for official docs lookup, GitHub examples, and understanding library internals.
 mode: subagent
-model: google/gemini-3.1-pro-preview-customtools
+model: google-vertex/gemini-3.1-pro-preview-customtools
 temperature: 0.1
 hidden: true
 ---
