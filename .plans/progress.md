@@ -1,5 +1,127 @@
 # Progress Log
 
+## Session: 2026-04-01 (ContextPlus MCP revert)
+
+### Current Session
+
+- **Status:** in_progress
+- **Focus:** Revert Context+ from the current `mcporter`-backed skill path to the default MCP path with the smallest safe scope.
+- Actions taken:
+  - Loaded the required requirement, planning-memory, and repo-discovery workflows before responding because this is a behavior and infrastructure change.
+  - Re-ran catch-up through `git diff --stat` and the planning trio.
+  - Grounded the current state by reading `opencode.json`, `mcporter.json`, `skills/repo-discovery/SKILL.md`, `agents/artemis.md`, and `agents/hermes.md`.
+  - Ran broad Context+ structural and semantic discovery passes to confirm the active Context+ workflow is currently routed through the `repo-discovery` skill and `mcporter` config.
+  - Replaced the stale planning-reminder task plan with a new Context+ revert plan and recorded the user correction/misalignment in `.plans/findings.md`.
+  - Confirmed with the user that the revert should be Context+-only.
+  - Checked the official OpenCode config and MCP docs to confirm that native MCP servers belong under the `mcp` key in `opencode.json` and that local server entries use `type`, `command`, `enabled`, optional `environment`, and optional `timeout`.
+  - Advanced the task into implementation with the approved docs-backed revert shape.
+  - Restored `contextplus` as a native MCP entry in `opencode.json`.
+  - Removed `contextplus` from `mcporter.json` while keeping the other mcporter-backed servers intact.
+  - Rewrote `skills/repo-discovery/SKILL.md` so Context+ is again described as the native MCP-backed repo-discovery path.
+  - Verified the changed files by direct read-back and validated `opencode.json` plus `mcporter.json` with JSON parsing through Node.
+  - During later Gemini diagnosis, generated a fresh sample config from the released `bunx contextplus` CLI and confirmed it still emits Ollama-only environment settings, which strengthens the docs/package mismatch diagnosis.
+  - Confirmed via npm metadata that `contextplus@1.0.8` is still the latest published release, so there is no newer npm version available to upgrade to right now.
+  - Ran a native runtime smoke check: `opencode mcp list` showed `contextplus` connected, `opencode mcp debug contextplus` confirmed the server is local, and a minimal `contextplus_get_context_tree` call returned the repo tree successfully.
+  - Ran a wider native tool smoke check across the Context+ surface.
+  - Confirmed these native read-only tools respond successfully: `contextplus_get_file_skeleton`, `contextplus_get_blast_radius`, `contextplus_get_feature_hub`, and `contextplus_list_restore_points`.
+  - Confirmed the semantic/embedding-backed tools are still broken in the current native setup: `contextplus_semantic_code_search`, `contextplus_semantic_identifier_search`, and `contextplus_semantic_navigate` fail with default-model / Ollama fetch errors.
+  - Checked local Ollama directly and confirmed the machine already has `nomic-embed-text-v2-moe:latest` installed, which suggests a model-name or environment propagation mismatch rather than a missing local model runtime.
+  - After the user's correction, re-grounded on the live `opencode.json` and the upstream Context+ README, which now documents Gemini/OpenAI-compatible embedding support.
+  - Re-ran the native embedding-backed tools without making edits.
+  - Result stayed the same: semantic tools still behave as if they are using the default Ollama model `nomic-embed-text`, despite the live config using the Gemini/OpenAI-compatible provider variables.
+  - After the user updated the MCP command to `bunx contextplus@latest`, re-read `opencode.json` and re-ran the native semantic smoke test.
+  - Result still stayed the same: structural access works, but semantic code search, semantic identifier search, and semantic navigate all still fail with the old `nomic-embed-text` / Ollama path, confirming that `@latest` did not change the effective runtime behavior.
+  - After the user switched the MCP command again to `npx -y contextplus@latest`, re-read `opencode.json` and re-ran the same native semantic smoke test.
+  - Result remained unchanged: semantic tools still fail with the old `nomic-embed-text` / Ollama path, so `npx` vs `bunx` is not the root cause.
+  - After the user switched the config back to Ollama settings, re-read `opencode.json` and re-ran one structural control plus the three semantic native tests.
+  - `contextplus_get_context_tree` still works, but semantic code search, semantic identifier search, and semantic navigate now fail with `invalid model name` rather than `model not found`.
+  - `semantic_navigate` echoes the exact unresolved placeholder form `${OLLAMA_EMBED_MODEL:-nomic-embed-text-v2-moe:latest}`, which points to the current MCP environment value being passed literally instead of expanded.
+  - Confirmed locally with `ollama list` that `nomic-embed-text-v2-moe:latest` is installed, so the current failure is config-format-related rather than a missing Ollama model.
+  - After the user replaced the placeholder with the literal model name, re-read `opencode.json` and reran the structural control plus the three semantic tests.
+  - Result: all three embedding-backed native tools now work again, confirming the native Ollama semantic path is healthy.
+
+## Session: 2026-04-01 (planning reminder noise reduction)
+
+### Current Session
+
+- **Status:** in_progress
+- **Focus:** Reduce avoidable reminder repetition in `plugins/planning-with-files.ts` without changing ownership or planning behavior.
+- Actions taken:
+  - Loaded the required brainstorming, planning, and writing skills before responding because this is another workflow-behavior follow-up.
+  - Re-ran catch-up through `git diff --stat`, `.plans/task_plan.md`, `.plans/findings.md`, `.plans/progress.md`, and `plugins/planning-with-files.ts`.
+  - Asked one scoped clarification question about the target reminder-noise surface; the user chose a broad prompt-noise pass bounded to the plugin.
+  - Presented and received approval on the design in three sections: scope, design shape, and validation/guardrails.
+  - Refreshed planning memory for the new bounded plugin-only pass.
+  - Wrote the design spec to `.plans/specs/2026-04-01-planning-reminder-noise-reduction-design.md` and re-read it for a self-review pass.
+  - Advanced the task into spec review and handed the written spec to the user for approval before implementation planning.
+  - The user approved the written spec.
+  - Re-read the active task plan, the approved reminder-noise spec, and `plugins/planning-with-files.ts`.
+  - Wrote the implementation plan to `.plans/2026-04-01-planning-reminder-noise-reduction-plan.md` for the bounded plugin-only pass.
+  - Advanced the task from spec review into implementation planning.
+  - Delegated the plugin-only implementation to Hephaestus with the approved dedupe-only scope.
+  - Verified the resulting plugin edit directly by reading `plugins/planning-with-files.ts` and confirming the new flow-local dedupe path.
+  - Sent the completed pass through Themis for review against the approved design and implementation plan.
+  - Final review result: no critical or important deviations; the pass remains plugin-only, preserves ownership and self-loop protections, and removes duplicate closeout wording within a single eligible flow.
+  - One non-blocking note remains: automated typecheck evidence is still noisy because the repo has pre-existing TypeScript/environment issues unrelated to this bounded plugin edit.
+  - Final verified outcome: the reminder-noise reduction pass is complete and only `plugins/planning-with-files.ts` changed as implementation surface.
+
+## Session: 2026-04-01 (planning workflow alignment)
+
+### Current Session
+
+- **Status:** complete
+- **Focus:** Align the planning plugin and planning templates with the newer intake and evidence-first workflow while keeping the current ownership model intact.
+- Actions taken:
+  - Loaded the required brainstorming, planning, and writing skills before responding because this is another workflow-design pass.
+  - Asked the user which follow-up surface to target next and captured the choice to handle the planning plugin and templates together.
+  - Presented and received approval on the scoped design in three sections: scope, design shape, and validation/guardrails.
+  - Re-read the current planning task file, `plugins/planning-with-files.ts`, and the three planning templates to ground the spec in the live repo state.
+  - Refreshed planning memory for the new follow-up pass and wrote the next design spec.
+  - The user approved the written spec.
+  - Re-read the approved spec plus the target plugin/template files and wrote the implementation plan to `.plans/2026-04-01-planning-workflow-alignment-plan.md`.
+  - Advanced the task from design/spec into implementation planning.
+  - Dispatched four independent implementation lanes to Hephaestus in parallel: one for `plugins/planning-with-files.ts` and one for each planning template.
+  - Verified the resulting edits directly by reading `plugins/planning-with-files.ts`, `skills/planning-with-files/templates/task_plan.md`, `skills/planning-with-files/templates/findings.md`, and `skills/planning-with-files/templates/progress.md` after the workers returned.
+  - Sent the completed pass through Themis for review against the approved design and implementation plan.
+  - Final review result: the implementation matches the approved scope, keeps the pass lightweight/advisory, preserves Zeus/Hermes ownership boundaries, and introduces no second planning system.
+  - One non-blocking follow-up note from review: closeout reminders in the plugin may be somewhat repetitive, but the current behavior is acceptable.
+  - Final verified outcome: the planning plugin and all three planning templates now align with the newer intake, continuity, and evidence-first workflow, and the bounded four-file pass is complete.
+
+## Session: 2026-04-01 (oh-my-codex deep dive)
+
+### Current Session
+
+- **Status:** in_progress
+- **Focus:** Deeply inspect `oh-my-codex/`, compare it against the current OpenCode setup, and produce concrete improvement recommendations.
+- Actions taken:
+  - Loaded the required planning, requirement, repo-discovery, parallel-dispatch, and writing skills before acting because this is a multi-step repo comparison and workflow-analysis task.
+  - Re-ran session catch-up via `git diff --stat` and the planning trio.
+  - Replaced the prior completed task plan with a fresh `Oh My Codex Deep Dive` plan covering exploration, comparison, and synthesis.
+  - Dispatched two parallel repo-inventory lanes through Artemis: one for `oh-my-codex/` and one for the current OpenCode surfaces.
+  - Received grounded inventories for both repos and captured the highest-value findings in `.plans/findings.md`.
+  - Confirmed the main `oh-my-codex` standout surfaces for closer verification are `AGENTS.md`, `skills/ralph/SKILL.md`, `skills/autopilot/SKILL.md`, `skills/deep-interview/SKILL.md`, `skills/ralplan/SKILL.md`, `skills/team/SKILL.md`, and the `prompts/architect.md`, `prompts/executor.md`, and `prompts/planner.md` contracts.
+  - Confirmed the main current OpenCode comparison surfaces are `agents/zeus.md`, `agents/hermes.md`, `agent-permissions.jsonc`, `plugins/planning-with-files.ts`, `rules/agent-workflow.md`, `README.md`, and the planning/discovery/execution skill chain.
+  - Identified the likely high-value comparison areas: persistence/autonomy, ambiguity handling, structured planning, durable state, verification loops, and cross-agent/team coordination.
+  - Requested and received a second-pass architecture ranking from Daedalus focused on value/effort/blast-radius rather than raw feature admiration.
+  - Consolidated the ranking into planning memory: strongest near-term wins are intake/readiness gates, structured planning format, and stronger evidence-first verification loops.
+  - Marked exploration and comparison phases complete and advanced the plan into synthesis/reporting.
+  - Converted the approved recommendation set into a scoped design for three target files only: `rules/agent-workflow.md`, `agents/zeus.md`, and `skills/brainstorming/SKILL.md`.
+  - Confirmed with the user that `README.md` is out of scope and that no commit-guidance surface should be added in this pass.
+  - Wrote the design spec to `.plans/specs/2026-04-01-omx-borrowed-workflow-tightening-design.md` and prepared to hand it to the user for review before any implementation planning.
+  - The user approved the written spec.
+  - Wrote the implementation plan to `.plans/2026-04-01-omx-borrowed-workflow-tightening-plan.md` covering the exact edits, verification passes, and final planning-memory update steps for `rules/agent-workflow.md`, `agents/zeus.md`, and `skills/brainstorming/SKILL.md`.
+  - Dispatched three independent implementation lanes to Hephaestus in parallel, one per target file.
+  - Verified the resulting edits directly by reading `rules/agent-workflow.md`, `agents/zeus.md`, and `skills/brainstorming/SKILL.md` after the workers returned.
+  - Sent the completed change set through Themis for a review pass.
+  - Themis found one real issue: `skills/brainstorming/SKILL.md` still mixed the new lightweight readiness model with overly ceremonial wording.
+  - Sent a focused follow-up correction to the existing brainstorming implementation lane, then re-read the corrected skill directly.
+  - Final verified outcome: the borrow-set implementation is on disk in the approved three-file scope only, with no README changes and no drift into `.omx`/tmux/runtime-system ideas.
+  - Verification performed:
+    - direct reads of all three edited files
+    - review pass by Themis
+    - direct re-read of the corrected `skills/brainstorming/SKILL.md`
+
+
 ## Session: 2026-03-31 (README agent docs refresh)
 
 ### Current Session

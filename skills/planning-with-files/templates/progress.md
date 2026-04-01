@@ -3,7 +3,7 @@
 <!--
   WHAT: Your session log - a chronological record of what you did, when, and what happened.
   WHY: Answers "What have I done?" in the 5-Question Reboot Test. Helps you resume after breaks.
-  WHEN: Update after completing each phase or encountering errors. More detailed than task_plan.md.
+  WHEN: Update after meaningful work, verification, or errors. More detailed than task_plan.md.
 -->
 
 ## Session: [DATE]
@@ -14,57 +14,84 @@
   EXAMPLE: 2026-01-15
 -->
 
-### Phase 1: [Title]
+### Current Session
 
 <!--
-  WHAT: Detailed log of actions taken during this phase.
-  WHY: Provides context for what was done, making it easier to resume or debug.
-  WHEN: Update as you work through the phase, or at least when you complete it.
--->
+  WHAT: High-level snapshot of the active session.
+  WHY: Gives a fast read on current state before someone scans the detailed updates below.
+  WHEN: Update at session start and again if the session focus or status changes.
+ -->
 
 - **Status:** in_progress
+- **Focus:** [current objective for this session]
+- **Phase:** [task_plan.md phase or workstream]
 - **Started:** [timestamp]
+- **Last updated:** [timestamp]
 <!--
-  STATUS: Same as task_plan.md (pending, in_progress, complete)
-  TIMESTAMP: When you started this phase (e.g., "2026-01-15 10:00")
--->
-- Actions taken:
-  <!--
-    WHAT: List of specific actions you performed.
-    EXAMPLE:
-      - Created todo.py with basic structure
-      - Implemented add functionality
-      - Fixed FileNotFoundError
-  -->
-  -
-- Files created/modified:
-  <!--
-    WHAT: Which files you created or changed.
-    WHY: Quick reference for what was touched. Helps with debugging and review.
-    EXAMPLE:
-      - todo.py (created)
-      - todos.json (created by app)
-      - task_plan.md (updated)
-  -->
-  -
-
-### Phase 2: [Title]
-
-<!--
-  WHAT: Same structure as Phase 1, for the next phase.
-  WHY: Keep a separate log entry for each phase to track progress clearly.
+  STATUS: Same as task_plan.md (pending, in_progress, complete, blocked)
+  FOCUS: The concrete work this session is trying to complete
+  PHASE: The matching task-plan phase or sub-phase
+  TIMESTAMPS: Use precise times when helpful (e.g., "2026-01-15 10:00")
 -->
 
+### Update 1 — [timestamp]
+
+  <!--
+    WHAT: A chronological execution update.
+    WHY: Standardizes continuity around action, result, verification, and next step.
+    WHEN: Add a new update after each meaningful chunk of work, verification pass, or recovery attempt.
+  -->
+
+- **Phase:** [phase or workstream]
+- **Status:** in_progress
+- **Action:** [what you just did]
+- **Result:** [what changed, what you learned, or what happened]
+- **Verification:** [what you checked, what passed/failed, or "not run" with reason]
+- **Next step:** [the next concrete local step]
+- **Files touched:**
+  <!--
+    WHAT: Which files you created, edited, or closely reviewed in this update.
+    WHY: Quick blast-radius reference for resume, debugging, and review.
+    EXAMPLE:
+      - todo.py (edited)
+      - .plans/progress.md (updated)
+  -->
+  -
+
+### Update 2 — [timestamp]
+
+<!--
+  Copy this block for additional updates. Keep the log chronological.
+-->
+
+- **Phase:** [phase or workstream]
 - **Status:** pending
-- ## Actions taken:
-- ## Files created/modified:
+- **Action:**
+- **Result:**
+- **Verification:**
+- **Next step:**
+- **Files touched:**
+  -
+
+### Phase Close / Session Handoff
+
+<!--
+  WHAT: Short closeout when a phase ends, you pause work, or you hand off to another session/agent.
+  WHY: Makes remaining open work and evidence easy to spot without rereading every update.
+  WHEN: Fill this out before marking a phase complete, blocked, or paused.
+-->
+
+- **What changed:** [brief summary of durable changes or confirmed findings]
+- **What was verified:** [most important evidence gathered this phase/session]
+- **What remains open:** [unfinished work, risk, blocker, or "none"]
+- **Resume from:** [the exact next action to take]
 
 ## Test Results
 
 <!--
-  WHAT: Table of tests you ran, what you expected, what actually happened.
-  WHY: Documents verification of functionality. Helps catch regressions.
-  WHEN: Update as you test features, especially during Phase 4 (Testing & Verification).
+  WHAT: Table of tests or checks you ran, what you expected, what actually happened.
+  WHY: Documents evidence, not just activity. Helps catch regressions and weak completion claims.
+  WHEN: Update whenever you run a meaningful check.
   EXAMPLE:
     | Add task | python todo.py add "Buy milk" | Task added | Task added successfully | ✓ |
     | List tasks | python todo.py list | Shows all tasks | Shows all tasks | ✓ |
@@ -118,9 +145,10 @@
 
 <!--
   REMINDER:
-  - Update after completing each phase or encountering errors
-  - Be detailed - this is your "what happened" log
+  - Keep updates chronological and easy to skim
+  - Record action, result, verification, and next step explicitly
+  - Use the handoff block before pausing, switching phases, or marking work complete
   - Include timestamps for errors to track when issues occurred
 -->
 
-_Update after completing each phase or encountering errors_
+_Update after meaningful work, verification, or errors_

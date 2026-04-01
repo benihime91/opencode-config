@@ -25,32 +25,35 @@
 ## Research Findings
 
 <!--
-  WHAT: Key discoveries from web searches, documentation reading, or exploration.
-  WHY: Multimodal content (images, browser results) doesn't persist. Write it down immediately.
+  WHAT: Key discoveries from web searches, documentation reading, repo exploration, or runtime checks.
+  WHY: Findings are more useful when you can trace where they came from, how trustworthy they are, and what decisions they affect.
+       Multimodal content (images, browser results) doesn't persist. Write it down immediately.
   WHEN: After EVERY 2 view/browser/search operations, update this section (2-Action Rule).
   EXAMPLE:
-    - Python's argparse module supports subcommands for clean CLI design
-    - JSON module handles file persistence easily
-    - Standard pattern: python script.py <command> [args]
--->
+    - Finding: Python's argparse module supports subcommands for clean CLI design
+      Source: Python docs
+      Confidence: High
+      Relevance: Shapes the CLI interface choice
+      Decision impact: Supports using subcommands instead of positional-only parsing
+ -->
 
-## <!-- Key discoveries during exploration -->
+## <!-- Key discoveries during exploration. For high-signal findings, note source, confidence, relevance, and decision impact in whatever light format fits the task. -->
 
 ## Technical Decisions
 
 <!--
   WHAT: Architecture and implementation choices you've made, with reasoning.
-  WHY: You'll forget why you chose a technology or approach. This table preserves that knowledge.
+  WHY: You'll forget why you chose a technology or approach. Include which findings mattered so the decision is easy to audit later.
   WHEN: Update whenever you make a significant technical choice.
   EXAMPLE:
-    | Use JSON for storage | Simple, human-readable, built-in Python support |
-    | argparse with subcommands | Clean CLI: python todo.py add "task" |
--->
+    | Use JSON for storage | Simple, human-readable, built-in Python support | Python docs, local prototype | High |
+    | argparse with subcommands | Clean CLI: python todo.py add "task" | Python docs | High |
+ -->
 <!-- Decisions made with rationale -->
 
-| Decision | Rationale |
-| -------- | --------- |
-|          |           |
+| Decision | Rationale | Supporting evidence | Confidence |
+| -------- | --------- | ------------------- | ---------- |
+|          |           |                     |            |
 
 ## Issues Encountered
 
@@ -71,25 +74,41 @@
 
 <!--
   WHAT: URLs, file paths, API references, documentation links you've found useful.
-  WHY: Easy reference for later. Don't lose important links in context.
+  WHY: Easy reference for later. Don't lose important links in context. Prefer resources that help a later reader verify or reuse a decision.
   WHEN: Add as you discover useful resources.
   EXAMPLE:
     - Python argparse docs: https://docs.python.org/3/library/argparse.html
     - Project structure: src/main.py, src/utils.py
--->
+ -->
 
 ## <!-- URLs, file paths, API references -->
+
+## Decision-Relevant Findings
+
+<!--
+  WHAT: Optional short list for the highest-value findings that directly change scope, design, prioritization, or risk.
+  WHY: Not every note matters equally. This helps future readers quickly separate interesting facts from decision-shaping evidence.
+  WHEN: Use when a finding materially affects what you build, what you defer, or how confident you should be.
+  EXAMPLE:
+    - Source: README.md + install.sh
+      Finding: Installer already provisions mcporter but misses one runtime symlink
+      Confidence: High
+      Relevance: Affects bootstrap design only
+      Decision impact: Update installer manifest rather than redesign bootstrap flow
+-->
+
+## <!-- Highest-value evidence and why it mattered -->
 
 ## Visual/Browser Findings
 
 <!--
   WHAT: Information you learned from viewing images, PDFs, or browser results.
   WHY: CRITICAL - Visual/multimodal content doesn't persist in context. Must be captured as text.
-  WHEN: IMMEDIATELY after viewing images or browser results. Don't wait!
+  WHEN: IMMEDIATELY after viewing images or browser results. Don't wait! Include source/context, confidence, relevance, and decision impact when they matter.
   EXAMPLE:
     - Screenshot shows login form has email and password fields
     - Browser shows API returns JSON with "status" and "data" keys
--->
+ -->
 <!-- CRITICAL: Update after every 2 view/browser operations -->
 
 ## <!-- Multimodal content must be captured as text immediately -->

@@ -43,6 +43,27 @@ type SessionEvent = {
   session_id?: string
 }
 
+function ownerIntakeReminderBlock(): string {
+  return [
+    '[planning-with-files]',
+    'For complex work, keep the intake snapshot lightweight: intended outcome, known facts, unknowns or blockers, non-goals, decision boundaries, and readiness.',
+  ].join('\n')
+}
+
+function ownerCloseoutReminderBlock(): string {
+  return [
+    '[planning-with-files]',
+    'When you persist progress or close a phase, note what changed, what was verified, and what remains open.',
+  ].join('\n')
+}
+
+function readOnlyContinuityReminderBlock(): string {
+  return [
+    '[planning-with-files]',
+    'Keep notes ownership-safe: hand back the intended outcome, known facts, blockers, non-goals, decision boundaries, readiness, plus what changed, what was verified, and what remains open.',
+  ].join('\n')
+}
+
 export const PlanningWithFilesPlugin: Plugin = async ({
   client,
   directory,
@@ -64,6 +85,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
   async function maybeAppendStatus(
     sessionID: string,
     mutableOutput: MutableToolResult,
+    hasFlowReminder: boolean,
   ): Promise<boolean> {
     if (!cache.isPlanningFileOwner(sessionID)) return false
 
@@ -73,6 +95,9 @@ export const PlanningWithFilesPlugin: Plugin = async ({
     if (!cache.shouldAppendStatus(sessionID, status)) return false
 
     append(mutableOutput, statusOutputBlock(status))
+    if (!hasFlowReminder) {
+      append(mutableOutput, ownerCloseoutReminderBlock())
+    }
     return true
   }
 
@@ -102,11 +127,14 @@ export const PlanningWithFilesPlugin: Plugin = async ({
         }
 
         output.system.push(primarySystemBlock())
+        output.system.push(ownerIntakeReminderBlock())
+        output.system.push(ownerCloseoutReminderBlock())
         await toast('Planning', 'Hint added')
         return
       }
 
       output.system.push(readOnlySystemBlock())
+      output.system.push(readOnlyContinuityReminderBlock())
     },
 
     'tool.execute.before': async (
@@ -166,6 +194,19 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       }
 
       const delegatedAgent = cache.takePendingTaskAgent(input.callID)
+      let hasFlowReminder = false
+
+      function appendFlowReminder(): void {
+        if (hasFlowReminder) return
+
+        append(
+          mutableOutput,
+          isPlanningOwner
+            ? ownerCloseoutReminderBlock()
+            : readOnlyContinuityReminderBlock(),
+        )
+        hasFlowReminder = true
+      }
 
       // === Reminder logic: match original skill's PostToolUse behavior ===
       //
@@ -180,6 +221,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
           ? ownerTaskReminderBlock(delegatedAgent)
           : readOnlyTaskReminderBlock(delegatedAgent)
         append(mutableOutput, reminder)
+        appendFlowReminder()
       } else if (REMINDER_TOOLS.has(tool)) {
         // Write|Edit that targets a planning file → skip reminder (self-loop breaker)
         if (touchesPlanningFile(root, input.args)) {
@@ -190,11 +232,12 @@ export const PlanningWithFilesPlugin: Plugin = async ({
             ? ownerReminderBlock()
             : readOnlyReminderBlock()
           append(mutableOutput, reminder)
+          appendFlowReminder()
         }
       }
       // All other tools (read, grep, glob, bash, etc.) → no reminder
 
-      await maybeAppendStatus(input.sessionID, mutableOutput)
+      await maybeAppendStatus(input.sessionID, mutableOutput, hasFlowReminder)
     },
 
     event: async (input: { event: SessionEvent }) => {

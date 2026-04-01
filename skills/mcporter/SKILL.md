@@ -144,6 +144,7 @@ Prefer this skill when you need to:
 
 ## Troubleshooting
 
+- If a call times out (default 60s), pass `--timeout <ms>` to extend it. Servers backed by local models (e.g. `contextplus` with Ollama embeddings) routinely need 90s+. Use `--timeout 90000` for `contextplus` calls.
 - If `bunx mcporter ...` fails with `could not determine executable to run for package mcporter` or `Failed to link ... EEXIST`, suspect a transient Bun install/link race before assuming the command or config is wrong.
 - This is most likely when multiple first-run `bunx mcporter ...` commands start in parallel and compete on Bun's package resolution or link state.
 - Recovery path:

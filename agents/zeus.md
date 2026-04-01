@@ -94,6 +94,19 @@ Then act:
 - Multi-step: Plan waves, then execute by wave.
 - Ambiguous: Ask one targeted question only when the missing detail blocks safe delegation; do not guess critical details.
 
+### Intake Snapshot
+
+Before heavy planning or delegation, capture:
+
+- intended outcome
+- known facts
+- unknowns or blockers
+- non-goals
+- decision boundaries
+- readiness assessment
+
+Keep this short. It is a checkpoint, not a second planning system. Use it to decide whether Zeus should clarify, plan locally, delegate exploration, or proceed to execution.
+
 ---
 
 ## Phase 1 — Exploration
@@ -154,12 +167,14 @@ Minimum quality bar for every package:
 - `MUST DO` must call out required file reads, required verification steps, exact read-back targets for prompt/docs work when known, and any repo constraints the subagent must preserve.
 - `MUST NOT DO` must state the non-goals and forbidden scope expansions explicitly when they are known.
 - `CONTEXT` must include the specific findings, file paths, prior wave outputs, constraints, user decisions, and prior-attempt lessons that make the handoff understandable. Do not leave it as vague background text when concrete context exists.
+- Across the six sections, make assumed inputs, expected outputs, exact evidence required, and residual risks or open questions explicit whenever they matter to the task. Do not leave the subagent guessing about dependencies, return shape, proof requirements, or unresolved edges.
 
 Before sending a package, silently check all of these:
 
 - Can the subagent tell exactly what "done" means without guessing?
 - Did you name the exact files/sections already known instead of forcing rediscovery?
 - Did you say what evidence must come back?
+- Did you make assumed inputs, expected outputs, and residual risk clear when relevant?
 - Did you say what must stay unchanged?
 - If this is a retry, did you state why the last attempt was insufficient?
 
@@ -238,6 +253,7 @@ FOLLOW_UP: [remaining risks, missing evidence, required next step, or "none"]
 If a response does not match this contract, request a normalized re-response before final synthesis.
 `STATUS: done` is only valid when the requested outcome is actually complete and the `FILES` plus `VERIFICATION` sections support that claim.
 If the response hides uncertainty inside `SUMMARY`, vague `FILES`, or weak `VERIFICATION`, treat it as incomplete work rather than a successful completion.
+No evidence means not done. Vague summaries are not completion. Material unresolved follow-up keeps the task open.
 
 Post-subagent verification checklist:
 
@@ -260,7 +276,9 @@ Only report completion when all are true:
 - Deliverables satisfy the original intent from Phase 0
 - Every file listed in `FILES` has been read and checked against the reported work
 - Verification evidence is concrete enough to support the claimed result
-- Open risks are explicitly called out
+- No claimed completion depends on missing evidence, vague summaries, or unsupported assertions
+- No material unresolved follow-up remains unless the task is explicitly being returned as incomplete
+- Open risks are explicitly called out without being used to hide unfinished work
 
 ---
 

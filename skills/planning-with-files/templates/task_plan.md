@@ -16,6 +16,21 @@
 
 [One sentence describing the end state]
 
+## Intake
+
+<!--
+  WHAT: Capture the minimum framing needed before heavy planning or execution.
+  WHY: A light intake keeps the task grounded without turning this file into a second planning system.
+  WHEN: Fill this out near the start, then update it only when the task meaningfully changes.
+-->
+
+- **Intended outcome:** [What should be true when this task is done?]
+- **Known context:** [Facts, existing repo state, approved direction, or constraints already confirmed]
+- **Unknowns / blockers:** [Open questions, missing evidence, or risks that could stop progress]
+- **Non-goals:** [What this task should not expand into]
+- **Decision boundaries:** [What you can decide locally vs what needs approval or stronger evidence]
+- **Readiness:** [ready | needs_clarification | blocked — and one short reason]
+
 ## Current Phase
 
 <!--
@@ -43,13 +58,17 @@ Phase 1
 - [ ] Understand user intent
 - [ ] Identify constraints and requirements
 - [ ] Document findings in findings.md
+- [ ] Note open questions or blockers before moving on
 - **Status:** in_progress
 <!--
   STATUS VALUES:
   - pending: Not started yet
   - in_progress: Currently working on this
   - complete: Finished this phase
--->
+
+  PHASE CLOSE:
+  - Mark a phase complete only when the important findings, decisions, and open risks are recorded clearly enough for a future reader to continue.
+ -->
 
 ### Phase 2: Planning & Structure
 
@@ -61,6 +80,7 @@ Phase 1
 - [ ] Define technical approach
 - [ ] Create project structure if needed
 - [ ] Document decisions with rationale
+- [ ] Record decision boundaries or unresolved tradeoffs
 - **Status:** pending
 
 ### Phase 3: Implementation
@@ -73,6 +93,7 @@ Phase 1
 - [ ] Execute the plan step by step
 - [ ] Write code to files before executing
 - [ ] Test incrementally
+- [ ] Record meaningful changes and remaining open work in progress.md
 - **Status:** pending
 
 ### Phase 4: Testing & Verification
@@ -85,6 +106,7 @@ Phase 1
 - [ ] Verify all requirements met
 - [ ] Document test results in progress.md
 - [ ] Fix any issues found
+- [ ] Capture what evidence supports completion and what risks remain open
 - **Status:** pending
 
 ### Phase 5: Delivery
@@ -96,6 +118,8 @@ Phase 1
 
 - [ ] Review all output files
 - [ ] Ensure deliverables are complete
+- [ ] Check that completion claims match the available evidence
+- [ ] Note any open risks, follow-up, or limits explicitly
 - [ ] Deliver to user
 - **Status:** pending
 
@@ -149,8 +173,12 @@ Phase 1
   - Re-read this plan before major decisions (attention manipulation)
   - Log ALL errors - they help avoid repetition
   - Never repeat a failed action - mutate your approach instead
--->
+  - Use findings.md for reusable facts and decisions; use progress.md for actions, verification, and next steps
+  - Completion claims should point to evidence and any open risks, not just status changes
+ -->
 
 - Update phase status as you progress: pending → in_progress → complete
 - Re-read this plan before major decisions (attention manipulation)
 - Log ALL errors - they help avoid repetition
+- Use findings.md for reusable facts and decisions; use progress.md for actions, verification, and next steps
+- Completion claims should point to evidence and any open risks, not just status changes

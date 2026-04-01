@@ -26,6 +26,19 @@
       "disable": true
     }
   },
+  "mcp": {
+    "contextplus": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "contextplus"
+      ],
+      "enabled": true,
+      "environment": {
+        "OLLAMA_EMBED_MODEL": "nomic-embed-text-v2-moe:latest"
+      }
+    }
+  },
   "lsp": {
     "pyright": {
       "disabled": true

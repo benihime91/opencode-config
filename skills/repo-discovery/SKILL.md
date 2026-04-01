@@ -1,6 +1,6 @@
 ---
 name: repo-discovery
-description: Semantic and structural repository discovery through CLI-backed mcporter workflows.
+description: Semantic and structural repository discovery using native Context+ MCP tools.
 ---
 
 # Repo Discovery
@@ -11,11 +11,7 @@ This skill is the single source of truth for repo-understanding workflow in this
 
 ## Canonical Config
 
-Use the shared mcporter config at:
-
-```bash
-~/.config/opencode/mcporter.json
-```
+Context+ is configured natively in `~/.config/opencode/opencode.json` under the `mcp` key.
 
 ## When To Use It
 
@@ -32,7 +28,7 @@ Skip this skill when the task is already limited to one known file and no broade
 
 ## Core Sequence
 
-**Always start with Context+ tools.** Context+ (via mcporter) is the primary discovery mechanism. `grep`, `glob`, and raw file reads are fallback-only tools — use them after Context+ results are insufficient, not as a default starting point.
+**Always start with Context+ tools.** Native Context+ MCP tools are the primary discovery mechanism. `grep`, `glob`, and raw file reads are fallback-only tools — use them after Context+ results are insufficient, not as a default starting point.
 
 1. Start broad with Context+ structure (`get_context_tree`, `get_file_skeleton`).
 2. Narrow with Context+ semantic search (`semantic_code_search`, `semantic_identifier_search`).
@@ -88,41 +84,22 @@ If blast radius is unclear, treat the change as high risk and gather more eviden
 
 ## Command Patterns
 
-Inspect available Context+ tools when needed:
+Use the native Context+ MCP tools directly:
 
-```bash
-bunx mcporter list contextplus --config ~/.config/opencode/mcporter.json
-```
+- `contextplus_get_context_tree`
+- `contextplus_get_file_skeleton`
+- `contextplus_semantic_code_search`
+- `contextplus_semantic_identifier_search`
+- `contextplus_get_blast_radius`
+- `contextplus_run_static_analysis`
 
-Start with structure:
+Typical progression:
 
-```bash
-bunx mcporter call 'contextplus.get_context_tree(target_path: ".", depth_limit: 2, include_symbols: true, max_tokens: 20000)' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'contextplus.get_file_skeleton(file_path: "agents/orchestrator.md")' --config ~/.config/opencode/mcporter.json
-```
-
-Search by concept:
-
-```bash
-bunx mcporter call 'contextplus.semantic_code_search(query: "repo discovery workflow", top_k: 8, semantic_weight: 0.72, keyword_weight: 0.28, min_semantic_score: 0.2, min_keyword_score: 0.1, min_combined_score: 0.2, require_keyword_match: false, require_semantic_match: true)' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'contextplus.semantic_code_search(query: "annotation lifecycle", top_k: 8, semantic_weight: 0.72, keyword_weight: 0.28, min_semantic_score: 0.2, min_keyword_score: 0.1, min_combined_score: 0.2, require_keyword_match: false, require_semantic_match: true)' --config ~/.config/opencode/mcporter.json
-```
-
-Search by symbol intent:
-
-```bash
-bunx mcporter call 'contextplus.semantic_identifier_search(query: "session management", top_k: 5, top_calls_per_identifier: 10, include_kinds: ["function", "method", "class"], semantic_weight: 0.78, keyword_weight: 0.22)' --config ~/.config/opencode/mcporter.json
-```
-
-Check impact before edits:
-
-```bash
-bunx mcporter call 'contextplus.get_blast_radius(symbol_name: "SessionManager", file_context: "src/session.ts")' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'contextplus.run_static_analysis(target_path: "plugins")' --config ~/.config/opencode/mcporter.json
-```
+1. `contextplus_get_context_tree` or `contextplus_get_file_skeleton`
+2. `contextplus_semantic_code_search` with 2-3 query phrasings
+3. `contextplus_semantic_identifier_search` when the question becomes symbol-specific
+4. `contextplus_get_blast_radius` before rewiring an existing symbol
+5. `contextplus_run_static_analysis` after edits when available
 
 ## Practical Defaults
 
@@ -143,7 +120,7 @@ Avoid these mistakes:
 4. reporting guessed symbol relationships without direct confirmation
 5. editing or deleting a symbol before checking blast radius
 6. turning implementation work into open-ended repo archaeology
-7. describing this as an MCP workflow instead of a skill-driven CLI workflow
+7. routing Context+ through `mcporter` instead of the native MCP path for this repo
 
 ## Output Expectations
 

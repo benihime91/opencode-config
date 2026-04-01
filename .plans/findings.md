@@ -1,5 +1,274 @@
 # Findings & Decisions
 
+## Current Task (2026-04-01, ContextPlus MCP revert)
+
+- The user wants the recent Context+ conversion through the `mcporter`-backed skill workflow reverted back to the default MCP path because the mcporter route is not working properly.
+- Direct current-state grounding confirms:
+  - `opencode.json` currently has no `.mcp` / MCP server declarations.
+  - `mcporter.json` currently defines the `contextplus` server.
+  - `skills/repo-discovery/SKILL.md` currently treats Context+ via `mcporter` as the required primary repo-discovery path.
+- This is a user correction/redirection relative to the recent migration work: I previously moved Context+ behind the CLI skill + `mcporter` flow, and the user is now asking to restore the default MCP route for this capability.
+- The user confirmed the revert should be Context+-only and explicitly asked that the native MCP settings be restored in `opencode.json` after checking official OpenCode docs first.
+- Official-doc confirmation from OpenCode:
+  - The `mcp` key in `opencode.json` is the native place to configure MCP servers: https://opencode.ai/docs/config/
+  - Local MCP servers use the shape `{ type: "local", command: [...], enabled, environment?, timeout? }`: https://opencode.ai/docs/mcp-servers/
+  - The docs also confirm that MCP config belongs in native OpenCode config, not in an auxiliary CLI config, when the goal is a default MCP server path: https://opencode.ai/docs/mcp-servers/
+- Implementation result for the Context+-only revert:
+  - `opencode.json` now restores a native `mcp.contextplus` entry with `type: "local"`, `command: ["bunx", "contextplus"]`, `enabled: true`, a 90s timeout, and the Context+ environment values.
+  - `mcporter.json` no longer carries a `contextplus` server entry.
+  - `skills/repo-discovery/SKILL.md` now describes Context+ as the native MCP-backed discovery path and no longer teaches routing Context+ through `mcporter`.
+- Verification result:
+  - Direct read-back confirmed the `mcp.contextplus` block exists in `opencode.json`.
+  - Direct read-back confirmed `mcporter.json` still contains the other CLI-backed servers (`firecrawl`, `agentation`, `context7`, `exa`) while excluding `contextplus`.
+  - Direct read-back confirmed the repo-discovery skill now points to native `contextplus_*` MCP tools.
+  - `node -e` JSON parsing succeeded for both `opencode.json` and `mcporter.json`.
+  - Runtime smoke check succeeded after the revert:
+    - `opencode mcp list` reported `contextplus` as `connected` with command `bunx contextplus`.
+    - `opencode mcp debug contextplus` confirmed it is a local server rather than an OAuth remote server.
+    - A minimal `contextplus_get_context_tree` call returned the repo tree successfully, confirming the native Context+ path is serving tool calls.
+  - Native function smoke-check status so far:
+    - Working read-only structural tools: `contextplus_get_context_tree`, `contextplus_get_file_skeleton`, `contextplus_get_blast_radius`, `contextplus_get_feature_hub`, `contextplus_list_restore_points`.
+    - `contextplus_run_static_analysis` executes but currently reports tool-level issues on this repo surface (`eslint` option mismatch and `py_compile` invoked without filenames), so it is not cleanly usable from this smoke check.
+    - Embedding-backed tools are failing consistently: `contextplus_semantic_code_search`, `contextplus_semantic_identifier_search`, and `contextplus_semantic_navigate`.
+    - The semantic failure mode is consistent with Context+ using its default embed model name `nomic-embed-text` instead of the configured `nomic-embed-text-v2-moe:latest`; repeated calls returned `model "nomic-embed-text" not found, try pulling it first` and one navigation call also reported `Ollama not available for embeddings: fetch failed`.
+    - Local Ollama itself is available and already has `nomic-embed-text-v2-moe:latest` installed, which points to a Context+/env wiring mismatch rather than Ollama being absent.
+- Misalignment record:
+  - **What I did:** Converted Context+ into a `mcporter`-driven skill workflow and removed its default MCP config path.
+  - **What the user instructed instead:** Move Context+ back to the default MCP path because the `mcporter` implementation is unreliable.
+  - **Why my approach was incorrect or misaligned:** I optimized for architectural consistency around CLI-backed skills, but the live reliability of Context+ matters more than preserving that architecture for this capability.
+  - **Early detection signal I missed:** The Context+ path is infrastructure-critical for repo discovery; reliability risk should have been treated as a stronger reason to preserve or quickly retain a default MCP fallback.
+  - **Preventative rule or checklist update:** For core workflow infrastructure migrations, keep or explicitly design a rollback/fallback path for the most critical capability families before making the new route exclusive.
+  - **Repo-specific nuance discovered:** Context+ is both a runtime capability and a prompt/routing assumption across repo-discovery surfaces, so reverting it likely touches config plus skill/prompt wording, not just one file.
+- Additional correction after runtime testing:
+  - **What I did:** Interpreted the semantic-tool failures as an Ollama/default-model issue and tested against the old Ollama assumptions.
+  - **What the user instructed instead:** The native config is intentionally using the newer Gemini/OpenAI-compatible embedding provider path described in the upstream Context+ README.
+  - **Why my approach was incorrect or misaligned:** I did not ground the active `opencode.json` provider settings or the current upstream README before diagnosing the semantic-path failure.
+  - **Early detection signal I missed:** The live `opencode.json` already contained `CONTEXTPLUS_EMBED_PROVIDER=openai` plus Gemini-compatible environment variables, which contradicted the Ollama diagnosis immediately.
+  - **Preventative rule or checklist update:** Before diagnosing Context+ runtime failures, first read the live MCP env block and match it against the current upstream README/config docs instead of assuming the default provider.
+  - **Repo-specific nuance discovered:** The current repo is now using Context+'s OpenAI-compatible provider mode through Gemini (`CONTEXTPLUS_OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`), not the older Ollama path.
+- Upstream README confirmation and retest result:
+  - The current upstream README documents native OpenAI-compatible provider support, including Gemini via `CONTEXTPLUS_EMBED_PROVIDER=openai`, `CONTEXTPLUS_OPENAI_API_KEY`, `CONTEXTPLUS_OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`, and the documented Gemini embed model `text-embedding-004`: https://raw.githubusercontent.com/ForLoopCodes/contextplus/refs/heads/main/README.md
+  - Despite the live repo config using that provider family, a clean retest of the native embedding-backed tools still fails with the old Ollama default model path:
+    - `contextplus_semantic_code_search` → `model "nomic-embed-text" not found, try pulling it first`
+    - `contextplus_semantic_identifier_search` → same
+    - `contextplus_semantic_navigate` → same default-model failure
+  - This means the currently running native Context+ path is still behaving as though it is using the default Ollama embed configuration, not the Gemini/OpenAI-compatible env block shown in the current `opencode.json`.
+  - Most likely causes, in order, are:
+    1. the currently running MCP server/tool session has not reloaded after the config change,
+    2. the packaged `contextplus` version being executed by `bunx` does not yet honor the newer provider env documented on the upstream main-branch README,
+    3. the current Gemini-specific model/env names differ from what the installed package expects.
+- Released-package proof point:
+  - Running `bunx contextplus init opencode` generated `/private/tmp/opencode.json` using only the older Ollama-style environment block:
+    - `OLLAMA_EMBED_MODEL: "nomic-embed-text"`
+    - `OLLAMA_CHAT_MODEL: "gemma2:27b"`
+    - `OLLAMA_API_KEY`
+    - `CONTEXTPLUS_EMBED_BATCH_SIZE`
+    - `CONTEXTPLUS_EMBED_TRACKER`
+  - The generated config contains no `CONTEXTPLUS_EMBED_PROVIDER` or `CONTEXTPLUS_OPENAI_*` fields.
+  - This is direct evidence that the currently published CLI/package path reached through `bunx contextplus` is still Ollama-oriented and does not match the Gemini/OpenAI-compatible README on the main branch.
+- Latest-release confirmation:
+  - `npm view contextplus version dist-tags time --json` confirms the latest npm release is still `1.0.8` with `dist-tags.latest = 1.0.8`.
+  - Re-running `bunx contextplus init opencode` still resolves the currently published release and reproduces the Ollama-only generated config, so there is no newer npm release available yet to fix this by simple upgrade.
+- Post-config-update retest:
+  - The live `opencode.json` now points the native MCP command at `bunx contextplus@latest`.
+  - Structural access still works: `contextplus_get_context_tree` returned the repo tree successfully.
+  - Semantic features still fail exactly the same way:
+    - `contextplus_semantic_code_search` → `model "nomic-embed-text" not found, try pulling it first`
+    - `contextplus_semantic_identifier_search` → same
+    - `contextplus_semantic_navigate` → `Ollama not available for embeddings: model "nomic-embed-text" not found`
+  - This confirms that changing the MCP command to `contextplus@latest` did not fix Gemini/OpenAI-provider semantic support, because `@latest` still resolves to the same published Ollama-oriented release.
+- NPX retest:
+  - The live `opencode.json` now points the native MCP command at `npx -y contextplus@latest`.
+  - Semantic tools still fail identically:
+    - `contextplus_semantic_code_search` → `model "nomic-embed-text" not found, try pulling it first`
+    - `contextplus_semantic_identifier_search` → same
+    - `contextplus_semantic_navigate` → `Ollama not available for embeddings: model "nomic-embed-text" not found`
+  - This rules out a `bunx` vs `npx` package-runner difference as the cause of the Gemini failure in the current native setup.
+- GitHub-source pin plan:
+  - npm package-spec docs confirm `npx` can execute a GitHub repo pinned to a specific ref using a spec like `github:user/repo#commit`: https://docs.npmjs.com/cli/v11/using-npm/package-spec
+  - Current upstream `contextplus` HEAD resolves to commit `a3c0bcc24826a1ca85d6cb636c168c47c6a9bac9` from `https://github.com/ForLoopCodes/contextplus.git`.
+  - The native MCP command is now being switched to pin against that exact GitHub commit for the next semantic retest.
+- GitHub source execution nuance:
+  - The pinned commit's `package.json` reports `version: 1.0.9` and a `bin` entry of `contextplus -> ./build/index.js`.
+  - The same `package.json` does not define a `prepare` script, while the README's source instructions explicitly require `npm install` then `npm run build`.
+  - A direct `npx -y github:ForLoopCodes/contextplus#a3c0bcc24826a1ca85d6cb636c168c47c6a9bac9 init opencode` test failed with `sh: contextplus: command not found`, which is consistent with trying to execute an unbuilt git checkout.
+  - Conclusion: to run the latest GitHub commit reliably, the repo needs to be cloned and built locally, then the MCP command should point at the built `build/index.js` entrypoint rather than trying to execute the raw git ref through `npx`.
+- Ollama retest after the user's latest config change:
+  - The live `opencode.json` has been switched back to an Ollama-style environment block, but it currently sets `OLLAMA_EMBED_MODEL` to the literal string `${OLLAMA_EMBED_MODEL:-nomic-embed-text-v2-moe:latest}`.
+  - Structural access still works: `contextplus_get_context_tree` returned the repo tree successfully.
+  - Embedding-backed tools still fail, but the failure mode changed from `model not found` to `invalid model name`:
+    - `contextplus_semantic_code_search` → `invalid model name`
+    - `contextplus_semantic_identifier_search` → `invalid model name`
+    - `contextplus_semantic_navigate` → `Ollama not available for embeddings: invalid model name`
+  - The `semantic_navigate` error text echoes the exact unresolved placeholder form `model ${OLLAMA_EMBED_MODEL:-nomic-embed-text-v2-moe:latest}`, which strongly suggests native OpenCode MCP config is passing that string literally rather than shell-expanding it.
+  - Most likely root cause now: the MCP `environment` block in `opencode.json` does not support shell-style `${VAR:-default}` interpolation for this field, so Context+ receives an invalid literal model name instead of `nomic-embed-text-v2-moe:latest`.
+- Final Ollama retest after replacing the placeholder with a literal model name:
+  - The live `opencode.json` now sets `OLLAMA_EMBED_MODEL` to the literal value `nomic-embed-text-v2-moe:latest`.
+  - Structural access still works: `contextplus_get_context_tree` returned the repo tree successfully.
+  - Embedding-backed tools now work again under the native MCP path:
+    - `contextplus_semantic_code_search` returned ranked matches, headed by `skills/repo-discovery/SKILL.md`.
+    - `contextplus_semantic_identifier_search` returned ranked identifier matches in `plugins/planning-with-files/session-cache.ts`.
+    - `contextplus_semantic_navigate` returned a 17-file semantic cluster instead of failing.
+  - Conclusion: the Ollama-backed semantic path is now working; the blocker was the shell-style placeholder syntax in `opencode.json`, not Ollama availability or the installed model.
+
+## Current Task (2026-04-01, oh-my-codex deep dive)
+
+- The user wants a deep dive on local `oh-my-codex/` to identify skills, workflows, prompts, and implementation patterns worth borrowing to improve the current OpenCode setup.
+- The comparison should focus on transferable workflow architecture, skill design, prompt surfaces, planning/state management, delegation/verification patterns, and other repo-level operating improvements rather than feature-by-feature product behavior.
+- `oh-my-codex/` appears materially richer in explicit workflow scaffolding than our current setup: direct evidence points to 36 skills, 33 role prompts, 14 mission templates, and a durable `.omx/` state model backed by tmux/team coordination.
+- Highest-signal `oh-my-codex` files from the first exploration pass are:
+  - `oh-my-codex/AGENTS.md` — top-level autonomy contract, keyword-to-skill routing table, team/state model, and execution rules
+  - `oh-my-codex/skills/ralph/SKILL.md` — persistence loop, architect verification, deslop/visual gates, explicit completion checklist
+  - `oh-my-codex/skills/autopilot/SKILL.md` — autonomous multi-stage execution pipeline with pre-context intake and repeated QA/validation
+  - `oh-my-codex/skills/deep-interview/SKILL.md` — quantitative ambiguity scoring, readiness gates, challenge modes, and explicit handoff contracts
+  - `oh-my-codex/skills/ralplan/SKILL.md` — structured deliberation using principles/drivers/options plus architect→critic review and ADR output
+  - `oh-my-codex/skills/team/SKILL.md` — durable tmux-based multi-worker coordination and shared state
+  - `oh-my-codex/prompts/executor.md`, `prompts/architect.md`, and `prompts/planner.md` — strong evidence-backed execution, review, and planning contracts
+- High-value patterns surfaced from `oh-my-codex` exploration:
+  - Strong explicit autonomy and persistence contract
+  - Keyword-triggered skill routing at the top-level agent surface
+  - Pre-context intake gates before heavy execution/planning workflows
+  - Quantitative ambiguity/readiness scoring before planning/execution
+  - Structured consensus planning (`RALPLAN-DR`) rather than generic planning prose
+  - Durable state beyond planning notes (`.omx/state`, `.omx/interviews`, `.omx/specs`, `.omx/plans`)
+  - Explicit execution bridge contracts between interview/planning/execution/team modes
+  - A more opinionated commit protocol (`Lore`) with intent + decision metadata
+- Current OpenCode grounding from the comparison pass:
+  - Stronger current surfaces are `agents/zeus.md`, `agents/hermes.md`, `agent-permissions.jsonc`, `plugins/planning-with-files.ts`, `rules/agent-workflow.md`, `README.md`, and core skills including `brainstorming`, `planning-with-files`, `repo-discovery`, `writing-plans`, `executing-plans`, `deep-research`, and `dispatching-parallel-agents`.
+  - OpenCode is already strong on specialist delegation, skill-based permissions, CLI-first capability routing, and explicit workflow rules.
+  - OpenCode appears comparatively weaker in explicit pre-execution intake, structured ambiguity scoring, durable task/state orchestration beyond `.plans/`, automated verification loops, and cross-agent coordination primitives.
+- Early comparison axes to use in the next phase:
+  - orchestration model
+  - planning and durable state
+  - skill routing and capability discovery
+  - verification / quality gates
+  - error recovery / persistence discipline
+  - agent specialization and handoff contracts
+- Second-pass architecture ranking via `@daedalus` sharpened the recommendation set:
+  - Best borrow set: a lightweight pre-execution intake gate, quantitative ambiguity/readiness scoring, structured consensus planning, and stronger evidence-first verification/persistence loops around the existing Zeus-led orchestration.
+  - Highest-value direct-adoption candidates are prompt/rule/workflow patterns rather than new runtime machinery.
+  - Biggest non-fit is `oh-my-codex`'s tmux-heavy autonomous team runtime and distributed state model; OpenCode should preserve Zeus/Hermes ownership of planning/spec memory.
+- Ranked transferable patterns from the architecture pass:
+  1. Pre-context intake gate — high value, low effort, low blast radius, directly adoptable.
+  2. Quantitative ambiguity/readiness scoring — high value, medium effort, low blast radius, adapt into Zeus/brainstorming.
+  3. Structured consensus planning (`Principles / Decision Drivers / Viable Options / ADR`) — high value, medium effort, medium blast radius, adapt into Zeus-owned planning.
+  4. Stronger verification loop / explicit “no evidence = not done” language — high value, low effort, low blast radius, directly adoptable.
+  5. Explicit execution-bridge contracts between interview → plan → execute — medium-high value, medium effort, medium blast radius, adapt into existing handoff package.
+  6. Richer durable state beyond freeform notes — medium value, medium effort, medium blast radius, adapt carefully into `.plans/` rather than creating a second state universe.
+  7. Keyword-triggered workflow routing — medium value, low effort, medium blast radius, adopt lightly as routing hints.
+  8. Lore commit protocol — medium value, low effort, low blast radius, directly adoptable as an optional convention.
+  9. Ralph-style persistent autonomous retry loops — medium value, medium-high effort, high blast radius, partial adaptation only.
+  10. Tmux team runtime — low-medium value here, high effort, high blast radius, defer as a current non-fit.
+- Direct-adoption candidates for OpenCode:
+  - Intake snapshot fields before heavy planning/execution.
+  - Stronger evidence-first completion language in orchestrator/rules.
+  - Optional Lore-style commit metadata guidance.
+  - Advisory keyword-triggered skill-routing hints at the top-level orchestration surface.
+- Adaptation-required candidates:
+  - Ambiguity scoring should become a light rubric inside Zeus/`brainstorming`, not a universal mandatory interview ritual.
+  - RALPLAN-DR should become a structured planning/ADR format inside Zeus-owned specs/plans.
+  - Execution bridges should become stricter expectations inside the current six-section delegation package.
+  - Durable state improvements should extend `.plans/` or adjacent Zeus-owned artifacts, not create a parallel `.omx`-style runtime.
+  - Ralph-style persistence should inform retry/verification policy without importing full autonomous mode.
+- Recommended sequence from the architecture pass:
+  1. Add a lightweight intake snapshot + readiness rubric to Zeus and/or `brainstorming`.
+  2. Add RALPLAN-style structured planning output to Zeus-owned planning artifacts.
+  3. Tighten verification/persistence wording in rules and completion contracts.
+  4. Pilot optional Lore commit metadata.
+  5. Re-evaluate later whether richer durable state is still needed beyond `.plans/`.
+- The first implementation pass for the borrow-set is now on disk in the approved three-file scope only:
+  - `rules/agent-workflow.md` now includes repo-wide rules for `Pre-Execution Intake`, `Stage-To-Stage Continuity`, and `Evidence-First Completion`, with headings renumbered sequentially.
+  - `agents/zeus.md` now includes an `Intake Snapshot` checkpoint after intent classification, tighter delegation-package expectations around assumed inputs / expected outputs / evidence / residual risk, and harder verification/completion language (`no evidence means not done`, vague summaries are not completion, material unresolved follow-up keeps the task open).
+  - `skills/brainstorming/SKILL.md` now includes a lightweight readiness pass, structured design-output guidance (`Principles`, `Decision Drivers`, `Viable Options`, `Recommendation`), and anti-ceremony guardrails that keep the process proportional for simple work.
+- Review outcome:
+  - `@themis` approved the overall scope alignment and found no drift into `.omx`-style state, tmux/team-runtime ideas, autonomy expansion, or planning-ownership transfer.
+  - The first review flagged one issue: `skills/brainstorming/SKILL.md` still felt too ceremonial. A follow-up correction softened that wording, made written spec / commit language conditional, and re-established the readiness pass as the authority on whether more clarification is needed.
+- Final verification result:
+  - Zeus directly re-read all three edited files after implementation.
+  - The resulting state matches the approved scope: stronger intake, continuity, and evidence discipline without introducing heavier runtime machinery.
+
+## Current Task (2026-04-01, planning workflow alignment)
+
+- The next approved follow-up is a bounded pass covering both the planning plugin and the planning-file templates together.
+- Exact in-scope files are:
+  - `plugins/planning-with-files.ts`
+  - `skills/planning-with-files/templates/task_plan.md`
+  - `skills/planning-with-files/templates/findings.md`
+  - `skills/planning-with-files/templates/progress.md`
+- Approved goals for this pass:
+  - align plugin nudges with the newer intake / continuity / evidence-first workflow
+  - make the templates produce artifacts that match those nudges
+  - improve consistency without adding a second planning system or heavy ceremony
+- Explicit non-goals the user approved:
+  - no `.omx`-style state model
+  - no tmux/team runtime ideas
+  - no new persistent planning runtime beyond the current `.plans/` ownership model
+  - no plugin-owned planning decisions
+- Current plugin behavior from direct read of `plugins/planning-with-files.ts`:
+  - planning owners (`zeus` / `hermes`) get stronger planning context injection and status reminders
+  - subagents get read-only planning nudges
+  - `tool.execute.before` caches the plan head for the allowed tool set and blocks non-owners from editing the planning trio
+  - `tool.execute.after` appends the cached plan head and emits reminder blocks for task results and write/edit actions
+  - the plugin currently focuses on plan-head injection, simple reminders, and status output rather than a richer intake/result shape
+- Current template behavior from direct reads:
+  - `task_plan.md` is phase-oriented but still generic; it lacks an explicit intake snapshot and does not strongly capture evidence/open-risk criteria at phase close
+  - `findings.md` stores requirements, findings, decisions, issues, resources, and visual/browser notes, but it does not yet shape findings around source / confidence / relevance / decision impact
+  - `progress.md` captures phases, tests, errors, and reboot status, but it does not yet standardize each execution step around action / result / verification / next step
+- Approved design direction from the user conversation:
+  - plugin should nudge a lightweight intake snapshot for complex work: intended outcome, known facts, unknowns/blockers, non-goals, decision boundaries, readiness
+  - plugin should also nudge stronger phase-close hygiene: what changed, what was verified, and what remains open
+  - template changes should mirror that shape so runtime nudges and durable artifacts stay aligned
+  - wording should stay advisory where appropriate and preserve Zeus/Hermes-only planning ownership
+- Validation requirements for this pass:
+  - direct read-back of `plugins/planning-with-files.ts`
+  - direct read-back of all three planning templates
+  - confirm the pass remains ownership-safe and does not introduce a second planning system
+- Implementation result for this pass:
+  - `plugins/planning-with-files.ts` now nudges a lightweight intake snapshot for complex work (`intended outcome`, `known facts`, `unknowns or blockers`, `non-goals`, `decision boundaries`, `readiness`) and stronger closeout continuity (`what changed`, `what was verified`, `what remains open`) for both planning owners and read-only sessions in an ownership-safe way.
+  - `skills/planning-with-files/templates/task_plan.md` now includes a dedicated `## Intake` section after `## Goal` and stronger phase-close guidance around evidence, open questions, and open risks.
+  - `skills/planning-with-files/templates/findings.md` now prompts for source, confidence, relevance, and decision impact without turning the file into a rigid schema.
+  - `skills/planning-with-files/templates/progress.md` now uses a clearer action / result / verification / next-step update structure plus a short handoff block for resumability.
+- Verification and review outcome:
+  - Zeus directly re-read all four edited files and confirmed the new intake/evidence-first shape is on disk.
+  - `@themis` reviewed the result against `.plans/specs/2026-04-01-planning-workflow-alignment-design.md` and `.plans/2026-04-01-planning-workflow-alignment-plan.md` and found no critical or important deviations.
+  - No drift was introduced toward `.omx`-style state, tmux/team coordination, plugin-owned planning decisions, or a second planning system.
+  - One watch item from review: the plugin may become slightly repetitive because closeout reminders can appear both after tool flows and after appended status output, but this is acceptable for now and can be trimmed later if prompt noise becomes noticeable.
+
+## Current Task (2026-04-01, planning reminder noise reduction)
+
+- The user chose the follow-up option to reduce reminder repetition rather than commit or diff review.
+- Scope is intentionally narrow: `plugins/planning-with-files.ts` only.
+- Approved non-goals:
+  - no template changes
+  - no `.plans/` changes as part of implementation behavior
+  - no ownership-model changes
+  - no new state, persistence, or planning machinery
+- Grounded current behavior from direct read of `plugins/planning-with-files.ts`:
+  - `ownerCloseoutReminderBlock()` is appended in `experimental.chat.system.transform` for planning-skill sessions
+  - `ownerCloseoutReminderBlock()` or `readOnlyContinuityReminderBlock()` is appended again after eligible `TASK_TOOL` and `REMINDER_TOOLS` flows in `tool.execute.after`
+  - `maybeAppendStatus()` appends `statusOutputBlock(status)` and then appends `ownerCloseoutReminderBlock()` again
+  - this creates the review-noted possibility that the same closeout guidance appears twice in one overall flow
+- Approved design direction:
+  - keep the broad prompt-noise pass bounded to this plugin only
+  - preserve intake reminder, task-result reminder concepts, status output, self-loop breaker, and Zeus/Hermes-only planning ownership
+  - use a small local dedupe guard so only one closeout/continuity reminder appears per eligible tool flow
+  - reduce noise without changing the underlying planning workflow model
+- Validation requirements:
+  - direct read-back of `plugins/planning-with-files.ts`
+  - confirm one continuity/closeout reminder per eligible tool flow
+  - confirm task-result and status behavior still exist
+  - confirm no template or planning-memory files are part of the implementation change
+- Implementation result:
+  - `plugins/planning-with-files.ts` now uses a flow-local `hasFlowReminder` guard in `tool.execute.after`.
+  - Reminder append sites for eligible task/write-edit flows now route through a local helper so owner closeout or read-only continuity text is emitted at most once per eligible flow.
+  - `maybeAppendStatus()` still appends `statusOutputBlock(status)` for owners, but now skips re-appending `ownerCloseoutReminderBlock()` when that same flow already emitted a closeout reminder earlier.
+  - Intake reminders, task-result reminders, status output, the planning-file self-loop breaker, and Zeus/Hermes-only planning-file edit protection all remain intact.
+- Verification and review outcome:
+  - Zeus directly re-read `plugins/planning-with-files.ts` and confirmed the dedupe path is on disk: `hasFlowReminder`, `appendFlowReminder()`, guarded reminder append sites, and status-path skip when already reminded in the same flow.
+  - `@themis` reviewed the result against `.plans/specs/2026-04-01-planning-reminder-noise-reduction-design.md` and `.plans/2026-04-01-planning-reminder-noise-reduction-plan.md` and found no critical or important deviations.
+  - The pass stayed plugin-only as approved; no template or `.plans` file was changed as part of the implementation surface.
+  - One environment-level limitation remains: a targeted TypeScript check still runs into pre-existing repo/environment issues and does not isolate this plugin edit cleanly.
+
 ## Current Follow-Up (2026-03-31, README agent docs refresh)
 
 - The user wants `README.md` updated so it properly documents the custom agents/subagents and includes a Mermaid diagram for the current Zeus orchestrator workflow.

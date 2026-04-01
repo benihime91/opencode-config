@@ -15,20 +15,21 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 
 ## Anti-Pattern: "This Is Too Simple To Need A Design"
 
-Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
+Do not skip design just because the task looks small. Simple work still needs a short explicit design and user approval before implementation. Keep the process proportional: a few sentences may be enough when the work is straightforward.
 
 ## Checklist
 
-You MUST create a task for each of these items and complete them in order:
+Use this sequence, scaled to the size and ambiguity of the work:
 
 1. **Explore project context** — check files, docs, recent commits
 2. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
-3. **Propose 2-3 approaches** — with trade-offs and your recommendation
-4. **Present design** — in sections scaled to their complexity, get user approval after each section
-5. **Write design doc** — save to `.plans/YYYY-MM-DD-<topic>-design.md` and commit
-6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-7. **User reviews written spec** — ask user to review the spec file before proceeding
-8. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+3. **Run a readiness pass** — check whether intent, scope, constraints, success criteria, non-goals, and decision boundaries are clear enough
+4. **Propose 2-3 approaches** — with trade-offs and your recommendation
+5. **Present design** — in sections scaled to the complexity, get user approval before implementation
+6. **Write design doc when needed** — save to `.plans/specs/YYYY-MM-DD-<topic>-design.md` when the task or workflow calls for a written spec
+7. **Spec self-review** — if you wrote a spec, do a quick inline check for placeholders, contradictions, ambiguity, and scope (see below)
+8. **User reviews written spec** — if a spec was written, ask the user to review it before proceeding
+9. **Transition to implementation planning** — invoke writing-plans when the workflow calls for a written implementation plan
 
 ## Process Flow
 
@@ -36,6 +37,7 @@ You MUST create a task for each of these items and complete them in order:
 digraph brainstorming {
     "Explore project context" [shape=box];
     "Ask clarifying questions" [shape=box];
+    "Readiness pass" [shape=box];
     "Propose 2-3 approaches" [shape=box];
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
@@ -45,7 +47,9 @@ digraph brainstorming {
     "Invoke writing-plans skill" [shape=doublecircle];
 
     "Explore project context" -> "Ask clarifying questions";
-    "Ask clarifying questions" -> "Propose 2-3 approaches";
+    "Ask clarifying questions" -> "Readiness pass";
+    "Readiness pass" -> "Ask clarifying questions" [label="not ready"];
+    "Readiness pass" -> "Propose 2-3 approaches" [label="ready"];
     "Propose 2-3 approaches" -> "Present design sections";
     "Present design sections" -> "User approves design?";
     "User approves design?" -> "Present design sections" [label="no, revise"];
@@ -57,7 +61,7 @@ digraph brainstorming {
 }
 ```
 
-**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
+**The terminal state is design approval.** If the workflow requires a written implementation plan, the next skill is writing-plans. Do NOT invoke frontend-design, mcp-builder, or any implementation skill before the design is approved.
 
 ## The Process
 
@@ -71,17 +75,38 @@ digraph brainstorming {
 - Only one question per message - if a topic needs more exploration, break it into multiple questions
 - Focus on understanding: purpose, constraints, success criteria
 
+**Readiness pass:**
+
+- Before proposing approaches, check whether these are clear enough:
+  - intent clarity
+  - scope clarity
+  - known constraints
+  - success criteria
+  - non-goals
+  - decision boundaries
+- If they are clear enough, move forward
+- If not, keep clarifying one question at a time
+- Keep this lightweight. The goal is clarity, not ritual.
+- Do not force simple work through a long interview loop just to satisfy the process
+- Use the readiness pass as the authority on whether more clarification is needed
+
 **Exploring approaches:**
 
 - Propose 2-3 different approaches with trade-offs
 - Present options conversationally with your recommendation and reasoning
 - Lead with your recommended option and explain why
+- Use a clear design shape when you present the decision:
+  - **Principles** — the rules or values guiding the design
+  - **Decision Drivers** — the factors that matter most here
+  - **Viable Options** — 2-3 realistic paths with trade-offs
+  - **Recommendation** — the option you recommend and why
 
 **Presenting the design:**
 
 - Once you believe you understand what you're building, present the design
 - Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
-- Ask after each section whether it looks right so far
+- Ask for confirmation in a way that fits the task; section-by-section is useful for larger or riskier work, but simple work can stay short
+- Keep the output structured, but keep the process light for straightforward work
 - Cover: architecture, components, data flow, error handling, testing
 - Be ready to go back and clarify if something doesn't make sense
 
@@ -102,13 +127,13 @@ digraph brainstorming {
 
 **Documentation:**
 
-- Write the validated design (spec) to `.plans/specs/YYYY-MM-DD-<topic>-design.md`
+- When the task or surrounding workflow calls for a written spec, write the validated design to `.plans/specs/YYYY-MM-DD-<topic>-design.md`
   - (User preferences for spec location override this default)
 - Use elements-of-style:writing-clearly-and-concisely skill if available
-- Commit the design document to git
+- Do not treat a git commit as automatic; only commit when the user explicitly asks or the active workflow explicitly requires it
 
 **Spec Self-Review:**
-After writing the spec document, look at it with fresh eyes:
+If you wrote a spec document, look at it with fresh eyes:
 
 1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
@@ -118,23 +143,25 @@ After writing the spec document, look at it with fresh eyes:
 Fix any issues inline. No need to re-review — just fix and move on.
 
 **User Review Gate:**
-After the spec review loop passes, ask the user to review the written spec before proceeding:
+If a written spec exists, ask the user to review it before proceeding:
 
-> "Spec written and committed to `<path>`. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."
+> "Spec written to `<path>`. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."
 
 Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.
 
 **Implementation:**
 
 - NEVER DELEGATE WRITING THE SPEC. Always write it yourself.
-- Invoke the writing-plans skill to create a detailed implementation plan
-- Do NOT invoke any other skill. writing-plans is the next step.
+- If the workflow requires a written implementation plan, invoke the writing-plans skill to create it
+- Do NOT invoke any implementation skill before the design is approved. When a written plan is required, writing-plans is the next step.
 
 ## Key Principles
 
 - **One question at a time** - Don't overwhelm with multiple questions
 - **Multiple choice preferred** - Easier to answer than open-ended when possible
+- **Readiness before approaches** - Check clarity before proposing options, then keep moving once the basics are clear
 - **YAGNI ruthlessly** - Remove unnecessary features from all designs
 - **Explore alternatives** - Always propose 2-3 approaches before settling
+- **Structured output, light process** - Use Principles, Decision Drivers, Viable Options, and Recommendation without turning it into a ritual
 - **Incremental validation** - Present design, get approval before moving on
 - **Be flexible** - Go back and clarify when something doesn't make sense
