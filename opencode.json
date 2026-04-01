@@ -14,10 +14,10 @@
   ],
   "agent": {
     "hermes": {
-      "color": "#14B8A6"
+      "color": "#6366F1"
     },
     "zeus": {
-      "color": "#D4A017"
+      "color": "#EC4899"
     },
     "explore": {
       "disable": true
