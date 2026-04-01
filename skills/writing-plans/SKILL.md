@@ -123,6 +123,7 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 After saving the plan:
 
 **"Plan complete and saved to `.plans/<filename>.md`**
+Update the `Active Artifacts` section in `.plans/task_plan.md` with the exact implementation-plan path before handing execution off.
 Execute tasks in this session using executing-plans, batch execution with checkpoints
 
 - **REQUIRED SUB-SKILL:** Use executing-plans

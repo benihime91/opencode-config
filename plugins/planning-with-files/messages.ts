@@ -28,6 +28,7 @@ export function promptContextBlock(plan: string, progress: string): string {
   const parts = ['[planning-with-files] ACTIVE PLAN - current state:']
 
   if (plan) parts.push('```', plan, '```')
+  parts.push('[planning-with-files] Treat any `Active Artifacts` entries in `.plans/task_plan.md` as the canonical spec and implementation-plan paths for this task.')
   parts.push('=== recent progress ===')
   if (progress) parts.push('```', progress, '```')
   parts.push('[planning-with-files] Read `.plans/findings.md` for research context. Continue from the current phase.')
@@ -40,6 +41,7 @@ export function primarySystemBlock(): string {
     'Planning with Files',
     'This session is a primary planning-memory agent. Always follow the planning-with-files workflow in this repo.',
     'Treat `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` as shared memory.',
+    'When `.plans/task_plan.md` includes an `Active Artifacts` section, treat those paths as the canonical task spec and implementation plan.',
     'For complex or multi-step work, load `planning-with-files` before continuing.',
   ].join('\n')
 }
@@ -49,6 +51,7 @@ export function readOnlySystemBlock(): string {
     'Planning with Files',
     `This is a nudge-only planning session for ${NUDGE_ONLY_PLANNING_AGENT_LABEL}.`,
     'Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before acting when they matter.',
+    'If `.plans/task_plan.md` lists `Active Artifacts`, read those exact spec/plan files when the handoff depends on them.',
     'Treat those planning files as shared memory and read-only in this session.',
     `Hand durable outcomes back so the ${PRIMARY_PLANNING_AGENT_LABEL} can persist them.`,
   ].join('\n')

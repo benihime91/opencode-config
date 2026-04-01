@@ -1,5 +1,32 @@
 # Findings & Decisions
 
+## Current Task (2026-04-01, subagent artifact context propagation)
+
+- The user suspects Zeus and Hermes are not logging the actual spec/plan files anywhere durable enough for crash recovery and subagent context propagation.
+- Grounded workflow findings from direct reads:
+  - `agents/zeus.md` required the planning trio in handoffs, but did not require exact approved spec/plan paths when those artifacts existed.
+  - `agents/hermes.md` treated the planning trio as shared memory, but did not define a canonical artifact index for active spec/plan files.
+  - `plugins/planning-with-files/messages.ts` injected the task-plan head and recent progress, but did not explicitly tell sessions to treat any spec/plan refs in the plan as canonical task artifacts.
+  - `skills/planning-with-files/templates/task_plan.md` had no dedicated place to register the active task, spec, or implementation plan.
+  - `agents/hephaestus.md` read the planning trio first, but did not explicitly require reading handoff-provided spec/plan files before execution.
+- Design decision:
+  - Use `.plans/task_plan.md` as the canonical artifact index rather than adding a second planning state system.
+  - Surface that index through the task-plan template, planning plugin messaging, Zeus/Hermes workflow wording, and Hephaestus startup rules.
+- Implementation result:
+  - `.plans/task_plan.md` now carries an `Active Artifacts` section with active task, active spec path, active plan path, and last updated.
+  - `skills/planning-with-files/templates/task_plan.md` now includes the same `Active Artifacts` section for future tasks.
+  - `plugins/planning-with-files/messages.ts` now tells planning-memory sessions to treat `Active Artifacts` in `.plans/task_plan.md` as the canonical spec and implementation-plan refs.
+  - `agents/zeus.md` now requires delegation packages to pass exact spec/plan paths in `CONTEXT` and `MUST DO` when `.plans/task_plan.md` lists them.
+  - `agents/hermes.md` now treats `.plans/task_plan.md` as the canonical artifact index and requires immediate updates when the active spec/plan changes.
+  - `agents/hephaestus.md` now reads handoff-provided or task-plan-listed spec/plan files before execution and treats them as authoritative task artifacts.
+  - `skills/brainstorming/SKILL.md` now says written specs must be registered in `Active Artifacts`.
+  - `skills/writing-plans/SKILL.md` now says written implementation plans must be registered in `Active Artifacts`.
+- Verification result:
+  - Direct read-back confirmed the new artifact-index section in both the live task plan and the task-plan template.
+  - Direct read-back confirmed plugin messaging now surfaces the canonical-artifact convention.
+  - Direct read-back confirmed Zeus, Hermes, and Hephaestus all reference explicit spec/plan propagation rather than relying on the planning trio alone.
+  - The fix does not introduce heuristic artifact discovery or a second planning state system.
+
 ## Current Task (2026-04-01, ContextPlus MCP revert)
 
 - The user wants the recent Context+ conversion through the `mcporter`-backed skill workflow reverted back to the default MCP path because the mcporter route is not working properly.

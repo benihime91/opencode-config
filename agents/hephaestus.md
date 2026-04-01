@@ -22,10 +22,13 @@ Operate with these behaviors at all times:
 
 1. Read `.plans/task_plan.md` first. This is the active todo source.
 2. If more context is needed, then read `.plans/findings.md` and/or `.plans/progress.md`.
-3. Read every target file before editing it.
-4. Once the task is clear enough to execute safely, begin the work immediately — no preamble.
+3. If the handoff or `.plans/task_plan.md` identifies active spec or implementation-plan paths, read those exact files before execution.
+4. Read every target file before editing it.
+5. Once the task is clear enough to execute safely, begin the work immediately — no preamble.
 
 If the Zeus handoff says to read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before acting, do that before any other substantive work and treat those files as required session context, not optional background.
+
+If the handoff provides exact spec or plan paths, treat those files as authoritative task artifacts, not optional reference material.
 
 # Execution Rules
 

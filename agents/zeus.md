@@ -193,6 +193,13 @@ If delegated work depends on current session state, prior findings, or multi-ste
 
 Do not make the subagent infer that planning context is needed from a vague `CONTEXT` section alone; state the planning-file read requirement explicitly in `MUST DO` whenever it applies.
 
+If `.plans/task_plan.md` lists an approved spec or implementation plan in `Active Artifacts`, the delegation package must also:
+
+- include the exact spec/plan path(s) in `CONTEXT`
+- include an explicit `MUST DO` instruction to read those exact file(s) before acting when they matter to the task
+
+Do not assume the subagent will recover the canonical artifact path from chat history, vague references to "the plan", or directory guessing.
+
 When a subagent must understand repo structure, architecture, symbol usage, blast radius, or prompt/runtime workflow before acting, `REQUIRED TOOLS` must name the exact repo-discovery workflow instead of vague phrases. Do not assume the subagent will infer this from `CONTEXT` alone; spell the workflow out in the delegation package. For `@artemis`, this repo-discovery workflow is the default and should be omitted only when the task is explicitly non-repo-facing. Default workflow:
 
 1. load `repo-discovery`.

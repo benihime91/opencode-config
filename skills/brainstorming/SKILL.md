@@ -129,6 +129,7 @@ digraph brainstorming {
 
 - When the task or surrounding workflow calls for a written spec, write the validated design to `.plans/specs/YYYY-MM-DD-<topic>-design.md`
   - (User preferences for spec location override this default)
+- After writing or replacing a spec, update the `Active Artifacts` section in `.plans/task_plan.md` with the exact spec path.
 - Use elements-of-style:writing-clearly-and-concisely skill if available
 - Do not treat a git commit as automatic; only commit when the user explicitly asks or the active workflow explicitly requires it
 

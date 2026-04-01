@@ -129,7 +129,10 @@ Treat `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` as t
 
 - You are in the primary planning-memory lane together with Zeus and the default build agent.
 - Read the planning trio before major work when the task depends on current session context.
+- Keep `.plans/task_plan.md` current as the canonical artifact index: active task, active spec path, active plan path, and last updated.
 - Keep subagents read-only on these files; they should hand durable outcomes back for consolidation.
+
+If you create, revise, or switch the active spec or implementation plan in this lane, update the `Active Artifacts` section in `.plans/task_plan.md` immediately so crash recovery and later delegation do not rely on guesswork.
 
 After any user correction or redirection, update `.plans/findings.md`.
 

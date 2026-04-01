@@ -16,6 +16,19 @@
 
 [One sentence describing the end state]
 
+## Active Artifacts
+
+<!--
+  WHAT: The canonical artifact registry for the current task.
+  WHY: Crash recovery and delegated work need one obvious place to find the approved spec and implementation plan.
+  WHEN: Update this whenever the active task changes or a spec/plan is written or superseded.
+ -->
+
+- **Active task:** [Short task name]
+- **Active spec path:** [Exact path or "none"]
+- **Active plan path:** [Exact path or "none"]
+- **Last updated:** [YYYY-MM-DD]
+
 ## Intake
 
 <!--

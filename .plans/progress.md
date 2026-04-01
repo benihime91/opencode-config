@@ -1,5 +1,23 @@
 # Progress Log
 
+## Session: 2026-04-01 (subagent artifact context propagation)
+
+### Current Session
+
+- **Status:** complete
+- **Focus:** Make canonical spec and implementation-plan paths durable enough that Zeus, Hermes, and subagents can recover them after delegation or crash recovery.
+- Actions taken:
+  - Re-ran catch-up through `git diff --stat` and the planning trio after the prior session crashed.
+  - Re-read the relevant workflow surfaces: `agents/zeus.md`, `agents/hermes.md`, `agents/hephaestus.md`, `plugins/planning-with-files.ts`, `plugins/planning-with-files/messages.ts`, `skills/planning-with-files/templates/task_plan.md`, `skills/brainstorming/SKILL.md`, and `skills/writing-plans/SKILL.md`.
+  - Repointed `.plans/task_plan.md` from the stale Context+ task to a new active task, `Subagent Artifact Context Propagation`, and wrote the implementation plan to `.plans/2026-04-01-subagent-artifact-context-propagation-plan.md`.
+  - Added an `Active Artifacts` section to the task-plan template and the live task plan.
+  - Updated planning plugin messaging so planning-memory sessions treat `Active Artifacts` as the canonical task spec and implementation-plan refs.
+  - Tightened Zeus delegation rules to require explicit spec/plan path propagation when those artifacts exist.
+  - Tightened Hermes planning-memory guidance so it keeps the artifact index current.
+  - Tightened Hephaestus startup so it reads handoff-provided or task-plan-listed spec/plan artifacts before execution.
+  - Updated the brainstorming and writing-plans skills so they register newly written specs and plans in `.plans/task_plan.md`.
+  - Verified the changed files by direct read-back and confirmed the fix stayed inside the existing planning-memory system.
+
 ## Session: 2026-04-01 (ContextPlus MCP revert)
 
 ### Current Session
