@@ -29,6 +29,7 @@
   "mcp": {
     "contextplus": {
       "type": "local",
+      "timeout": 300000,
       "command": [
         "bunx",
         "contextplus"
