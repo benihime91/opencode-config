@@ -1,5 +1,27 @@
 # Progress Log
 
+## Session: 2026-04-07 (agent rename pass)
+
+### Current Session
+
+- **Status:** in_progress
+- **Focus:** Ground the full rename blast radius, then apply the approved agent rename across files, config, docs, and planning memory.
+- Actions taken:
+  - Reused the already approved roster and color mapping from the naming design pass.
+  - Loaded planning-memory and repo-discovery workflows before implementation.
+  - Re-ran catch-up via `git diff --stat` and the planning trio.
+  - Tried native Context+ discovery first, but the server was not connected during this pass.
+  - Fell back to direct inspection and exact-match searches.
+  - Confirmed all 11 current Greek-named agent files still exist in `agents/`.
+  - Confirmed active pre-rename references in `README.md`, `agent-permissions.jsonc`, `opencode.json`, and planning files.
+  - Repointed planning memory from the prior rules/skills cleanup task to this new agent-rename pass and wrote the implementation plan to `.plans/2026-04-07-agent-rename-plan.md`.
+  - Renamed all 11 agent files to the approved roster names.
+  - Updated in-file agent names and renamed primary-orchestrator references from Zeus/Hermes to Morpheus/Neo where those were active workflow identities.
+  - Updated `README.md`, `agent-permissions.jsonc`, `opencode.json`, `plugins/planning-with-files/constants.ts`, and the command frontmatter files to the new roster.
+  - Switched primary-agent colors to `neo #3F5A4B` and `morpheus #4B3B63`.
+  - Re-read the renamed orchestrator, documentation, and review agent files plus the updated README, permissions, color config, and planning-plugin constants.
+  - Ran an exact-match sweep over active non-historical surfaces and confirmed there are no remaining Greek-agent names outside intentional mapping/history notes.
+
 ## Session: 2026-04-07 (rules and skills spa day)
 
 ### Current Session

@@ -13,11 +13,11 @@
     "@tarquinen/opencode-dcp@latest"
   ],
   "agent": {
-    "hermes": {
-      "color": "#6366F1"
+    "neo": {
+      "color": "#3F5A4B"
     },
-    "zeus": {
-      "color": "#EC4899"
+    "morpheus": {
+      "color": "#4B3B63"
     },
     "explore": {
       "disable": true

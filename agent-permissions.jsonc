@@ -5,12 +5,12 @@
     ]
   },
   "agents": {
-    "zeus": {
+    "morpheus": {
       "skills": [
         "*"
       ]
     },
-    "hermes": {
+    "neo": {
       "skills": [
         "*"
       ]
@@ -31,7 +31,7 @@
         "*"
       ]
     },
-    "artemis": {
+    "spike": {
       "skills": [
         "repo-discovery",
         "mcporter",
@@ -39,19 +39,7 @@
         "simplify"
       ]
     },
-    "athena": {
-      "skills": [
-        "repo-discovery",
-        "docs-research",
-        "deep-research",
-        "exa-search",
-        "firecrawl",
-        "mcporter",
-        "agent-browser",
-        "simplify"
-      ]
-    },
-    "apollo": {
+    "motoko": {
       "skills": [
         "repo-discovery",
         "docs-research",
@@ -63,7 +51,19 @@
         "simplify"
       ]
     },
-    "daedalus": {
+    "l": {
+      "skills": [
+        "repo-discovery",
+        "docs-research",
+        "deep-research",
+        "exa-search",
+        "firecrawl",
+        "mcporter",
+        "agent-browser",
+        "simplify"
+      ]
+    },
+    "cobb": {
       "skills": [
         "agent-harness-construction",
         "repo-discovery",
@@ -76,7 +76,7 @@
         "simplify"
       ]
     },
-    "aphrodite": {
+    "trinity": {
       "skills": [
         "repo-discovery",
         "docs-research",
@@ -93,7 +93,7 @@
         "simplify"
       ]
     },
-    "hephaestus": {
+    "roy": {
       "skills": [
         "repo-discovery",
         "executing-plans",
@@ -104,7 +104,7 @@
         "agent-browser"
       ]
     },
-    "themis": {
+    "ripley": {
       "skills": [
         "repo-discovery",
         "writing-clearly-and-concisely",
@@ -113,7 +113,7 @@
         "simplify"
       ]
     },
-    "hestia": {
+    "alfred": {
       "skills": [
         "docs-research",
         "article-writing",
@@ -127,7 +127,7 @@
         "simplify"
       ]
     },
-    "cronus": {
+    "lelouch": {
       "skills": [
         "repo-discovery",
         "mcporter",

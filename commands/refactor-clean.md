@@ -1,6 +1,6 @@
 ---
 description: Remove dead code and consolidate duplicates
-agent: cronus
+agent: lelouch
 subtask: true
 ---
 

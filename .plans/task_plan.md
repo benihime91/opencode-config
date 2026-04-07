@@ -1,79 +1,65 @@
-# Task Plan: Rules And Skills Spa Day
+# Task Plan: Agent Rename Pass
 
 ## Goal
 
-Consolidate repo rules and skills, remove contradictions, and align the guidance system to the user's updated preferences.
+Rename the custom agent roster from Greek-god names to the approved film/anime operator names, update all repo references, and preserve the existing role topology.
 
 ## Active Artifacts
 
-- **Active task:** Rules and skills spa day
+- **Active task:** Agent rename pass
 - **Active spec path:** none
-- **Active plan path:** `.plans/2026-04-07-rules-skills-spa-day-plan.md`
+- **Active plan path:** `.plans/2026-04-07-agent-rename-plan.md`
 - **Last updated:** 2026-04-07
 
 ## Intake
 
-- **Intended outcome:** Produce a cleaner, less contradictory rules/skills system with clearer separation between principles and workflows.
-- **Known context:** The repo currently has 5 rule files and 31 skills. The user wants contradiction reduction first, prefers rules to hold principles while skills hold workflows, wants specific guidance to beat general guidance when conflicts remain, and wants this pass to be a deep rewrite rather than a narrow cleanup.
-- **Unknowns / blockers:** Which contradiction clusters should be in scope for this pass versus deferred, and what final structure the user will approve after design review.
-- **Non-goals:** Do not implement changes before design approval. Do not keep duplicate guidance just because it already exists.
-- **Decision boundaries:** Preserve strong guidance where it still adds value, but reorganize aggressively when it reduces contradiction and overlap.
-- **Readiness:** design approved; ready for implementation.
+- **Intended outcome:** Replace all Greek-god agent names with the approved film/anime names across the repo in one coordinated pass.
+- **Known context:** The approved mapping is trinity←aphrodite, l←apollo, spike←artemis, motoko←athena, lelouch←cronus, cobb←daedalus, roy←hephaestus, neo←hermes, alfred←hestia, ripley←themis, morpheus←zeus. The user also approved muted premium colors for each name.
+- **Unknowns / blockers:** Full blast radius of stale Greek-name mentions in planning memory and other repo text still needs exact confirmation.
+- **Non-goals:** Do not redesign agent roles, permissions semantics, or workflows beyond the naming swap.
+- **Decision boundaries:** Keep the rename repo-wide and consistent, preserve role intent, and update color keys where primary-agent names changed.
+- **Readiness:** user approved; ready for implementation.
 
 ## Current Phase
 
-Phase 4 — follow-up skill and permissions cleanup
+Phase 3 — verify and close out
 
 ## Phases
 
-### Phase 1: Grounding and design
+### Phase 1: Grounding rename blast radius
 - [x] Re-run catch-up through `git diff --stat` and the planning trio
-- [x] Inventory current rules and skills
-- [x] Ask the user for updated consolidation preferences
-- [x] Present consolidation approaches and recommended design
-- [x] Get user approval before implementation
-- [x] Write the implementation plan and register it in `Active Artifacts`
+- [x] Confirm the approved rename mapping and colors
+- [x] Locate current agent files and primary repo references
+- [x] Confirm remaining rename targets across prompts, docs, config, and planning files
 - **Status:** complete
 
-### Phase 2: Consolidate rules and skills
-- [x] Identify contradiction clusters and decide canonical homes
-- [x] Rewrite rules and skills to match the approved structure
-- [x] Remove or reduce duplicated guidance
-- [x] Preserve clear precedence between general rules and specific skills
-- [x] Align `skills/exa-search/SKILL.md` with the current `mcporter` guidance
+### Phase 2: Apply coordinated rename
+- [x] Rename all 11 agent files in `agents/`
+- [x] Update in-file `name` fields and internal mentions
+- [x] Update config, docs, commands, and planning references
+- [x] Update primary-agent color keys in `opencode.json`
 - **Status:** complete
 
 ### Phase 3: Verify and close out
-- [x] Re-read every changed file directly
-- [x] Confirm contradictions were removed or intentionally resolved
-- [x] Confirm updated guidance matches the user's preferences
-- [x] Update planning memory with the final structure and residual risks
-- **Status:** complete
-
-### Phase 4: Follow-up skill and permissions cleanup
-- [x] Ground the remaining stale-skill surface
-- [x] Ground the current `agent-permissions.jsonc` state
-- [x] Present the bounded follow-up design
-- [x] Get user approval before implementation
-- [x] Normalize the remaining stale skill frontmatter and descriptions
-- [x] Consolidate `agent-permissions.jsonc` with the updated skills
-- [x] Re-verify the follow-up changes directly
-- [x] Update planning memory with the second-wave results
+- [x] Re-read the changed core files directly
+- [x] Run exact-match sweeps for stale Greek-agent names on active surfaces
+- [x] Update planning memory with verified outcomes and residual notes
 - **Status:** complete
 
 ## Key Questions
 
-1. Which contradiction clusters should be handled in this pass?
-2. What should be the canonical boundary between rules and skills after consolidation?
+1. Which files outside the main agent/config/docs surface still carry active Greek-agent references?
+2. Are any old-name mentions intentionally historical and worth preserving in planning memory, or should they all be updated for consistency?
 
 ## Decisions Made
 
 | Decision | Rationale |
 | -------- | --------- |
-| Optimize for contradiction reduction first | User preference |
-| Keep principles in rules and workflows in skills by default | User preference |
-| Let specific guidance beat general guidance when conflicts remain | User preference |
-| Allow a deep rewrite instead of a narrow cleanup | User preference |
+| Use the approved film/anime roster | User approved the exact mapping |
+| Apply the rename repo-wide in one coordinated pass | User explicitly asked to update all references |
+| Preserve role intent while swapping names | Avoid behavior drift during a naming change |
+| Use the approved muted premium colors | User approved the exact palette |
+| Treat historical planning references outside the active rename files as historical record, not stale active surface | Keeps the live repo consistent without rewriting unrelated archived session history |
 
 ## Errors Encountered
 

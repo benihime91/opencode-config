@@ -106,53 +106,53 @@ This config ships with two primary agents and a set of hidden specialist subagen
 
 | Agent | Role |
 | --- | --- |
-| `hermes` | Default pair-programming agent. Handles direct coding tasks end-to-end, explores the repo, makes focused edits, and verifies the result. |
-| `zeus` | Orchestration controller. Delegates repo discovery, research, implementation, review, cleanup, and docs work to specialists, then verifies the outcome before replying. |
+| `neo` | Default pair-programming agent. Handles direct coding tasks end-to-end, explores the repo, makes focused edits, and verifies the result. |
+| `morpheus` | Orchestration controller. Delegates repo discovery, research, implementation, review, cleanup, and docs work to specialists, then verifies the outcome before replying. |
 
 ### Specialist subagents
 
 | Agent | What it does |
 | --- | --- |
-| `artemis` | Fast repo discovery. Finds files, traces symbols, maps architecture, and answers “where does this live?” questions. |
-| `hephaestus` | Deep implementation worker. Executes scoped code changes locally and runs the strongest relevant verification. |
-| `athena` | External docs and library researcher. Pulls official docs, examples, and version-sensitive guidance. |
-| `apollo` | Strategic advisor. Helps with stubborn bugs, risk analysis, and high-level technical review. |
-| `daedalus` | Technical architect. Produces high-level designs, pattern selections, directory structures, trade-off analysis, and ADRs without implementation code. |
-| `aphrodite` | UI/UX specialist. Improves visual direction, responsive layouts, interaction design, and polish. |
-| `hestia` | Documentation specialist. Updates README files, guides, and operational docs to match current behavior. |
-| `themis` | Review specialist. Checks completed work against the plan, constraints, and code-quality expectations. |
-| `cronus` | Cleanup specialist. Removes dead code, consolidates duplication, and handles safe refactors. |
+| `spike` | Fast repo discovery. Finds files, traces symbols, maps architecture, and answers “where does this live?” questions. |
+| `roy` | Deep implementation worker. Executes scoped code changes locally and runs the strongest relevant verification. |
+| `motoko` | External docs and library researcher. Pulls official docs, examples, and version-sensitive guidance. |
+| `l` | Strategic advisor. Helps with stubborn bugs, risk analysis, and high-level technical review. |
+| `cobb` | Technical architect. Produces high-level designs, pattern selections, directory structures, trade-off analysis, and ADRs without implementation code. |
+| `trinity` | UI/UX specialist. Improves visual direction, responsive layouts, interaction design, and polish. |
+| `alfred` | Documentation specialist. Updates README files, guides, and operational docs to match current behavior. |
+| `ripley` | Review specialist. Checks completed work against the plan, constraints, and code-quality expectations. |
+| `lelouch` | Cleanup specialist. Removes dead code, consolidates duplication, and handles safe refactors. |
 
-## Current Zeus Orchestrator Workflow
+## Current Morpheus Orchestrator Workflow
 
-The current orchestrator flow in `agents/zeus.md` follows a delegated, wave-based loop:
+The current orchestrator flow in `agents/morpheus.md` follows a delegated, wave-based loop:
 
 ```mermaid
 flowchart TD
-    A[User request] --> B[Zeus classifies intent]
+    A[User request] --> B[Morpheus classifies intent]
     B --> C{Need repo or external grounding?}
-    C -->|Repo| D[Delegate discovery to Artemis]
-    C -->|External docs or research| E[Delegate research to Athena]
+    C -->|Repo| D[Delegate discovery to Spike]
+    C -->|External docs or research| E[Delegate research to Motoko]
     C -->|No| F{Need design or planning?}
     D --> F
     E --> F
-    F -->|Yes| G[Zeus owns requirements, brainstorming, spec, and plan]
+    F -->|Yes| G[Morpheus owns requirements, brainstorming, spec, and plan]
     F -->|No| H[Split work into execution waves]
     G --> H
     H --> I[Delegate concrete work to specialists]
-    I --> J[Hephaestus implementation]
-    I --> K[Aphrodite UI or UX work]
-    I --> L[Hestia docs updates]
-    I --> M[Cronus cleanup]
-    J --> N[Zeus verifies files and evidence]
+    I --> J[Roy implementation]
+    I --> K[Trinity UI or UX work]
+    I --> L[Alfred docs updates]
+    I --> M[Lelouch cleanup]
+    J --> N[Morpheus verifies files and evidence]
     K --> N
     L --> N
     M --> N
     N --> O{Issues or uncertainty remain?}
-    O -->|Yes| P[Apollo advises or Zeus redelegates]
+    O -->|Yes| P[L advises or Morpheus redelegates]
     P --> H
-    O -->|No| Q[Optional Themis review for major work]
-    Q --> R[Zeus reports completion]
+    O -->|No| Q[Optional Ripley review for major work]
+    Q --> R[Morpheus reports completion]
 ```
 
-In short: Zeus delegates by specialty, works in waves when tasks can be parallelized safely, and never trusts completion claims without its own verification pass.
+In short: Morpheus delegates by specialty, works in waves when tasks can be parallelized safely, and never trusts completion claims without its own verification pass.

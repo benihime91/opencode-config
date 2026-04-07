@@ -1,6 +1,6 @@
 ---
 description: Extract patterns and learnings from current session
-agent: zeus
+agent: morpheus
 ---
 
 # Learn Command

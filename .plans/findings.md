@@ -1,5 +1,44 @@
 # Findings & Decisions
 
+## Current Task (2026-04-07, agent rename pass)
+
+- The user approved a repo-wide rename from Greek-god agent names to film/anime operator names and explicitly required that all references be updated in the same pass.
+- Approved mapping:
+  - `trinity` ← `aphrodite`
+  - `l` ← `apollo`
+  - `spike` ← `artemis`
+  - `motoko` ← `athena`
+  - `lelouch` ← `cronus`
+  - `cobb` ← `daedalus`
+  - `roy` ← `hephaestus`
+  - `neo` ← `hermes`
+  - `alfred` ← `hestia`
+  - `ripley` ← `themis`
+  - `morpheus` ← `zeus`
+- Approved muted premium colors:
+  - `trinity` `#40364D`
+  - `l` `#2E3A4F`
+  - `spike` `#5C6A4E`
+  - `motoko` `#3E5F67`
+  - `lelouch` `#5A426F`
+  - `cobb` `#5E5A57`
+  - `roy` `#6A3F3F`
+  - `neo` `#3F5A4B`
+  - `alfred` `#6A7153`
+  - `ripley` `#7A6854`
+  - `morpheus` `#4B3B63`
+- Grounded rename surface so far:
+  - The rename targets were grounded across `agents/`, `README.md`, `agent-permissions.jsonc`, `opencode.json`, `plugins/planning-with-files/constants.ts`, command frontmatter, and the active planning files.
+  - Planning memory and older plan files contain many Greek-name references that may need consistency cleanup or selective preservation.
+- Implementation status:
+  - All 11 agent files have now been renamed on disk to the approved lower-case names.
+  - Active config/docs surfaces have been updated to the renamed roster, including permissions keys, command routing, planning-plugin constants, README tables, orchestrator workflow text, and primary-agent colors.
+  - Verification re-reads confirmed the new names in `agents/morpheus.md`, `agents/alfred.md`, `agents/ripley.md`, `README.md`, `agent-permissions.jsonc`, `opencode.json`, and `plugins/planning-with-files/constants.ts`.
+  - Exact-match grep over active non-historical surfaces (`agents/*.md`, `README.md`, `agent-permissions.jsonc`, `opencode.json`, `plugins/**/*.ts`, `commands/*.md`) returned no remaining Greek-agent names.
+  - Remaining Greek-name matches are now limited to historical planning memory plus the active rename mapping notes that intentionally document the before→after conversion.
+- Discovery note:
+  - Native Context+ was unavailable during this pass (`Not connected`), so repo grounding switched to direct reads plus exact-match search fallback.
+
 ## Current Task (2026-04-07, rules and skills spa day)
 
 - Current repo inventory from direct reads and inventory scripts:
