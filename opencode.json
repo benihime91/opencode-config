@@ -31,7 +31,8 @@
       "type": "local",
       "timeout": 300000,
       "command": [
-        "bunx",
+        "npx",
+        "-y",
         "contextplus"
       ],
       "enabled": true,
