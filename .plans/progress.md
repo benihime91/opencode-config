@@ -1,5 +1,55 @@
 # Progress Log
 
+## Session: 2026-04-07 (rules and skills spa day)
+
+### Current Session
+
+- **Status:** in_progress
+- **Focus:** Execute the approved consolidation pass, verify the changed rule/skill surfaces directly, and close out the remaining contradiction review.
+- Actions taken:
+  - Loaded the required requirement, planning-memory, rule-distillation, and repo-discovery workflows before responding because this is a multi-step behavior and prompt-surface change.
+  - Re-ran catch-up through `git diff --stat` and the planning trio.
+  - Asked the user four scoped preference questions and captured the answers: contradiction reduction first, rules = principles, skills = workflows, specific beats general, and deep rewrite allowed.
+  - Ran inventory over the current rule and skill surface and confirmed the repo currently has 5 rule files and 31 skills.
+  - Re-read the current rule files plus representative workflow skills to identify overlap and contradiction hotspots before proposing a design.
+  - Re-read `skills/exa-search/SKILL.md` and `skills/mcporter/SKILL.md` after the user's scope addendum and confirmed `exa-search` still carries stale MCP-first instructions that need alignment with the newer mcporter workflow.
+  - Presented the canonical split recommendation, got user approval, and wrote the implementation plan to `.plans/2026-04-07-rules-skills-spa-day-plan.md`.
+  - Confirmed the first implementation cluster includes the rule boundary cleanup plus the mcporter-linked research skills, with `skills/exa-search/SKILL.md` explicitly in scope.
+  - Warmed `mcporter` once sequentially, then inspected the live Exa schema through the shared config path so the rewrite can match the real tool surface.
+  - Confirmed a live mismatch: `get_code_context_exa` currently takes `numResults`, not `tokensNum`, so `skills/exa-search/SKILL.md` is stale beyond just its MCP/setup wording.
+  - Wrote the first consolidation wave across `rules/agent-workflow.md`, `skills/brainstorming/SKILL.md`, `skills/planning-with-files/SKILL.md`, `skills/repo-discovery/SKILL.md`, `skills/mcporter/SKILL.md`, `skills/docs-research/SKILL.md`, `skills/deep-research/SKILL.md`, `skills/annotation-sync/SKILL.md`, and `skills/exa-search/SKILL.md`.
+  - Re-read every changed file directly after the rewrite to verify the new boundary between rules and workflow skills.
+  - Found one remaining internal inconsistency during read-back: stale Exa example arguments still existed in `skills/docs-research/SKILL.md` and `skills/deep-research/SKILL.md`.
+  - Patched those two research skills so their Exa examples now match the live schema already confirmed through mcporter.
+  - Re-read both patched research skills and confirmed the stale `tokensNum` / unsupported Exa argument shapes are gone.
+  - Ran an exact-pattern verification sweep across `skills/**/*.md` for the targeted stale Exa patterns and confirmed they are gone.
+  - Confirmed the only remaining `~/.claude.json` skill hit is the intentional negative rule in `skills/exa-search/SKILL.md`.
+  - Confirmed remaining `origin: ECC` hits are outside the approved scope of this pass and documented them as a residual follow-up candidate rather than reopening the scope midstream.
+  - Updated planning memory to mark the consolidation and verification phases complete.
+  - The user then reopened scope for a bounded second wave: remove the remaining `origin: ECC` markers, update the affected skills where needed, and consolidate `agent-permissions.jsonc` with the updated skill surface.
+  - Re-grounded that follow-up by locating the exact five remaining `origin: ECC` skills and reading them directly.
+  - Re-read `agent-permissions.jsonc` and confirmed at least one live cleanup issue immediately: duplicate `agent-browser` in `aphrodite`.
+  - Confirmed the second wave still looks bounded enough to handle as a focused cleanup rather than another deep repo-wide rewrite.
+  - Presented the bounded wider cleanup design, recommended it, and got user approval before implementation.
+  - Removed the remaining `origin: ECC` markers from the five stale skills and rewrote all five descriptions into the current `Use when ...` form.
+  - Kept `skills/frontend-patterns/SKILL.md` intentionally shallow because it is large and a deep rewrite was out of scope.
+  - Renamed the stale `## Related ECC Skills` heading in `skills/frontend-slides/SKILL.md` to `## Related Skills`.
+  - Replaced stale ECC/video-stack references in `skills/manim-video/SKILL.md` with generic workflow wording and removed references to nonexistent companion skills.
+  - Consolidated `agent-permissions.jsonc` by adding `agent-harness-construction` to `daedalus`, aligning `aphrodite` with the current frontend/design skill cluster, and removing the duplicate `agent-browser` entry.
+  - Verified the second wave with direct read-back plus regex sweeps: no remaining `origin: ECC` markers, no non-`Use when` skill descriptions, and no remaining stale ECC companion-skill phrasing.
+  - The plain English phrase `video-editing` remains in `skills/manim-video/SKILL.md`, but only as generic workflow wording rather than a stale skill reference.
+  - Broader permissions pass: cross-referenced all agent definitions against the 31-skill inventory.
+  - Found the file had been externally modified (simplify added broadly, planner removed, duplicate simplify in hephaestus).
+  - Applied approved additions on top of the current state:
+    - Added `exa-search` to athena, apollo, daedalus, aphrodite, hestia.
+    - Added `executing-plans`, `docs-research`, `exa-search` to hephaestus.
+    - Added `article-writing` to hestia.
+    - Added `docs-research` to aphrodite.
+    - Added `writing-clearly-and-concisely` to themis.
+  - Fixed the duplicate `simplify` in hephaestus.
+  - Verified by direct read-back: no duplicates, all additions in place.
+  - Next state is closeout only: planning memory needs to reflect that Phase 4 is complete.
+
 ## Session: 2026-04-01 (subagent artifact context propagation)
 
 ### Current Session

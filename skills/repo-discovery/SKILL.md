@@ -7,7 +7,7 @@ description: Semantic and structural repository discovery using native Context+ 
 
 Use this skill when the job is understanding a local repository: structure, symbol locations, call paths, blast radius, exact file targets, and the safest place to make a change.
 
-This skill is the single source of truth for repo-understanding workflow in this config. Do not send agents to a separate repo-discovery playbook. Load this skill and follow it.
+This skill owns the repo-understanding workflow in this config.
 
 ## Canonical Config
 
@@ -28,7 +28,7 @@ Skip this skill when the task is already limited to one known file and no broade
 
 ## Core Sequence
 
-**Always start with Context+ tools.** Native Context+ MCP tools are the primary discovery mechanism. `grep`, `glob`, and raw file reads are fallback-only tools — use them after Context+ results are insufficient, not as a default starting point.
+Always start with native Context+ tools. Use `grep`, `glob`, and broad raw reads only as fallbacks.
 
 1. Start broad with Context+ structure (`get_context_tree`, `get_file_skeleton`).
 2. Narrow with Context+ semantic search (`semantic_code_search`, `semantic_identifier_search`).
@@ -37,9 +37,7 @@ Skip this skill when the task is already limited to one known file and no broade
 5. Inspect blast radius with Context+ (`get_blast_radius`) before editing or deleting existing symbols.
 6. Run static analysis with Context+ (`run_static_analysis`) after edits when available.
 
-**Fallback rule**: Use `grep` or `glob` only when Context+ semantic search returns no useful results for a specific query, or when you need exact-string matching that semantic search cannot provide (e.g., a precise regex). Do not default to `grep`/`glob` out of habit.
-
-Do not jump straight into broad file-body reads unless the task is truly tiny and the target file is already known.
+Use `grep` or `glob` only when Context+ returns nothing useful or when you need exact-string matching.
 
 ## Broad-To-Narrow Search Strategy
 
@@ -60,7 +58,7 @@ Then run 2-3 follow-up searches with different wording. First-pass semantic hits
 
 If the first search looks plausible but thin, assume there is more and search again.
 
-## Required Confirmation Rule
+## Confirmation Rules
 
 Semantic hits are discovery signals, not final evidence.
 
@@ -82,7 +80,7 @@ Before deleting, renaming, or rewiring an existing symbol:
 
 If blast radius is unclear, treat the change as high risk and gather more evidence before editing.
 
-## Command Patterns
+## Tool Surface
 
 Use the native Context+ MCP tools directly:
 

@@ -1,40 +1,44 @@
 ---
 name: planning-with-files
 description: Implements Manus-style file-based planning to organize and track progress on complex tasks. Creates .plans/task_plan.md, .plans/findings.md, and .plans/progress.md. Use when asked to plan out, break down, or organize a multi-step project, research task, or any work requiring >5 tool calls.
-metadata:
-  version: "2.21.0"
 ---
 
 # Planning with Files
 
-Work like Manus: Use persistent markdown files as your "working memory on disk."
+Use persistent markdown files as working memory on disk.
 
-## FIRST: Check for Previous Session (v2.2.0)
+## Start Here
 
 1. Run `git diff --stat` to see actual code changes
 2. Read current planning files
 3. Update planning files based on catchup + git diff
 4. Then proceed with task
 
-## Important: Where Files Go
+## Files And Ownership
 
-- **Your planning files** go in **your project directory**
+- Planning files live in the project `.plans/` directory.
+- Treat `.plans/task_plan.md` as the canonical task-state file.
+- Treat `Active Artifacts` in `.plans/task_plan.md` as the canonical spec and plan paths when present.
 
 | Location               | What Goes There                                             |
 | ---------------------- | ----------------------------------------------------------- |
 | Your project directory | `.plans/task_plan.md`, `.plans/findings.md`, `.plans/progress.md` |
 
-## Quick Start
+## When To Use
 
-Before ANY complex task:
+- multi-step tasks
+- research-heavy tasks
+- anything that needs durable state across many tool calls
+
+Skip this skill for simple questions, quick lookups, or single-file edits.
+
+## Core Workflow
 
 1. **Create `.plans/task_plan.md`** — Use [templates/task_plan.md](templates/task_plan.md) as reference
 2. **Create `.plans/findings.md`** — Use [templates/findings.md](templates/findings.md) as reference
 3. **Create `.plans/progress.md`** — Use [templates/progress.md](templates/progress.md) as reference
 4. **Re-read plan before decisions** — Refreshes goals in attention window
 5. **Update `.plans/task_plan.md` after each phase** — Mark complete, log errors
-
-> **Note:** Planning files go in your project's `.plans/` directory, not the skill installation folder.
 
 ## The Core Pattern
 
@@ -67,7 +71,7 @@ This prevents visual/multimodal information from being lost.
 
 ### 3. Read Before Decide
 
-Before major decisions, read the plan file. This keeps goals in your attention window.
+Before major decisions, read the task plan. This keeps goals in view.
 
 ### 4. Update After Act
 
@@ -77,9 +81,9 @@ After completing any phase:
 - Log any errors encountered
 - Note files created/modified
 
-### 5. Log ALL Errors
+### 5. Log Errors
 
-Every error goes in the plan file. This builds knowledge and prevents repetition.
+Every error goes in the plan file. This prevents repeated failure.
 
 ```markdown
 ## Errors Encountered
@@ -97,9 +101,9 @@ if action_failed:
     next_action != same_action
 ```
 
-Track what you tried. Mutate the approach.
+Track what you tried. Change the approach.
 
-## The 3-Strike Error Protocol
+## Failure Protocol
 
 ```
 ATTEMPT 1: Diagnose & Fix
@@ -148,19 +152,7 @@ If you can answer these, your context management is solid:
 
 ## When to Use This Pattern
 
-**Use for:**
-
-- Multi-step tasks (3+ steps)
-- Research tasks
-- Building/creating projects
-- Tasks spanning many tool calls
-- Anything requiring organization
-
-**Skip for:**
-
-- Simple questions
-- Single-file edits
-- Quick lookups
+Use this skill when the answers to those five questions are likely to be forgotten without disk-backed state.
 
 ## Templates
 
@@ -178,14 +170,14 @@ Helper scripts for automation:
 - `scripts/check-complete.sh` — Verify all phases complete
 - `scripts/session-catchup.py` — Recover context from previous session (v2.2.0)
 
-## Advanced Topics
+## References
 
-- **Manus Principles:** See [reference.md](reference.md)
-- **Real Examples:** See [examples.md](examples.md)
+- [reference.md](reference.md)
+- [examples.md](examples.md)
 
 ## Security Boundary
 
-This skill uses a PreToolUse hook to re-read `.plans/task_plan.md` before every tool call. Content written to `.plans/task_plan.md` is injected into context repeatedly — making it a high-value target for indirect prompt injection.
+This skill uses a hook that re-reads `.plans/task_plan.md` before tool calls. Treat that file as a high-value prompt surface.
 
 | Rule                                                     | Why                                                                                             |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |

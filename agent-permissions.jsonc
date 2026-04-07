@@ -34,7 +34,9 @@
     "artemis": {
       "skills": [
         "repo-discovery",
-        "mcporter"
+        "mcporter",
+        "agent-browser",
+        "simplify"
       ]
     },
     "athena": {
@@ -42,8 +44,11 @@
         "repo-discovery",
         "docs-research",
         "deep-research",
+        "exa-search",
         "firecrawl",
-        "mcporter"
+        "mcporter",
+        "agent-browser",
+        "simplify"
       ]
     },
     "apollo": {
@@ -51,62 +56,83 @@
         "repo-discovery",
         "docs-research",
         "deep-research",
+        "exa-search",
         "firecrawl",
-        "mcporter"
+        "mcporter",
+        "agent-browser",
+        "simplify"
       ]
     },
     "daedalus": {
       "skills": [
+        "agent-harness-construction",
         "repo-discovery",
         "docs-research",
         "deep-research",
+        "exa-search",
         "firecrawl",
-        "mcporter"
+        "mcporter",
+        "agent-browser",
+        "simplify"
       ]
     },
     "aphrodite": {
       "skills": [
         "repo-discovery",
+        "docs-research",
+        "exa-search",
+        "frontend-design",
+        "frontend-patterns",
+        "frontend-slides",
+        "liquid-glass-design",
         "agentation",
         "annotation-sync",
         "agentation-self-driving",
         "agent-browser",
-        "mcporter"
+        "mcporter",
+        "simplify"
       ]
     },
     "hephaestus": {
       "skills": [
         "repo-discovery",
-        "mcporter"
-      ]
-    },
-    "planner": {
-      "skills": [
-        "repo-discovery",
-        "writing-plans",
-        "mcporter"
+        "executing-plans",
+        "docs-research",
+        "exa-search",
+        "mcporter",
+        "simplify",
+        "agent-browser"
       ]
     },
     "themis": {
       "skills": [
         "repo-discovery",
-        "mcporter"
+        "writing-clearly-and-concisely",
+        "mcporter",
+        "agent-browser",
+        "simplify"
       ]
     },
     "hestia": {
       "skills": [
         "docs-research",
+        "article-writing",
+        "exa-search",
         "writing-plans",
         "writing-clearly-and-concisely",
         "repo-discovery",
         "firecrawl",
-        "mcporter"
+        "mcporter",
+        "agent-browser",
+        "simplify"
       ]
     },
     "cronus": {
       "skills": [
         "repo-discovery",
-        "mcporter"
+        "mcporter",
+        "agent-browser",
+        "simplify"
       ]
     }
   }

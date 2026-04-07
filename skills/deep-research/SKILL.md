@@ -7,7 +7,7 @@ description: Use when the task needs broad multi-source external research, compe
 
 Use this skill for broad external research that needs multiple sources, synthesis, citations, and explicit confidence.
 
-In this repo, this is a CLI-first workflow:
+In this repo, this is a skill-driven CLI workflow:
 
 - Load skill:`mcporter` for direct `mcporter` operation.
 - Load skill:`firecrawl` when the job needs direct Firecrawl search, scrape, map, crawl, extract, or Firecrawl troubleshooting.
@@ -68,7 +68,7 @@ bunx mcporter call 'firecrawl.firecrawl_extract(urls: ["https://example.com/pric
 Exa search:
 
 ```bash
-bunx mcporter call 'exa.web_search_exa(query: "AI code editor market 2026", numResults: 8, type: "auto")' --config ~/.config/opencode/mcporter.json --output json
+bunx mcporter call 'exa.web_search_exa(query: "AI code editor market 2026", numResults: 8)' --config ~/.config/opencode/mcporter.json --output json
 
 bunx mcporter call 'exa.web_search_advanced_exa(query: "AI code editor funding 2026", numResults: 5, startPublishedDate: "2025-01-01")' --config ~/.config/opencode/mcporter.json --output json
 ```
@@ -76,7 +76,7 @@ bunx mcporter call 'exa.web_search_advanced_exa(query: "AI code editor funding 2
 Exa deep read:
 
 ```bash
-bunx mcporter call 'exa.crawling_exa(urls: ["https://example.com/report"], maxCharacters: 8000, subpages: 0, subpageTarget: "pricing")' --config ~/.config/opencode/mcporter.json --output json
+bunx mcporter call 'exa.crawling_exa(urls: ["https://example.com/report"], maxCharacters: 8000)' --config ~/.config/opencode/mcporter.json --output json
 ```
 
 ## Practical Search Notes
@@ -85,6 +85,7 @@ bunx mcporter call 'exa.crawling_exa(urls: ["https://example.com/report"], maxCh
 - Use skill:`firecrawl` for `map`, `crawl`, `extract`, and Firecrawl troubleshooting details.
 - Treat `firecrawl_agent` as optional/beta, not as the default stable path.
 - Prefer `web_search_exa` for quick broad search and `web_search_advanced_exa` only when you need stricter filters.
+- Inherit generic config, warm-up, and JSON-output guidance from `mcporter` instead of repeating it here.
 
 ## Fallback Path
 

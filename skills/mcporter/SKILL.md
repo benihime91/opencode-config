@@ -19,7 +19,7 @@ In this repo, `mcporter` is a peer skill to `repo-discovery`, `docs-research`, `
 
 Upstream `mcporter` commonly defaults to `./config/mcporter.json`.
 
-In this repo, prefer the shared config explicitly:
+In this repo, always pass the shared config explicitly:
 
 ```bash
 ~/.config/opencode/mcporter.json
@@ -35,7 +35,7 @@ bunx mcporter list <server> --schema --config ~/.config/opencode/mcporter.json
 bunx mcporter call <server.tool> key=value --config ~/.config/opencode/mcporter.json
 ```
 
-Prefer `--output json` for machine-readable results.
+Prefer `--output json` when another tool or agent will consume the result.
 
 ## Call Tools
 
@@ -136,7 +136,6 @@ Prefer this skill when you need to:
 
 ## Rules
 
-- Prefer `--output json` when another tool or agent will consume the result.
 - Pass `--config ~/.config/opencode/mcporter.json` unless the task explicitly needs another config.
 - Do not start with parallel first-run `bunx mcporter ...` calls. Warm `mcporter` once sequentially first, then parallelize independent calls if needed.
 - Use capability skills when the task already has a better domain-shaped interface.

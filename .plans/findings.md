@@ -1,5 +1,124 @@
 # Findings & Decisions
 
+## Current Task (2026-04-07, rules and skills spa day)
+
+- Current repo inventory from direct reads and inventory scripts:
+  - 5 rule files: `agent-workflow.md`, `agent-writing.md`, `browser-automation.md`, `modular-code-enforcement.md`, `python-coding-style.md`.
+  - 31 skills currently installed in `skills/`.
+- High-signal current rule structure:
+  - `agent-workflow.md` is the main cross-cutting operating policy layer.
+  - `agent-writing.md` governs prose and interface text.
+  - `browser-automation.md` is already narrowly scoped and skill-aligned.
+  - `modular-code-enforcement.md` and `python-coding-style.md` govern code architecture and Python style.
+- High-signal current overlap pattern from direct reads:
+  - `agent-workflow.md` and several workflow skills both describe planning, readiness, verification, escalation, and evidence expectations.
+  - `repo-discovery/SKILL.md` strongly restates discovery-order rules that are partly general and partly workflow-specific.
+  - `planning-with-files/SKILL.md` carries both durable workflow instructions and some broad behavioral rules.
+  - `brainstorming/SKILL.md` mixes requirement workflow, planning gate policy, and some cross-cutting implementation constraints.
+- User preference updates captured through direct questioning:
+  - Optimize for contradiction reduction first.
+  - Keep principles in rules and detailed workflow steps in skills.
+  - If conflicts remain, specific guidance should beat general guidance.
+  - This pass may be a deep rewrite rather than only targeted cleanup.
+- Design implication:
+  - The strongest likely direction is a clearer hierarchy where rules define durable cross-cutting policy and skills focus on trigger conditions, workflow steps, and bounded task-specific constraints.
+- Additional scoped requirement from the user:
+  - `skills/exa-search/SKILL.md` must also be updated to reflect the newer `skills/mcporter/SKILL.md` guidance.
+- Direct-read grounding for that requirement:
+  - `skills/exa-search/SKILL.md` still describes Exa as an MCP-first workflow, includes `~/.claude.json`, and documents old Exa MCP tool names (`web_search_exa`, `get_code_context_exa`).
+  - `skills/mcporter/SKILL.md` now treats `mcporter` as a skill-driven CLI workflow, requires explicit `--config ~/.config/opencode/mcporter.json`, prefers JSON output, and includes updated warm-up / race-condition guidance for `bunx mcporter` usage.
+  - This makes `exa-search` a confirmed contradiction hotspot in the current pass, not just a nice-to-have cleanup.
+- Live schema confirmation during implementation startup:
+  - `bunx mcporter --help` confirms the repo should still pass `--config ~/.config/opencode/mcporter.json`, and that `list`, `call`, `auth`, `config`, `daemon`, `generate-cli`, `inspect-cli`, and `emit-ts` are the current first-class command families.
+  - `bunx mcporter list exa --schema --config ~/.config/opencode/mcporter.json` confirms the live Exa tool surface is currently:
+    - `web_search_exa(query, numResults?)`
+    - `web_search_advanced_exa(query, numResults?, type?, category?, includeDomains?, ...)`
+    - `get_code_context_exa(query, numResults?)`
+    - `crawling_exa(urls, maxCharacters?)`
+    - deprecated `company_research_exa(companyName, numResults?)`
+    - deprecated `people_search_exa(query, numResults?)`
+  - Important mismatch to fix in `skills/exa-search/SKILL.md`: it currently teaches `get_code_context_exa(..., tokensNum: ...)`, but the live schema now uses `numResults`, not `tokensNum`.
+  - Another cleanup target: `skills/exa-search/SKILL.md` frontmatter currently contains an extra `origin: ECC` field, while the current skill-writing convention allows only `name` and `description`.
+- First consolidation wave now on disk:
+  - `rules/agent-workflow.md` now explicitly defines the rule-vs-skill boundary and keeps the cross-cutting policy layer there.
+  - `skills/brainstorming/SKILL.md`, `skills/planning-with-files/SKILL.md`, and `skills/repo-discovery/SKILL.md` are now shorter and more workflow-shaped.
+  - `skills/mcporter/SKILL.md` is now the clearer canonical home for generic mcporter CLI guidance.
+  - `skills/annotation-sync/SKILL.md`, `skills/docs-research/SKILL.md`, `skills/deep-research/SKILL.md`, and `skills/exa-search/SKILL.md` now inherit generic mcporter rules instead of restating them.
+  - `skills/exa-search/SKILL.md` no longer teaches `~/.claude.json`, old setup language, or `origin: ECC`, and now reflects the live shared-config workflow.
+- Read-back verification after the first rewrite found one remaining contradiction cluster:
+  - `skills/docs-research/SKILL.md` and `skills/deep-research/SKILL.md` still had stale Exa examples that no longer matched the live schema.
+- Follow-up fix now on disk:
+  - `skills/docs-research/SKILL.md` now uses `exa.get_code_context_exa(..., numResults: 5)`, simplified `exa.web_search_exa(..., numResults: 5)`, and simplified `exa.crawling_exa(..., maxCharacters: 6000)`.
+  - `skills/deep-research/SKILL.md` now uses `exa.web_search_exa(..., numResults: 8)` and `exa.crawling_exa(..., maxCharacters: 8000)` without unsupported extra arguments.
+- Current verified state:
+  - The mcporter-linked research skills now agree on the shared config path and on Exa example argument shapes.
+  - The main remaining work is final contradiction review and closeout, not another design rewrite.
+- Final verification pass:
+  - Direct read-back was completed for every file changed in this pass: `rules/agent-workflow.md`, `skills/brainstorming/SKILL.md`, `skills/planning-with-files/SKILL.md`, `skills/repo-discovery/SKILL.md`, `skills/mcporter/SKILL.md`, `skills/docs-research/SKILL.md`, `skills/deep-research/SKILL.md`, `skills/annotation-sync/SKILL.md`, and `skills/exa-search/SKILL.md`.
+  - Exact-pattern verification found no remaining stale Exa example shapes in skill files:
+    - no `tokensNum` usage in Exa examples
+    - no `exa.web_search_exa(... type: ...)`
+    - no `exa.crawling_exa(... subpages|maxAgeHours|subpageTarget ...)`
+  - The only `~/.claude.json` hit inside `skills/` is now the intentional negative rule in `skills/exa-search/SKILL.md` telling agents not to teach that setup.
+  - Remaining `origin: ECC` matches are limited to unrelated skills outside the approved scope of this pass (`agent-harness-construction`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `manim-video`).
+- Preference-alignment verdict:
+  - Contradiction reduction came first: the highest-signal overlaps were handled before any broader cleanup.
+  - Rules now more clearly own durable principles, while the edited skills now more clearly own trigger conditions and workflows.
+  - The new rule-vs-skill boundary in `rules/agent-workflow.md` explicitly encodes the user's preferred precedence model: specific guidance narrows the general rule within scope.
+- Residual risk / deferral:
+  - Some unrelated skills still carry older frontmatter conventions (`origin: ECC`), but they were not part of the user's approved contradiction cluster for this pass.
+  - If the user wants a second cleanup wave, frontmatter normalization across the remaining out-of-scope skills is now an obvious follow-up target.
+- User-directed follow-up scope change:
+  - The user explicitly asked to remove the remaining `origin: ECC` markers, update the rest where needed, and also consolidate `agent-permissions.jsonc` with the updated skill surface.
+  - This reopens the task as a bounded second cleanup wave rather than a brand-new project.
+- Grounded second-wave cleanup surface:
+  - Remaining `origin: ECC` matches are exactly five skills:
+    - `skills/agent-harness-construction/SKILL.md`
+    - `skills/frontend-design/SKILL.md`
+    - `skills/frontend-patterns/SKILL.md`
+    - `skills/frontend-slides/SKILL.md`
+    - `skills/manim-video/SKILL.md`
+  - Description-pattern grep did not surface a second obvious repo-wide frontmatter issue beyond those five, but direct reads show their descriptions still use the older style instead of the current trigger-first `Use when ...` convention.
+  - `agent-permissions.jsonc` currently has at least one concrete inconsistency: duplicate `agent-browser` in `aphrodite`.
+  - The permissions file may also need alignment against the current specialist roster and the updated skills introduced in this repo pass.
+- Recommended second-wave shape:
+  - Remove `origin: ECC` from those five skills.
+  - Normalize each of their `description` fields to the current trigger-first style.
+  - Make only small body-level wording cleanups where clearly needed to match current skill conventions.
+  - Consolidate `agent-permissions.jsonc` to remove obvious duplication and align allowed skills with the current skill/agent model, without redesigning the whole permission system.
+- Approved second-wave design:
+  - The user approved the bounded wider cleanup rather than a frontmatter-only pass or a deep second rewrite.
+  - That approval kept the scope limited to the five stale skills plus `agent-permissions.jsonc`.
+- Second-wave implementation now on disk:
+  - Removed `origin: ECC` from:
+    - `skills/agent-harness-construction/SKILL.md`
+    - `skills/frontend-design/SKILL.md`
+    - `skills/frontend-patterns/SKILL.md`
+    - `skills/frontend-slides/SKILL.md`
+    - `skills/manim-video/SKILL.md`
+  - Rewrote each of those five `description` fields into the current trigger-first `Use when ...` form.
+  - Kept the cleanup intentionally shallow in the large `skills/frontend-patterns/SKILL.md` file; only frontmatter normalization was done there.
+  - Renamed `skills/frontend-slides/SKILL.md` section heading `## Related ECC Skills` to `## Related Skills`.
+  - Replaced stale ECC/video-stack wording in `skills/manim-video/SKILL.md` with neutral workflow wording:
+    - tool requirements now describe `manim`, `ffmpeg`, optional external video editing, and optional compositing in generic terms
+    - workflow step 7 now says to hand off to a broader video workflow only if it adds value
+  - Consolidated `agent-permissions.jsonc` without redesigning the model:
+    - added `agent-harness-construction` to `daedalus`
+    - aligned `aphrodite` with the frontend/design skill cluster by adding `frontend-design`, `frontend-patterns`, `frontend-slides`, and `liquid-glass-design`
+    - removed the duplicate `agent-browser` entry from `aphrodite`
+- Second-wave verification result:
+  - Grep for `^origin:\s*ECC$` across `skills/**/SKILL.md` returned no matches.
+  - Grep for old-style description lines (`^description:` not starting with `Use when`) returned no matches.
+  - Direct read-back confirmed the changed descriptions and body cleanups in all five targeted skills.
+  - Direct read-back of `agent-permissions.jsonc` confirmed:
+    - `daedalus` includes `agent-harness-construction`
+    - `aphrodite` includes the updated frontend/design skills
+    - the duplicate `agent-browser` entry is gone
+  - Final stale-phrase verification found no remaining `Related ECC Skills`, `wider ECC video stack`, or nonexistent companion-skill references. The plain English phrase `video-editing` remains in `skills/manim-video/SKILL.md`, but only as generic workflow wording rather than a repo skill reference.
+- Residual note after the second wave:
+  - `skills/manim-video/SKILL.md` now intentionally uses generic workflow wording instead of referencing nonexistent repo-specific companion skills.
+  - The permissions cleanup was a bounded alignment pass, not a broader permission-model redesign.
+
 ## Current Task (2026-04-01, subagent artifact context propagation)
 
 - The user suspects Zeus and Hermes are not logging the actual spec/plan files anywhere durable enough for crash recovery and subagent context propagation.

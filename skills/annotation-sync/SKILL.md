@@ -22,6 +22,7 @@ Use the shared mcporter config at:
 3. Acknowledge before acting.
 4. Reply if clarification is needed.
 5. Resolve only after the requested change is complete.
+6. Inherit generic `mcporter` CLI rules from `mcporter` instead of restating them here.
 
 ## Command Patterns
 
