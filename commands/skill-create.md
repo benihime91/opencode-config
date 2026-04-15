@@ -1,6 +1,6 @@
 ---
 description: Generate skills from git history analysis
-agent: roy
+agent: nanami
 ---
 
 # Skill Create Command
@@ -92,11 +92,17 @@ git log --pretty=format: --name-only | sort | uniq -c | sort -rn | head -20
 ```
 ````
 
+```
+
+```
+
+````
+
 ### Anti-pattern
 
 ```[language]
 // What not to do
-```
+````
 
 ## Output
 

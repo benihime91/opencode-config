@@ -9,7 +9,7 @@ These rules govern how agents should scope, plan, verify, and route work in this
 - When both apply, start with the rule, then let the more specific skill narrow behavior within its scope.
 - Do not duplicate step-by-step workflow playbooks in rules when a skill already owns them.
 
-See skills: `brainstorming`, `planning-with-files`, `repo-discovery`, `docs-research`, `deep-research`, `mcporter`
+See skills: `brainstorming`, `planning-with-files`, `repo-discovery`, `docs-research`, `deep-research`
 
 ## 2. Design And Plan Gates
 
@@ -17,7 +17,7 @@ See skills: `brainstorming`, `planning-with-files`, `repo-discovery`, `docs-rese
 - Do not begin implementation from a loose request alone when the change needs real sequencing or design choices.
 - Clarify requirements, choose an approach, record the design or plan, and only then execute.
 
-See skills: `brainstorming`, `blueprint`, `writing-plans`, `executing-plans`
+See skills: `brainstorming`, `writing-plans`, `executing-plans`
 
 ## 3. Pre-Execution Intake
 
@@ -35,7 +35,7 @@ See skills: `brainstorming`, `planning-with-files`, `writing-plans`
 - Write handoffs so a fresh agent can execute safely without prior session context.
 - Do not leave structure, intent, or ownership implicit.
 
-See skills: `blueprint`, `writing-plans`, `dispatching-parallel-agents`
+See skills: `brainstorming`, `writing-plans`, `dispatching-parallel-agents`
 
 ## 5. Stage-To-Stage Continuity
 
@@ -65,13 +65,14 @@ See skills: `executing-plans`, `dispatching-parallel-agents`, `brainstorming`
 
 ## 8. Durable Planning Memory
 
-- Store durable task state in `.plans/` instead of relying on chat history alone.
+- Use `.plans/` only for work that is long-running, multi-session, high-risk, or otherwise needs disk-backed continuity. Ordinary tasks can stay in chat plus normal repo artifacts.
+- When you do adopt `.plans/`, store durable task state there instead of relying on chat history alone for that workstream.
 - Update planning memory when phases change, important discoveries happen, errors occur, or work resumes after a gap.
-- Re-read the active plan and shared planning files before resuming after a gap and before major decisions.
-- Treat `.plans/` as the current source of task truth when it exists; do not rely on stale chat context alone.
-- Do not keep important progress only in transient conversation context.
+- Re-read the active plan and shared planning files before resuming after a gap and before major decisions **for that workstream**.
+- When `.plans/` exists for an active task, treat it as the source of truth for that task; do not rely on stale chat context alone for the same workstream.
+- Do not keep important progress only in transient conversation context when you have committed to disk-backed planning for that task.
 
-See skills: `planning-with-files`, `blueprint`, `brainstorming`, `writing-plans`
+See skills: `planning-with-files`, `brainstorming`, `writing-plans`
 
 ## 9. Safe Parallelism
 
@@ -80,7 +81,7 @@ See skills: `planning-with-files`, `blueprint`, `brainstorming`, `writing-plans`
 - Treat first-run package-manager and CLI bootstrap commands as shared-state operations unless proven otherwise. Do not parallelize commands that may race on the same cache, install, lock, or link state.
 - Warm a CLI once sequentially before fanning out parallel calls when the tool is launched through `bunx`, `npx`, or a similar installer-backed wrapper.
 
-See skills: `blueprint`, `dispatching-parallel-agents`
+See skills: `brainstorming`, `dispatching-parallel-agents`
 
 ## 10. Escalate Instead Of Guessing
 
@@ -98,15 +99,15 @@ See skills: `planning-with-files`, `executing-plans`
 - Do not default to generic CLI or raw tool usage when a domain-specific skill already defines the workflow.
 - Present approved skills as the primary workflow interface rather than raw provider families.
 
-See skills: `repo-discovery`, `docs-research`, `deep-research`, `mcporter`, `annotation-sync`
+See skills: `repo-discovery`, `docs-research`, `deep-research`, `annotation-sync`
 
-## 12. Canonical CLI Config
+## 12. MCP Tool Verification
 
-- When a workflow depends on repo-owned CLI configuration, pass the canonical config path explicitly.
-- Do not rely on upstream defaults, implicit working-directory config discovery, or personal machine state.
-- If a task intentionally uses a non-default config, say so explicitly.
+- When using MCP tools, verify tool availability and argument shapes before relying on cached examples.
+- If a tool call fails, check whether the MCP server is enabled and the tool schema matches your call.
+- Do not assume MCP tool argument shapes are stable across versions without verification.
 
-See skills: `repo-discovery`, `docs-research`, `deep-research`, `mcporter`, `annotation-sync`
+See skills: `docs-research`, `deep-research`, `firecrawl`, `annotation-sync`
 
 ## 13. Evidence Confirmation
 
@@ -125,18 +126,10 @@ See skills: `repo-discovery`, `deep-research`
 
 See skills: `docs-research`, `deep-research`, `article-writing`
 
-## 15. Live Schema Confirmation For CLI Tools
-
-- Inspect the live tool schema or signature before making ad hoc CLI-backed tool calls when argument shapes may be uncertain.
-- If a command example conflicts with actual behavior, trust the live schema and update your approach.
-- Re-check schemas during troubleshooting before assuming the provider or config is broken.
-
-See skills: `mcporter`, `docs-research`, `repo-discovery`, `annotation-sync`, `firecrawl`
-
-## 16. Fallback And Failure Classification
+## 15. Fallback And Failure Classification
 
 - When a provider-specific path fails, use the documented fallback or recovery path before escalating if an equivalent route still exists.
 - Distinguish likely failure classes first: schema mismatch, feature gating, provider availability, auth/config, or environment/runtime issues.
 - Do not redesign the workflow or report a hard blocker until the narrower fallback or recovery path has been tried or ruled out.
 
-See skills: `deep-research`, `firecrawl`, `mcporter`
+See skills: `deep-research`, `firecrawl`

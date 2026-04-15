@@ -1,6 +1,6 @@
 ---
 description: Extract patterns and learnings from current session
-agent: morpheus
+agent: shikamaru
 ---
 
 # Learn Command
@@ -19,30 +19,35 @@ Analyze the session, planning files, and recent work to extract:
 ## Required Workflow (AGENTS + planning-with-files compatible)
 
 1. **Read project memory first**
-   - Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` if present.
-   - Treat these as source-of-truth memory before drawing conclusions.
 
-2. **Synthesize learnings from both session + files**
-   - Combine current conversation context with persisted findings.
-   - Prefer concrete, evidence-backed insights over generic advice.
+- Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` if present.
+- Treat these as source-of-truth memory before drawing conclusions.
 
-3. **Write back to `.plans/findings.md`**
-   - If `.plans/findings.md` exists: edit in place and prepend a new "Learn" entry at the top (newest-first).
-   - If missing: create `.plans/findings.md` using existing project conventions, then add the entry.
-   - Never rewrite the whole file from scratch when it already exists.
+1. **Synthesize learnings from both session + files**
 
-4. **Respect AGENTS correction loop**
-   - If this session includes a user correction/redirection, update `.plans/findings.md` with:
-     - What I did
-     - What the user instructed instead
-     - Why my approach was incorrect or misaligned
-     - Early detection signal I missed
-     - Preventative rule or checklist update
-     - Repo-specific nuance discovered
+- Combine current conversation context with persisted findings.
+- Prefer concrete, evidence-backed insights over generic advice.
 
-5. **Keep updates minimal and append-only in spirit**
-   - Preserve existing sections and history.
-   - Use targeted edits; avoid broad rewrites.
+1. **Write back to `.plans/findings.md`**
+
+- If `.plans/findings.md` exists: edit in place and prepend a new "Learn" entry at the top (newest-first).
+- If missing: create `.plans/findings.md` using existing project conventions, then add the entry.
+- Never rewrite the whole file from scratch when it already exists.
+
+1. **Respect AGENTS correction loop**
+
+- If this session includes a user correction/redirection, update `.plans/findings.md` with:
+  - What I did
+  - What the user instructed instead
+  - Why my approach was incorrect or misaligned
+  - Early detection signal I missed
+  - Preventative rule or checklist update
+  - Repo-specific nuance discovered
+
+1. **Keep updates minimal and append-only in spirit**
+
+- Preserve existing sections and history.
+- Use targeted edits; avoid broad rewrites.
 
 ## Output Format
 
@@ -57,14 +62,16 @@ Analyze the session, planning files, and recent work to extract:
 ### Best Practices Applied
 
 1. [Practice name]
-   - Why it works
-   - When to apply
+
+- Why it works
+- When to apply
 
 ### Mistakes to Avoid
 
 1. [Mistake description]
-   - What went wrong
-   - How to prevent it
+
+- What went wrong
+- How to prevent it
 
 ### Findings File Update
 

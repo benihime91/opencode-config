@@ -1,15 +1,17 @@
 ---
-name: writing-plans
+
+## name: writing-plans
 description: Use when you have a spec or requirements for a multi-step task, before touching code
----
 
 # Writing Plans
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase. Document everything they need to know: which files to touch for each task, code, how to verify it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. Frequent commits.
 
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
+Include TDD steps (test-first) only when the user has explicitly requested tests or the project has an established testing convention. Otherwise, include verification steps (build, typecheck, lint, manual check) without mandating test authorship.
+
+Assume they are a skilled developer, but know almost nothing about our toolset or problem domain.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
@@ -46,7 +48,7 @@ This structure informs the task decomposition. Each task should produce self-con
 
 ## Task Structure
 
-````markdown
+```markdown
 ### Task N: [Component Name]
 
 **Files:**
@@ -62,26 +64,26 @@ def test_specific_behavior():
     result = function(input)
     assert result == expected
 ```
-````
+```
 
-- [ ] **Step 2: Run test to verify it fails (OPTIONAL ONLY IF USER WANTS TO WRITE TESTS)**
+- **Step 2: Run test to verify it fails (OPTIONAL ONLY IF USER WANTS TO WRITE TESTS)**
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
 
-- [ ] **Step 3: Write minimal implementation**
+- **Step 3: Write minimal implementation**
 
 ```python
 def function(input):
     return expected
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- **Step 5: Commit**
 
 ```bash
 git add tests/path/test.py src/path/file.py
@@ -122,9 +124,12 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 After saving the plan:
 
-**"Plan complete and saved to `.plans/<filename>.md`**
-Update the `Active Artifacts` section in `.plans/task_plan.md` with the exact implementation-plan path before handing execution off.
-Execute tasks in this session using executing-plans, batch execution with checkpoints
+**"Plan complete and saved to `.plans/<filename>.md`"**
 
-- **REQUIRED SUB-SKILL:** Use executing-plans
-- Batch execution with checkpoints for review
+When disk-backed planning is active, update the `Active Artifacts` section in `.plans/task_plan.md` with the exact implementation-plan path before handing execution off.
+
+**Execution session:** Use the `executing-plans` skill in **this session** by default (same context, review checkpoints between batches). Use a **fresh session** only when the user or the plan explicitly requires isolation (e.g. clean tree, different agent, deliberate cold handoff).
+
+- **REQUIRED SUB-SKILL:** `executing-plans`
+- Batch work with checkpoints for review between batches
+

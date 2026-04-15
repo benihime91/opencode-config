@@ -2,19 +2,16 @@
  * Agent Permissions — plugin
  *
  * Enforces per-agent skill policies from the sibling
- * `agent-permissions.jsonc` file.
+ * `agent-permissions.jsonc` file. Uses chat.message to track
+ * agent identity, system.transform to advertise allowed skills,
+ * and tool.execute.before to block unauthorized skill loads.
  */
 
 import path from 'path'
 import { fileURLToPath } from 'url'
 import type { Plugin } from '@opencode-ai/plugin'
-import {
-  resolvePolicy,
-} from './agent-permissions/filesystem'
-import {
-  requestedSkillName,
-  summarize,
-} from './agent-permissions/tooling'
+import { resolvePolicy } from './agent-permissions/filesystem'
+import { requestedSkillName, summarize } from './agent-permissions/tooling'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const CONFIG_ROOT = path.join(__dirname, '..')
@@ -24,20 +21,18 @@ const CONFIG_CANDIDATES = [
   path.join(__dirname, 'agent-permissions.jsonc'),
   path.join(__dirname, 'agent-permissions.json'),
 ]
+
 export const AgentPermissionsPlugin: Plugin = async ({ directory, worktree }) => {
   const root = worktree ?? directory ?? CONFIG_ROOT
   const sessionAgents = new Map<string, string>()
 
   return {
-    'chat.message': async (input: { sessionID: string; agent?: string }) => {
+    'chat.message': async (input) => {
       if (!input.agent) return
       sessionAgents.set(input.sessionID, input.agent)
     },
 
-    'experimental.chat.system.transform': async (
-      input: { sessionID?: string; model: unknown },
-      output: { system: string[] },
-    ) => {
+    'experimental.chat.system.transform': async (input, output) => {
       const agentName = input.sessionID ? sessionAgents.get(input.sessionID) : undefined
       if (!agentName) return
 
@@ -51,16 +46,13 @@ export const AgentPermissionsPlugin: Plugin = async ({ directory, worktree }) =>
         [
           `Agent capability policy for ${agentName}:`,
           `- Allowed skills: ${summarize(policy.skills)}`,
-          '- Use approved skills to access CLI-backed workflows.',
+          '- Use approved skills for workflows (research, planning, browser, MCP-backed tools, etc.) as each skill describes.',
           '- Do not use blocked skills.',
         ].join('\n'),
       )
     },
 
-    'tool.execute.before': async (
-      input: { tool: string; sessionID: string; callID: string },
-      output: { args: unknown },
-    ) => {
+    'tool.execute.before': async (input, output) => {
       const agentName = sessionAgents.get(input.sessionID)
       if (!agentName) return
 
@@ -79,7 +71,6 @@ export const AgentPermissionsPlugin: Plugin = async ({ directory, worktree }) =>
           )
         }
       }
-
     },
   }
 }

@@ -1,6 +1,6 @@
 ---
 description: Update documentation for recent changes
-agent: alfred
+agent: kenma
 subtask: true
 ---
 
@@ -45,12 +45,12 @@ Update documentation to reflect recent changes: $ARGUMENTS
 
 ## Update Checklist
 
-- [ ] README reflects current features
-- [ ] API docs match endpoints
-- [ ] JSDoc updated for changed functions
-- [ ] Examples are working
-- [ ] Links are valid
-- [ ] Version numbers updated
+- README reflects current features
+- API docs match endpoints
+- JSDoc updated for changed functions
+- Examples are working
+- Links are valid
+- Version numbers updated
 
 ## Documentation Quality
 

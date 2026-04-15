@@ -1,30 +1,56 @@
 ---
-allowed-tools: Bash(git checkout --branch:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(gh pr create:*)
-description: Commit, push, and open a PR
+description: Commit, push, and open a pull request
 ---
 
-## Context
+Commit all changes, push to origin, and open a pull request.
 
-- Current git status: !`git status`
-- Current git diff (staged and unstaged changes): !`git diff HEAD`
-- Current branch: !`git branch --show-current`
+## Current State
 
-## Your task
+- Branch: !`git branch --show-current`
+- Default branch: !`git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo main`
+- Status: !`git status --short`
+- Diff: !`git diff HEAD`
+- Recent commits (for style reference): !`git log --oneline -5`
 
-Based on the above changes:
+## Instructions
 
-1. Create a new branch if on main
-2. Create a single commit with an appropriate message
-3. Push the branch to origin
-4. Create a pull request using `gh pr create`
-5. You have the capability to call multiple tools in a single response. You MUST do all of the above in a single message. Do not use any other tools or do anything else. Do not send any other text or messages besides these tool calls.
+1. If there are no changes to commit, say so and stop.
+2. If on the default branch (main/master), create a new feature branch with a descriptive name derived from the changes.
+3. Stage all changes with `git add -A`.
+4. Write a commit message following the conventional format and style of the recent commits above.
+5. Commit the changes.
+6. Push the branch to origin with `-u` to set upstream tracking.
+7. Create a pull request using `gh pr create` with:
+   - A clear title matching the commit type and description
+   - A body summarizing what changed and why
+8. Output the PR URL when done.
+9. If $ARGUMENTS is provided, use it to guide the branch name, commit message, and PR title.
 
 ### Commit Message Format
 
 ```
-<type>: <description>
+<type>(<optional scope>): <description>
 
 <optional body>
 ```
 
-Types: feat, fix, refactor, docs, test, chore, perf, ci
+Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`, `style`, `build`
+
+Rules:
+- Description must be lowercase, imperative, and under 72 characters
+- Body wraps at 72 characters and explains **why**, not what
+- Match the style of recent commits in this repo
+
+### PR Body Format
+
+```markdown
+## Summary
+
+- Bullet points describing what changed
+
+## Context
+
+Brief explanation of why this change was made.
+```
+
+Do not ask for confirmation. Execute the full commit, push, and PR creation in a single response.

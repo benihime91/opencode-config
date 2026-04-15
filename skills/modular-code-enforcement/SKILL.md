@@ -1,3 +1,8 @@
+---
+name: modular-code-enforcement
+description: Zero-tolerance modular code architecture policy for TypeScript and Python. Use when writing, reviewing, or refactoring any .ts, .tsx, or .py file. Enforces single-responsibility per file, bans catch-all utils/helpers blobs, keeps entry-points clean, and flags files over 200 LOC as code smells requiring immediate extraction.
+---
+
 # Modular Code Architecture — Zero Tolerance Policy
 
 This rule is NON-NEGOTIABLE. Violations BLOCK all further work until resolved.
@@ -125,5 +130,3 @@ When reading, writing, or editing ANY `.ts`, `.tsx`, or `.py` file:
 2. **If YES** — refactor FIRST, then proceed with your task
 3. **If creating a new file** — ensure it has exactly one responsibility and stays under 200 LOC
 4. **If adding code to an existing file** — verify the addition doesn't push the file past 200 LOC or add a second responsibility. If it does, extract into a new module.
-
-</MANDATORY_ARCHITECTURE_RULE>

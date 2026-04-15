@@ -1,6 +1,6 @@
 ---
 name: planning-with-files
-description: Implements Manus-style file-based planning to organize and track progress on complex tasks. Creates .plans/task_plan.md, .plans/findings.md, and .plans/progress.md. Use when asked to plan out, break down, or organize a multi-step project, research task, or any work requiring >5 tool calls.
+description: Manus-style file-based planning for long-running, multi-session, or high-risk work. Creates .plans/task_plan.md, .plans/findings.md, and .plans/progress.md. Use when disk-backed continuity is needed across sessions, when context loss would be costly, when the user asks for this pattern, or when Shikamaru/Urahara intentionally adopt a planning workstream.
 ---
 
 # Planning with Files
@@ -26,11 +26,12 @@ Use persistent markdown files as working memory on disk.
 
 ## When To Use
 
-- multi-step tasks
-- research-heavy tasks
-- anything that needs durable state across many tool calls
+- Long-running work that will span multiple sessions or compaction cycles
+- High-risk changes (security, data loss, production behavior) where durable state and audit trail matter
+- Large research or design efforts where answers must survive beyond the current context window
+- When the user explicitly asks for file-based / `.plans/` planning
 
-Skip this skill for simple questions, quick lookups, or single-file edits.
+Skip this skill for simple questions, quick lookups, single-file edits, and ordinary multi-step tasks that do not need disk-backed continuity.
 
 ## Core Workflow
 
@@ -59,9 +60,9 @@ Filesystem = Disk (persistent, unlimited)
 
 ## Critical Rules
 
-### 1. Create Plan First
+### 1. Create Plan First (within this workstream)
 
-Never start a complex task without `.plans/task_plan.md`. Non-negotiable.
+Once you commit to disk-backed planning for a task, do not execute substantive work on that taskstream before `.plans/task_plan.md` exists. Outside this mode, do not force `.plans/` for lightweight work.
 
 ### 2. The 2-Action Rule
 
@@ -154,6 +155,17 @@ If you can answer these, your context management is solid:
 
 Use this skill when the answers to those five questions are likely to be forgotten without disk-backed state.
 
+## Extended Planning Artifacts
+
+For complex projects, the `.plans/` directory also holds:
+
+| Location | What Goes There |
+| --- | --- |
+| `.plans/specs/` | Design specs from `brainstorming` (YYYY-MM-DD-topic-design.md) |
+| `.plans/` | Implementation plans from `writing-plans` (YYYY-MM-DD-topic-plan.md) |
+
+The `Active Artifacts` section in `.plans/task_plan.md` is the canonical index for all active specs and plans. Always update it when creating, switching, or completing an artifact.
+
 ## Templates
 
 Copy these templates to start:
@@ -189,11 +201,11 @@ This skill uses a hook that re-reads `.plans/task_plan.md` before tool calls. Tr
 
 | Don't                                  | Do Instead                                      |
 | -------------------------------------- | ----------------------------------------------- |
-| Use TodoWrite for persistence          | Create .plans/task_plan.md file                   |
+| Rely on chat alone for durable state on a committed disk-backed workstream | Create and maintain `.plans/task_plan.md` (and siblings) for that workstream |
 | State goals once and forget            | Re-read plan before decisions                   |
 | Hide errors and retry silently         | Log errors to plan file                         |
 | Stuff everything in context            | Store large content in files                    |
-| Start executing immediately            | Create plan file FIRST                          |
+| Start substantive execution on a committed disk-backed workstream without a plan file | Create `.plans/task_plan.md` first for that workstream |
 | Repeat failed actions                  | Track attempts, mutate approach                 |
 | Create files in skill directory        | Create files in your project                    |
 | Write web content to .plans/task_plan.md | Write external content to .plans/findings.md only |

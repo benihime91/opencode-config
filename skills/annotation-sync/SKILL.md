@@ -1,19 +1,13 @@
 ---
 name: annotation-sync
-description: Annotation collection, acknowledgement, reply, and resolution through CLI-backed mcporter workflows.
+description: Annotation collection, acknowledgement, reply, and resolution through native Agentation MCP tools.
 ---
 
 # Annotation Sync
 
 Use this skill when the job is consuming, acknowledging, replying to, dismissing, or resolving Agentation annotations.
 
-## Canonical Config
-
-Use the shared mcporter config at:
-
-```bash
-~/.config/opencode/mcporter.json
-```
+Agentation MCP tools are available directly — no CLI wrapper needed.
 
 ## Workflow
 
@@ -22,29 +16,14 @@ Use the shared mcporter config at:
 3. Acknowledge before acting.
 4. Reply if clarification is needed.
 5. Resolve only after the requested change is complete.
-6. Inherit generic `mcporter` CLI rules from `mcporter` instead of restating them here.
 
-## Command Patterns
+## Available MCP Tools
 
-Inspect available annotation tools when needed:
-
-```bash
-bunx mcporter list agentation --config ~/.config/opencode/mcporter.json
-```
-
-Common sync calls:
-
-```bash
-bunx mcporter call 'agentation.agentation_list_sessions()' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'agentation.agentation_get_all_pending()' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'agentation.agentation_acknowledge(annotationId: "<annotation-id>")' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'agentation.agentation_reply(annotationId: "<annotation-id>", message: "Working on this now.")' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'agentation.agentation_resolve(annotationId: "<annotation-id>", summary: "Adjusted spacing and CTA hierarchy.")' --config ~/.config/opencode/mcporter.json
-```
+- `agentation_list_sessions()` — list active annotation sessions
+- `agentation_get_all_pending()` — fetch all pending annotations
+- `agentation_acknowledge(annotationId)` — acknowledge an annotation before making changes
+- `agentation_reply(annotationId, message)` — reply to an annotation for clarification
+- `agentation_resolve(annotationId, summary)` — resolve an annotation after completing the change
 
 ## Rules
 

@@ -1,86 +1,74 @@
 {
+  // Default: deny all skills unless an agent entry allowlists them (pairs with plugins/agent-permissions.ts + using-skills.ts).
   "defaults": {
-    "skills": [
-      "!*"
-    ]
+    "skills": ["!*"]
   },
   "agents": {
-    "morpheus": {
-      "skills": [
-        "*"
-      ]
-    },
-    "neo": {
-      "skills": [
-        "*"
-      ]
-    },
-    "build": {
-      "skills": [
-        "*",
-        "!planning-with-files"
-      ]
-    },
-    "general": {
-      "skills": [
-        "*"
-      ]
-    },
-    "plan": {
-      "skills": [
-        "*"
-      ]
-    },
-    "spike": {
+    // ─── Primary agents — full skill access ───
+    "shikamaru": { "skills": ["*"] },
+    "urahara": { "skills": ["*"] },
+
+    // ─── Built-in agents — everything except planning-file ownership ───
+    // Note: this repo's opencode.json disables `general` and `explore`; keep entries for forks or other installs.
+    "build": { "skills": ["*", "!planning-with-files"] },
+    "general": { "skills": ["*", "!planning-with-files"] },
+    "plan": { "skills": ["*", "!planning-with-files"] },
+
+    // ─── Hinata — The Explorer (Haikyuu) ───
+    // Read-only codebase scout. Lean and fast.
+    "hinata": {
       "skills": [
         "repo-discovery",
-        "mcporter",
         "agent-browser",
         "simplify"
       ]
     },
-    "motoko": {
-      "skills": [
-        "repo-discovery",
-        "docs-research",
-        "deep-research",
-        "exa-search",
-        "firecrawl",
-        "mcporter",
-        "agent-browser",
-        "simplify"
-      ]
-    },
-    "l": {
-      "skills": [
-        "repo-discovery",
-        "docs-research",
-        "deep-research",
-        "exa-search",
-        "firecrawl",
-        "mcporter",
-        "agent-browser",
-        "simplify"
-      ]
-    },
-    "cobb": {
+
+    // ─── Gojo — The Oracle (JJK) ───
+    // Architect + strategic advisor. Needs design, research, and planning skills.
+    "gojo": {
       "skills": [
         "agent-harness-construction",
+        "brainstorming",
         "repo-discovery",
         "docs-research",
         "deep-research",
         "exa-search",
         "firecrawl",
-        "mcporter",
+        "writing-plans",
+        "agent-browser",
+        "simplify",
+        "modular-code-enforcement",
+        "python-coding-style"
+      ]
+    },
+
+    // ─── Kenma — The Librarian (Haikyuu) ───
+    // Research + documentation. Covers external evidence and doc authorship.
+    "kenma": {
+      "skills": [
+        "repo-discovery",
+        "docs-research",
+        "deep-research",
+        "exa-search",
+        "firecrawl",
+        "article-writing",
+        "writing-clearly-and-concisely",
+        "writing-plans",
+        "writing-skills",
         "agent-browser",
         "simplify"
       ]
     },
-    "trinity": {
+
+    // ─── Oikawa — The Designer (Haikyuu) ───
+    // UI/UX specialist. Design skills + QA/testing + design research.
+    "oikawa": {
       "skills": [
         "repo-discovery",
         "docs-research",
         "exa-search",
+        "firecrawl",
         "frontend-design",
         "frontend-patterns",
         "frontend-slides",
@@ -88,51 +76,25 @@
         "agentation",
         "annotation-sync",
         "agentation-self-driving",
+        "dogfood",
         "agent-browser",
-        "mcporter",
-        "simplify"
+        "simplify",
+        "modular-code-enforcement"
       ]
     },
-    "roy": {
+
+    // ─── Nanami — The Fixer (JJK) ───
+    // Execution specialist. Implementation, review, refactoring, QA.
+    "nanami": {
       "skills": [
         "repo-discovery",
         "executing-plans",
-        "docs-research",
-        "exa-search",
-        "mcporter",
+        "dogfood",
+        "writing-clearly-and-concisely",
         "simplify",
-        "agent-browser"
-      ]
-    },
-    "ripley": {
-      "skills": [
-        "repo-discovery",
-        "writing-clearly-and-concisely",
-        "mcporter",
         "agent-browser",
-        "simplify"
-      ]
-    },
-    "alfred": {
-      "skills": [
-        "docs-research",
-        "article-writing",
-        "exa-search",
-        "writing-plans",
-        "writing-clearly-and-concisely",
-        "repo-discovery",
-        "firecrawl",
-        "mcporter",
-        "agent-browser",
-        "simplify"
-      ]
-    },
-    "lelouch": {
-      "skills": [
-        "repo-discovery",
-        "mcporter",
-        "agent-browser",
-        "simplify"
+        "modular-code-enforcement",
+        "python-coding-style"
       ]
     }
   }

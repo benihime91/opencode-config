@@ -1,3 +1,5 @@
+> **HISTORICAL:** Earlier spa-day implementation plan; current policy is reflected in the repo and `.plans/findings.md` (2026-04-15). See [`HISTORICAL.md`](./HISTORICAL.md).
+
 # Implementation Plan: Rules And Skills Spa Day
 
 ## Goal

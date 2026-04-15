@@ -1,6 +1,6 @@
 ---
 name: docs-research
-description: Official docs, API examples, and targeted external research through CLI-backed mcporter workflows.
+description: Official docs, API examples, and targeted external research through native MCP tools.
 ---
 
 # Docs Research
@@ -9,49 +9,30 @@ Use this skill for official docs lookup, API examples, code-context research, an
 
 If the task becomes multi-source synthesis, competitive analysis, or a cited research memo, switch to `deep-research` instead.
 
-## Canonical Config
-
-Use the shared mcporter config at:
-
-```bash
-~/.config/opencode/mcporter.json
-```
-
 ## Workflow
 
 1. Prefer official docs first.
-2. Use Context7 when the task is library or framework documentation.
-3. Use Exa when the task is broader code examples, web research, or URL crawling.
+2. Use Context7 MCP tools when the task is library or framework documentation.
+3. Use Exa MCP tools when the task is broader code examples, web research, or URL crawling.
 4. If local repo context matters, pair this skill with `repo-discovery`.
-5. Inherit generic `mcporter` CLI rules from `mcporter` instead of restating them here.
 
-## Command Patterns
+## Tool Patterns
 
-Inspect tool signatures when needed:
+Use MCP tools directly (no CLI wrapper needed):
 
-```bash
-bunx mcporter list context7 --config ~/.config/opencode/mcporter.json
-bunx mcporter list exa --config ~/.config/opencode/mcporter.json
-```
+**Context7** — for official library and framework documentation:
 
-Common docs and research calls:
+- `resolve-library-id(libraryName, query)` — resolve a library to its Context7 ID
+- `query-docs(libraryId, query)` — query official docs for a resolved library
 
-```bash
-bunx mcporter call 'context7.resolve-library-id(libraryName: "react", query: "React hooks docs")' --config ~/.config/opencode/mcporter.json
+**Exa** — for broader code examples, web research, and URL reads:
 
-bunx mcporter call 'context7.query-docs(libraryId: "/websites/react_dev", query: "useEffect cleanup examples")' --config ~/.config/opencode/mcporter.json
-
-bunx mcporter call 'exa.get_code_context_exa(query: "Next.js partial prerendering examples", numResults: 5)' --config ~/.config/opencode/mcporter.json --output json
-
-bunx mcporter call 'exa.web_search_exa(query: "latest Vercel Sandbox browser automation docs", numResults: 5)' --config ~/.config/opencode/mcporter.json --output json
-
-bunx mcporter call 'exa.crawling_exa(urls: ["https://github.com/steipete/mcporter"], maxCharacters: 6000)' --config ~/.config/opencode/mcporter.json --output json
-```
+- `web_search_exa(query, numResults)` — current-info lookup
+- `get_code_context_exa(query, numResults)` — external code examples and API usage
+- `crawling_exa(urls, maxCharacters)` — read known URLs in full
 
 ## Rules
 
 - Cite source URLs in your summary.
 - Be version-sensitive when researching library behavior.
 - Use `repo-discovery` when external guidance must be matched to the local codebase.
-- Do not route users back to raw MCP-family names. The stable interface is this skill.
-- Use `mcporter` only as the implementation detail, not the public workflow label.

@@ -13,10 +13,10 @@
     "@tarquinen/opencode-dcp@latest"
   ],
   "agent": {
-    "neo": {
+    "urahara": {
       "color": "#3F5A4B"
     },
-    "morpheus": {
+    "shikamaru": {
       "color": "#4B3B63"
     },
     "explore": {
@@ -39,20 +39,67 @@
       "environment": {
         "OLLAMA_EMBED_MODEL": "nomic-embed-text-v2-moe:latest"
       }
+    },
+    "firecrawl": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "firecrawl-mcp"
+      ],
+      "enabled": true,
+      "environment": {
+        "FIRECRAWL_API_URL": "${FIRECRAWL_API_URL:-http://localhost:3002}",
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY:-}"
+      }
+    },
+    "agentation": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "agentation-mcp",
+        "server"
+      ],
+      "enabled": true
+    },
+    "context7": {
+      "type": "local",
+      "command": [
+        "bunx",
+        "@upstash/context7-mcp"
+      ],
+      "enabled": true
+    },
+    "exa": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_search_advanced_exa,get_code_context_exa,crawling_exa,company_research_exa,people_search_exa",
+      "enabled": true
     }
   },
   "lsp": {
-    "pyright": {
-      "disabled": true
-    },
     "ty": {
       "command": [
-        "uvx ty server"
+        "uvx",
+        "ty",
+        "server"
       ],
       "extensions": [
         ".py",
         ".pyi"
       ]
+    },
+    "ruff": {
+      "command": [
+        "uvx",
+        "ruff",
+        "server"
+      ],
+      "extensions": [
+        ".py",
+        ".pyi"
+      ]
+    },
+    "pyright": {
+      "disabled": true
     }
   }
 }

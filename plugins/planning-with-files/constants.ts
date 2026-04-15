@@ -11,20 +11,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const SKILL_DIR = path.join(__dirname, '..', '..', 'skills', 'planning-with-files')
 
 export const CHECK_COMPLETE = path.join(SKILL_DIR, 'scripts', 'check-complete.sh')
-export const PRIMARY_PLANNING_AGENTS = ['morpheus', 'neo'] as const
-export const PRIMARY_PLANNING_AGENT_LABEL = 'Morpheus, Neo'
+export const PRIMARY_PLANNING_AGENTS = ['shikamaru', 'urahara'] as const
+export const PRIMARY_PLANNING_AGENT_LABEL = 'Shikamaru, Urahara'
 export const NUDGE_ONLY_PLANNING_AGENTS = [
-  'spike',
-  'motoko',
-  'l',
-  'trinity',
-  'roy',
+  'hinata',
+  'kenma',
+  'gojo',
+  'oikawa',
+  'nanami',
   'planner',
-  'ripley',
-  'alfred',
-  'lelouch',
 ] as const
-export const NUDGE_ONLY_PLANNING_AGENT_LABEL = 'Spike, Motoko, L, Trinity, Roy, Planner, Ripley, Alfred, Lelouch'
+export const NUDGE_ONLY_PLANNING_AGENT_LABEL = 'Hinata, Kenma, Gojo, Oikawa, Nanami, Planner'
 export const PLANNING_SKILL_AGENTS = new Set(PRIMARY_PLANNING_AGENTS)
 export const PLANNING_NUDGE_AGENTS = new Set(NUDGE_ONLY_PLANNING_AGENTS)
 export const PLANNING_FILE_OWNERS = new Set(PRIMARY_PLANNING_AGENTS)
@@ -37,8 +34,8 @@ export const PLANNING_FILES = new Set([
 export const TASK_TOOL = 'task'
 export const FILE_UPDATE_TOOLS = new Set(['write', 'edit'])
 
-/** Tools that trigger plan-head injection before execution — matches the original skill's PreToolUse matcher. */
-export const PRE_TOOL_USE_TOOLS = new Set(['write', 'edit', 'bash', 'read', 'glob', 'grep'])
+/** Tools that trigger plan-head injection before execution (state-changing / high-impact only; avoids noise on read-only discovery). */
+export const PRE_TOOL_USE_TOOLS = new Set(['write', 'edit', 'bash'])
 
 /** Tools that trigger the PostToolUse reminder — matches the original skill's PostToolUse matcher. */
 export const REMINDER_TOOLS = new Set(['write', 'edit'])

@@ -52,5 +52,5 @@ Set up the Agentation annotation toolbar in this project.
 
 - The `NODE_ENV` check ensures Agentation only loads in development
 - Agentation requires React 18
-- The server behind the workflow still runs through the local CLI stack, but the stable interface in this repo is skills plus mcporter-backed commands.
+- The Agentation MCP server is configured in `opencode.json` and tools are available directly.
 - Run `agentation-mcp doctor` to verify the underlying server after installing

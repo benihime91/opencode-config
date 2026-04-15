@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated design spec. See [`HISTORICAL.md`](../HISTORICAL.md).
+
 # OpenCode Config Packaging Design
 
 ## Goal

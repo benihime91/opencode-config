@@ -1,11 +1,13 @@
 /**
  * Planning with Files — plugin
  *
- * Mirrors the original skill's hook behavior at runtime:
- *   - PreToolUse  (Write|Edit|Bash|Read|Glob|Grep) → inject plan head
- *   - PostToolUse (Write|Edit only)                 → simple one-liner reminder
- *   - Task results                                  → slightly stronger reminder
- *   - Planning-file writes                          → NO reminder (self-loop breaker)
+ * Hooks into the OpenCode plugin API (v1.4.x) to enforce planning workflows:
+ *   - chat.message                          → register agent roles per session
+ *   - experimental.chat.system.transform    → inject plan context into system prompt
+ *   - tool.execute.before                   → pre-tool plan head injection + ownership guard
+ *   - tool.execute.after                    → post-tool reminders (Write|Edit, Task results)
+ *   - experimental.session.compacting       → preserve planning state across compaction
+ *   - event (session.idle)                  → toast planning status
  */
 
 import type { Plugin } from '@opencode-ai/plugin'
@@ -37,16 +39,10 @@ import {
 } from './planning-with-files/messages'
 import { PlanningSessionCache } from './planning-with-files/session-cache'
 
-type SessionEvent = {
-  type?: string
-  sessionID?: string
-  session_id?: string
-}
-
 function ownerIntakeReminderBlock(): string {
   return [
     '[planning-with-files]',
-    'For complex work, keep the intake snapshot lightweight: intended outcome, known facts, unknowns or blockers, non-goals, decision boundaries, and readiness.',
+    'For long-running, multi-session, or high-risk work, keep the intake snapshot lightweight: intended outcome, known facts, unknowns or blockers, non-goals, decision boundaries, and readiness.',
   ].join('\n')
 }
 
@@ -102,14 +98,11 @@ export const PlanningWithFilesPlugin: Plugin = async ({
   }
 
   return {
-    'chat.message': async (input: { sessionID: string; agent?: string }) => {
+    'chat.message': async (input) => {
       cache.registerSession(input.sessionID, input.agent)
     },
 
-    'experimental.chat.system.transform': async (
-      input: { sessionID?: string; model: unknown },
-      output: { system: string[] },
-    ) => {
+    'experimental.chat.system.transform': async (input, output) => {
       if (!cache.hasKnownAgent(input.sessionID)) return
 
       const isPlanningSkill = cache.isPlanningSkillSession(input.sessionID)
@@ -137,10 +130,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       output.system.push(readOnlyContinuityReminderBlock())
     },
 
-    'tool.execute.before': async (
-      input: { tool: string; sessionID: string; callID: string },
-      output: { args: unknown },
-    ) => {
+    'tool.execute.before': async (input, output) => {
       if (!cache.hasKnownAgent(input.sessionID)) return
 
       const tool = input.tool.toLowerCase()
@@ -155,7 +145,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
         touchesPlanningFile(root, output.args)
       ) {
         throw new Error(
-          'Only Zeus or Hermes may create or update `.plans/task_plan.md`, `.plans/findings.md`, or `.plans/progress.md`.',
+          'Only Shikamaru or Urahara may create or update `.plans/task_plan.md`, `.plans/findings.md`, or `.plans/progress.md`.',
         )
       }
 
@@ -164,7 +154,6 @@ export const PlanningWithFilesPlugin: Plugin = async ({
         cache.rememberPendingTaskAgent(input.callID, subagentType)
       }
 
-      // Only cache plan head for the original PreToolUse matcher: Write|Edit|Bash|Read|Glob|Grep + Task
       if (!PRE_TOOL_USE_TOOLS.has(tool) && tool !== TASK_TOOL) return
 
       const head = await planHead(root)
@@ -174,10 +163,7 @@ export const PlanningWithFilesPlugin: Plugin = async ({
       await toast('Planning', `Plan queued: ${tool}`)
     },
 
-    'tool.execute.after': async (
-      input: { tool: string; sessionID: string; callID: string; args: unknown },
-      output: { title: string; output: string; metadata: unknown },
-    ) => {
+    'tool.execute.after': async (input, output) => {
       if (!cache.hasKnownAgent(input.sessionID)) return
 
       const tool = input.tool.toLowerCase()
@@ -187,7 +173,6 @@ export const PlanningWithFilesPlugin: Plugin = async ({
 
       if (!isPlanningOwner && !isPlanningNudge) return
 
-      // Inject plan head from PreToolUse cache (always, when available)
       const head = cache.takePendingPlan(input.callID)
       if (head) {
         append(mutableOutput, planOutputBlock(head))
@@ -208,26 +193,16 @@ export const PlanningWithFilesPlugin: Plugin = async ({
         hasFlowReminder = true
       }
 
-      // === Reminder logic: match original skill's PostToolUse behavior ===
-      //
-      // Original skill: PostToolUse fires ONLY for Write|Edit, with a simple one-liner.
-      // Task tool: slightly stronger reminder (persist subagent outcomes).
-      // Planning-file writes: NO reminder (self-loop breaker).
-      // Everything else: NO reminder.
-
       if (tool === TASK_TOOL) {
-        // Task/subagent results always get a reminder — these are the most important to persist
         const reminder = isPlanningOwner
           ? ownerTaskReminderBlock(delegatedAgent)
           : readOnlyTaskReminderBlock(delegatedAgent)
         append(mutableOutput, reminder)
         appendFlowReminder()
       } else if (REMINDER_TOOLS.has(tool)) {
-        // Write|Edit that targets a planning file → skip reminder (self-loop breaker)
         if (touchesPlanningFile(root, input.args)) {
-          // No reminder — the model just updated planning files, don't ask it to do so again
+          // Self-loop breaker: skip reminder when the model just wrote to planning files
         } else {
-          // Write|Edit to non-planning files → simple one-liner (matches original PostToolUse)
           const reminder = isPlanningOwner
             ? ownerReminderBlock()
             : readOnlyReminderBlock()
@@ -235,15 +210,40 @@ export const PlanningWithFilesPlugin: Plugin = async ({
           appendFlowReminder()
         }
       }
-      // All other tools (read, grep, glob, bash, etc.) → no reminder
 
       await maybeAppendStatus(input.sessionID, mutableOutput, hasFlowReminder)
     },
 
-    event: async (input: { event: SessionEvent }) => {
-      if (input.event.type !== 'session.idle') return
+    'experimental.session.compacting': async (_input, output) => {
+      const [head, progress] = await Promise.all([
+        planHead(root, 50),
+        recentProgress(root),
+      ])
+      if (!head && !progress) return
 
-      const sessionID = input.event.sessionID ?? input.event.session_id
+      const sections: string[] = [
+        '## Planning with Files — Active State',
+        '',
+        'Preserve the following planning context across compaction:',
+      ]
+      if (head) {
+        sections.push('', '### Current Plan (`.plans/task_plan.md`)', '```', head, '```')
+      }
+      if (progress) {
+        sections.push('', '### Recent Progress (`.plans/progress.md`)', '```', progress, '```')
+      }
+      sections.push(
+        '',
+        'After compaction, read `.plans/task_plan.md` and `.plans/progress.md` for full context. Continue from the current phase.',
+      )
+      output.context.push(sections.join('\n'))
+    },
+
+    event: async (input) => {
+      const event = input.event as { type?: string; sessionID?: string; session_id?: string }
+      if (event.type !== 'session.idle') return
+
+      const sessionID = event.sessionID ?? event.session_id
       if (!cache.isPlanningFileOwner(sessionID)) return
 
       const status = await planningStatus(root)

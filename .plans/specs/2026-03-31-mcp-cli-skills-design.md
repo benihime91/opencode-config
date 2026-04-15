@@ -1,3 +1,5 @@
+> **HISTORICAL (superseded):** Describes mcporter-first migration; current install uses native MCP in `opencode.json`. See [`HISTORICAL.md`](../HISTORICAL.md).
+
 # MCP-to-CLI + Skills Migration Design
 
 ## Goal

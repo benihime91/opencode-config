@@ -1,6 +1,6 @@
 ---
 description: Remove dead code and consolidate duplicates
-agent: lelouch
+agent: nanami
 subtask: true
 ---
 

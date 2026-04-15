@@ -1,6 +1,6 @@
 ---
 description: Review code for quality, security, and maintainability
-agent: l
+agent: gojo
 subtask: true
 ---
 

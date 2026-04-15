@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated design spec. See [`HISTORICAL.md`](../HISTORICAL.md).
+
 # Planning Reminder Noise Reduction Design
 
 ## Goal

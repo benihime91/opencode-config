@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated plan. See [`HISTORICAL.md`](./HISTORICAL.md).
+
 # Planning Workflow Alignment Implementation Plan
 
 ## Scope

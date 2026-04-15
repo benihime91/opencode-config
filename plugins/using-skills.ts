@@ -1,23 +1,32 @@
 /**
  * Using Skills — plugin
  *
- * Injects a system prompt that ensures the agent always checks for and
- * invokes relevant skills before responding.  This is a high-priority
- * prompt injection — it applies to every session unconditionally.
+ * Injects a short system prompt: check allowed skills, then load relevant
+ * skills before acting. Applies to every session unconditionally.
  */
 
 import type { Plugin } from '@opencode-ai/plugin'
 
-const SKILL_PROMPT = `Use OpenCode's native \`skill\` tool to list and load skills. When starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions. If you were dispatched as a subagent to execute a specific task, skip this skill. If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT. This is not negotiable. This is not optional. You cannot rationalize your way out of this. Invoke relevant or requested skills BEFORE any response or action. Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it. Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows.`
+const SKILL_PROMPT = `## Skills (required)
+
+Use OpenCode's native \`skill\` tool to list and load skills.
+
+**If you were dispatched as a subagent to execute one specific bounded task**, you may skip broad skill discovery; still load a skill when the task explicitly names one or when loading is trivial.
+
+**Otherwise:**
+
+1. Respect **agent capability policy** in this session (allowed vs blocked skills). Do not attempt to load a skill that is not allowed for this agent.
+2. If any allowed skill might apply—even roughly—**invoke \`skill\` to load it** before other tools or substantive answers. If the loaded skill is a poor fit, you do not have to follow it.
+3. Prefer the **most specific** allowed skill for the task. If scope shifts, switch skills deliberately.
+4. **User instructions override** skills and defaults when they conflict.
+
+**Order when several skills apply:** process/orientation skills first (e.g. brainstorming), then domain execution skills.
+
+**Rigid vs flexible:** follow rigid skills exactly; adapt flexible skills to context as the skill describes.`
 
 export const UsingSkillsPlugin: Plugin = async () => {
   return {
-    'experimental.chat.system.transform': async (
-      _input: { sessionID?: string; model: unknown },
-      output: { system: string[] },
-    ) => {
-      // Prepend so it appears before other plugin prompts
+    'experimental.chat.system.transform': async (_input, output) => {
       output.system.unshift(SKILL_PROMPT)
     },
   }

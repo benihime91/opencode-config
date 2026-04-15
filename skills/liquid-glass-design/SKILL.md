@@ -215,13 +215,7 @@ struct MyWidgetView: View {
 ```swift
 HStack {
     VStack(alignment: .leading) {
-        Text("Title")
-            .widgetAccentable()  // Accent group
-        Text("Subtitle")
-            // Primary group (default)
-    }
-    Image(systemName: "star.fill")
-        .widgetAccentable()  // Accent group
+    ]
 }
 ```
 
@@ -243,6 +237,7 @@ VStack { /* content */ }
 
 ## Key Design Decisions
 
+
 | Decision                           | Rationale                                                                  |
 | ---------------------------------- | -------------------------------------------------------------------------- |
 | GlassEffectContainer wrapping      | Performance optimization, enables morphing between glass elements          |
@@ -251,6 +246,7 @@ VStack { /* content */ }
 | `interactive()` modifier           | Explicit opt-in for touch/pointer reactions — not all glass should respond |
 | UIGlassContainerEffect in UIKit    | Same container pattern as SwiftUI for consistency                          |
 | Accented rendering mode in widgets | System applies tinted glass when user selects tinted Home Screen           |
+
 
 ## Best Practices
 
@@ -278,3 +274,4 @@ VStack { /* content */ }
 - Interactive controls that need visual depth and touch feedback
 - Widgets that should integrate with the system's Liquid Glass appearance
 - Morphing transitions between related UI states
+

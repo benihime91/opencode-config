@@ -340,7 +340,6 @@ symlink_config() {
     "opencode.json"
     "agent-permissions.jsonc"
     "dcp.jsonc"
-    "mcporter.json"
     "tui.json"
   )
 
@@ -450,7 +449,6 @@ install_opencode_plugins() {
 
 install_cli_workflow_deps() {
   local pkgs=(
-    "mcporter@latest"
     "firecrawl-mcp@latest"
     "agentation-mcp@latest"
     "@upstash/context7-mcp@latest"

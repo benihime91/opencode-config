@@ -118,7 +118,7 @@ Avoid these mistakes:
 4. reporting guessed symbol relationships without direct confirmation
 5. editing or deleting a symbol before checking blast radius
 6. turning implementation work into open-ended repo archaeology
-7. routing Context+ through `mcporter` instead of the native MCP path for this repo
+7. using CLI wrappers instead of native MCP tools for Context+ calls
 
 ## Output Expectations
 

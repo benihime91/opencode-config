@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated plan. See [`HISTORICAL.md`](./HISTORICAL.md).
+
 # Planning Reminder Noise Reduction Plan
 
 ## Scope

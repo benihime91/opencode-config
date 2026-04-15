@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated design spec; may reference old agent names. See [`HISTORICAL.md`](../HISTORICAL.md).
+
 # Design: OMX-Inspired Workflow Tightening for OpenCode
 
 ## Goal

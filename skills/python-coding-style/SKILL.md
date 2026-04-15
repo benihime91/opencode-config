@@ -1,3 +1,8 @@
+---
+name: python-coding-style
+description: General-purpose Python coding style policy. Use when writing, reviewing, or refactoring any Python code. Covers mandatory typing with beartype, module design, function/class design, naming conventions, layout, imports, error handling, control flow, and project-wide consistency.
+---
+
 # Python Coding Style — General-Purpose Policy
 
 This rule applies to **all Python code**, not just scientific or notebook-heavy projects.
@@ -15,22 +20,22 @@ This is a practical style guide for application code, libraries, automation, ser
 
 ## Core Principles
 
-1. **Clarity over cleverness**  
+1. **Clarity over cleverness**
    Code should be understandable without decoding tricks or hidden context.
 
-2. **Brevity with readability**  
+2. **Brevity with readability**
    Shorter code is good only when it remains obvious.
 
-3. **One screen, one idea**  
+3. **One screen, one idea**
    A reader should be able to understand the main purpose of a function or module without excessive scrolling.
 
-4. **Explicit types, explicit boundaries**  
+4. **Explicit types, explicit boundaries**
    Public interfaces should be typed, validated, and easy to reason about.
 
-5. **Small composable units**  
+5. **Small composable units**
    Prefer focused functions and modules over large multifunction files.
 
-6. **Runtime safety matters**  
+6. **Runtime safety matters**
    Type hints alone are not enough when the project standard requires enforcement.
 
 ---

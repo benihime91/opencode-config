@@ -1,3 +1,5 @@
+> **HISTORICAL (superseded 2026-04-15):** This plan described an MCP→CLI migration and `mcporter` layout that **is not** the current install. See [`HISTORICAL.md`](./HISTORICAL.md), [`README.md`](../README.md), and live [`opencode.json`](../opencode.json).
+
 # Implementation Plan: MCP-to-CLI + Skills Migration
 
 ## Goal

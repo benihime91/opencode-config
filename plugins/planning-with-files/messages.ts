@@ -39,10 +39,10 @@ export function promptContextBlock(plan: string, progress: string): string {
 export function primarySystemBlock(): string {
   return [
     'Planning with Files',
-    'This session is a primary planning-memory agent. Always follow the planning-with-files workflow in this repo.',
-    'Treat `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` as shared memory.',
+    'This session is a primary planning-memory agent (Shikamaru or Urahara). Use disk-backed `.plans/` when the task is long-running, multi-session, high-risk, or the user asked for file-based planning.',
+    'When you adopt that mode, treat `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` as shared memory for that workstream.',
     'When `.plans/task_plan.md` includes an `Active Artifacts` section, treat those paths as the canonical task spec and implementation plan.',
-    'For complex or multi-step work, load `planning-with-files` before continuing.',
+    'For work that matches the above, load the `planning-with-files` skill before continuing; skip full `.plans/` ceremony for lightweight tasks.',
   ].join('\n')
 }
 
@@ -50,7 +50,7 @@ export function readOnlySystemBlock(): string {
   return [
     'Planning with Files',
     `This is a nudge-only planning session for ${NUDGE_ONLY_PLANNING_AGENT_LABEL}.`,
-    'Read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before acting when they matter.',
+    'When a task uses disk-backed planning, read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before acting when they matter.',
     'If `.plans/task_plan.md` lists `Active Artifacts`, read those exact spec/plan files when the handoff depends on them.',
     'Treat those planning files as shared memory and read-only in this session.',
     `Hand durable outcomes back so the ${PRIMARY_PLANNING_AGENT_LABEL} can persist them.`,

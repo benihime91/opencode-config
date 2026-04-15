@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated plan; may reference prior agent filenames. See [`HISTORICAL.md`](./HISTORICAL.md).
+
 # Implementation Plan: Subagent Artifact Context Propagation
 
 ## Scope

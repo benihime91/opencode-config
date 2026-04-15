@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated plan; agent filenames have since changed. See [`HISTORICAL.md`](./HISTORICAL.md).
+
 # Fixer and Orchestrator Prompt Tightening Implementation Plan
 
 **Goal:** Update `agents/fixer.md` and `agents/orchestrator.md` so `fixer` behaves as a tougher deep local executor and `orchestrator` behaves as a stricter delegator plus verifier without changing repo role boundaries.

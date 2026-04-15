@@ -1,67 +1,68 @@
-# Task Plan: Agent Rename Pass
+# Task Plan: Install policy baseline (post spa day)
 
 ## Goal
 
-Rename the custom agent roster from Greek-god names to the approved film/anime operator names, update all repo references, and preserve the existing role topology.
+Keep this OpenCode config internally consistent: minimal always-on rules, strict skill usage within `agent-permissions.jsonc`, `.plans/` reserved for heavyweight work, and docs aligned with the live repo.
 
 ## Active Artifacts
 
-- **Active task:** Agent rename pass
+- **Active task:** Policy baseline — rules, skills, plugins, README (2026-04-15)
 - **Active spec path:** none
-- **Active plan path:** `.plans/2026-04-07-agent-rename-plan.md`
-- **Last updated:** 2026-04-07
+- **Active plan path:** none (implementation tracked in repo + session)
+- **Last updated:** 2026-04-15
 
 ## Intake
 
-- **Intended outcome:** Replace all Greek-god agent names with the approved film/anime names across the repo in one coordinated pass.
-- **Known context:** The approved mapping is trinity←aphrodite, l←apollo, spike←artemis, motoko←athena, lelouch←cronus, cobb←daedalus, roy←hephaestus, neo←hermes, alfred←hestia, ripley←themis, morpheus←zeus. The user also approved muted premium colors for each name.
-- **Unknowns / blockers:** Full blast radius of stale Greek-name mentions in planning memory and other repo text still needs exact confirmation.
-- **Non-goals:** Do not redesign agent roles, permissions semantics, or workflows beyond the naming swap.
-- **Decision boundaries:** Keep the rename repo-wide and consistent, preserve role intent, and update color keys where primary-agent names changed.
-- **Readiness:** user approved; ready for implementation.
+- **Intended outcome:** Single coherent hierarchy (rules → principles; skills → workflows; plugins enforce planning + permissions); no stale planning memory presented as current truth.
+- **Known context:** Custom roster `shikamaru`, `urahara`, `hinata`, `gojo`, `kenma`, `oikawa`, `nanami`. Three rules; 31 skills; 10 slash commands. `opencode.json` disables built-ins `general` and `explore`.
+- **Unknowns / blockers:** none for baseline doc pass.
+- **Non-goals:** Redesign agent personalities or replace MCP providers.
+- **Decision boundaries:** Personal-first install; `.plans/` only when long-running / multi-session / high-risk unless user opts in.
+- **Readiness:** complete for this baseline pass.
 
 ## Current Phase
 
-Phase 3 — verify and close out
+**Closed** — baseline recorded 2026-04-15
 
 ## Phases
 
-### Phase 1: Grounding rename blast radius
-- [x] Re-run catch-up through `git diff --stat` and the planning trio
-- [x] Confirm the approved rename mapping and colors
-- [x] Locate current agent files and primary repo references
-- [x] Confirm remaining rename targets across prompts, docs, config, and planning files
-- **Status:** complete
+### Phase 1: Always-on core + permissions copy
 
-### Phase 2: Apply coordinated rename
-- [x] Rename all 11 agent files in `agents/`
-- [x] Update in-file `name` fields and internal mentions
-- [x] Update config, docs, commands, and planning references
-- [x] Update primary-agent color keys in `opencode.json`
-- **Status:** complete
+- [x] Soften `rules/agent-workflow.md` §8 (durable planning scope)
+- [x] Shorten `plugins/using-skills.ts` (strict + permission-aware)
+- [x] Fix `plugins/agent-permissions.ts` capability wording
 
-### Phase 3: Verify and close out
-- [x] Re-read the changed core files directly
-- [x] Run exact-match sweeps for stale Greek-agent names on active surfaces
-- [x] Update planning memory with verified outcomes and residual notes
-- **Status:** complete
+### Phase 2: Planning scope + skills
+
+- [x] Narrow `planning-with-files` skill + plugin copy + pre-tool noise (`constants.ts`)
+- [x] Qualify `brainstorming` disk paths when `.plans/` active
+- [x] Reconcile `writing-plans` / `executing-plans` execution handoff
+
+### Phase 3: Live docs
+
+- [x] README counts, skill permissions list, MCP embed model, commands table
+- [x] `commands/agent-permissions-debug.md` accuracy
+- [x] `agent-permissions.jsonc` clarifying comments
+
+### Phase 4: Historical surfaces
+
+- [x] Replace planning trio narrative with current baseline; add `HISTORICAL.md`
+- [x] Refresh `skills/rules-distill/results.json`
 
 ## Key Questions
 
-1. Which files outside the main agent/config/docs surface still carry active Greek-agent references?
-2. Are any old-name mentions intentionally historical and worth preserving in planning memory, or should they all be updated for consistency?
+None open.
 
 ## Decisions Made
 
 | Decision | Rationale |
 | -------- | --------- |
-| Use the approved film/anime roster | User approved the exact mapping |
-| Apply the rename repo-wide in one coordinated pass | User explicitly asked to update all references |
-| Preserve role intent while swapping names | Avoid behavior drift during a naming change |
-| Use the approved muted premium colors | User approved the exact palette |
-| Treat historical planning references outside the active rename files as historical record, not stale active surface | Keeps the live repo consistent without rewriting unrelated archived session history |
+| `.plans/` for heavyweight workstreams only | User preference; reduces ceremony |
+| Keep strict skill invocation | User preference; paired with per-agent allowlists |
+| Archive note for dated `.plans/*` | Old files remain as history without masquerading as current policy |
 
 ## Errors Encountered
 
 | Error | Attempt | Resolution |
 | ----- | ------- | ---------- |
+| — | — | — |

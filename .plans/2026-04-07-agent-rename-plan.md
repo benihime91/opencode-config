@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated plan; naming and repo layout may differ from the current default. See [`HISTORICAL.md`](./HISTORICAL.md) and [`README.md`](../README.md).
+
 # Agent Rename Plan
 
 ## Goal

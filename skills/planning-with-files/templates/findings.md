@@ -91,7 +91,7 @@
   WHEN: Use when a finding materially affects what you build, what you defer, or how confident you should be.
   EXAMPLE:
     - Source: README.md + install.sh
-      Finding: Installer already provisions mcporter but misses one runtime symlink
+      Finding: Installer already provisions MCP servers but misses one runtime symlink
       Confidence: High
       Relevance: Affects bootstrap design only
       Decision impact: Update installer manifest rather than redesign bootstrap flow

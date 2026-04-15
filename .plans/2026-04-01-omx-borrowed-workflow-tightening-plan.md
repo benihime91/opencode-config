@@ -1,3 +1,5 @@
+> **HISTORICAL:** Dated plan; may reference old agent names (e.g. Zeus). See [`HISTORICAL.md`](./HISTORICAL.md).
+
 # Implementation Plan: OMX-Inspired Workflow Tightening
 
 ## Scope
