@@ -20,10 +20,17 @@ scores, and snippets. For indexed search flows, also pass explicit
 `--target-dir` and `--cache-dir` so scope and artifact location are
 deterministic.
 
+Before running semctx commands, cd into the intended workspace directory.
+Treat that directory as the working root for the whole semctx session.
+From that point on, use relative paths from the current workspace for
+`--target-dir`, `--cache-dir`, file arguments, and reported paths unless the
+user explicitly asks for absolute paths.
+
 ## Running
 
 ```bash
 # If installed as a uv tool
+cd /path/to/workspace
 semctx <command> [options]
 ```
 
@@ -52,7 +59,7 @@ fail or use the wrong embedding backend.
 ```md
 ## semctx default model configuration
 
-- Default model: "ollama/nomic-embed-text-v2-moe:latest"
+- Default model: `vertex_ai/gemini-embedding-2-preview`
 - Default cache-dir: `<target-dir>/.semctx/`
 - Notes for agents: `Use this default model for index init, index refresh, search-code, and search-identifiers unless the user explicitly overrides it.`
 
