@@ -11,7 +11,8 @@ This skill owns the repo-understanding workflow in this config.
 
 ## Canonical Config
 
-`semctx` is the default local discovery and indexed-search backend for this install. Its command reference and default model configuration live in `skills/semctx/SKILL.md`.
+Always load `semctx` skill before using this skill.
+`semctx` is the default local discovery and indexed-search backend for this install. Its command reference and default model configuration live in `skills/semctx/SKILL.md`. You can use the `semctx` skill to index the repo and use the `repo-discovery` skill to search the indexed repo.
 
 ## When To Use It
 
