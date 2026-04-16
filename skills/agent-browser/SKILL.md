@@ -711,6 +711,32 @@ Supported engines:
 
 Lightpanda does not support `--extension`, `--profile`, `--state`, or `--allow-file-access`. Install Lightpanda from https://lightpanda.io/docs/open-source/installation.
 
+## Browser Automation Discipline
+
+These rules prevent the most common browser automation failures:
+
+### UI State Freshness
+After any navigation, click, or DOM mutation, re-snapshot before acting on refs. Stale refs cause silent misclicks.
+
+### UI Action Verification
+After performing an action (click, fill, submit), verify it took effect — use `diff snapshot`, `wait`, or a follow-up `snapshot`. Do not assume success from a non-error response.
+
+### Session & Recovery
+- Close sessions when done to avoid leaked processes.
+- If a session dies mid-flow, do not retry blindly — check `session list`, clean up, then restart.
+- Use named sessions for concurrent work to avoid cross-contamination.
+
+### Match Observation Mode to Task
+- Use `snapshot -i` (text) for form interaction and data extraction.
+- Use `screenshot --annotate` (vision) for visual layout, icon buttons, and spatial reasoning.
+- Do not default to screenshots when a text snapshot would be faster and more reliable.
+
+### Shell-Safe Eval
+Complex JavaScript must use `eval --stdin` or `eval -b` to avoid shell corruption. See the JavaScript Evaluation section above.
+
+### Reuse Auth State
+Do not re-login on every run. Use `--session-name`, `--profile`, `state save/load`, or `auth vault` to persist authentication across runs.
+
 ## Ready-to-Use Templates
 
 | Template                                                                 | Description                         |

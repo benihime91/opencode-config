@@ -1,7 +1,7 @@
 ---
-
-## name: writing-plans
+name: writing-plans
 description: Use when you have a spec or requirements for a multi-step task, before touching code
+---
 
 # Writing Plans
 
@@ -48,7 +48,7 @@ This structure informs the task decomposition. Each task should produce self-con
 
 ## Task Structure
 
-```markdown
+````markdown
 ### Task N: [Component Name]
 
 **Files:**
@@ -64,7 +64,9 @@ def test_specific_behavior():
     result = function(input)
     assert result == expected
 ```
-```
+````
+
+````
 
 - **Step 2: Run test to verify it fails (OPTIONAL ONLY IF USER WANTS TO WRITE TESTS)**
 
@@ -76,7 +78,7 @@ Expected: FAIL with "function not defined"
 ```python
 def function(input):
     return expected
-```
+````
 
 - **Step 4: Run test to verify it passes**
 
@@ -108,6 +110,18 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - Exact commands with expected output
 - DRY, YAGNI, TDD, frequent commits
 
+## Cold-Start Readiness
+
+Every task must be executable by a fresh agent with zero prior context:
+
+- **Scope:** What this task changes and what it does not.
+- **Files:** Exact create/modify paths with line ranges where relevant.
+- **Constraints:** Invariants this task must not break.
+- **Verification:** Exact command and expected output.
+- **Exit criteria:** How to know this task is done.
+
+Between tasks, preserve the assumptions, outputs, and risks that carry forward. If Task 3 depends on a type defined in Task 1, repeat or reference that type explicitly — do not assume the executor remembers.
+
 ## Self-Review
 
 After writing the complete plan, look at the spec with fresh eyes and check the plan against it. This is a checklist you run yourself — not a subagent dispatch.
@@ -132,4 +146,3 @@ When disk-backed planning is active, update the `Active Artifacts` section in `.
 
 - **REQUIRED SUB-SKILL:** `executing-plans`
 - Batch work with checkpoints for review between batches
-

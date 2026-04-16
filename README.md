@@ -99,9 +99,9 @@ If you installed to a different clone directory, run the same command from that 
 
 - `agents/` — the Seven Divine Beings and their specialist roles
 - `commands/` — 10 slash commands including `/code-review`, `/commit-push`, `/learn`, `/refactor-clean`, and more
-- `skills/` — 31 reusable workflows covering planning, research, frontend, writing, browser automation, and more
+- `skills/` — 29 reusable workflows covering planning, research, frontend, writing, browser automation, and more
 - `plugins/` — local plugins for planning hooks, skill permissions, and skill enforcement
-- `rules/` — 3 instruction files loaded by `opencode.json` (agent workflow, writing standards, browser automation)
+- `rules/` — 2 instruction files loaded by `opencode.json` (agent workflow, writing standards)
 - `firecrawl/.env.default` — repo-owned Firecrawl env with Ollama defaults managed from one place
 - `tui.json` — TUI configuration (van-helsing theme)
 
@@ -137,10 +137,10 @@ If you installed to a different clone directory, run the same command from that 
 Each agent has a scoped set of allowed skills defined in `agent-permissions.jsonc`. Primary agents (Shikamaru, Urahara) have full access. Subagents get only the skills relevant to their role:
 
 - **Hinata** (3): `repo-discovery`, `agent-browser`, `simplify`
-- **Gojo** (12): `brainstorming`, `writing-plans`, `agent-harness-construction`, `repo-discovery`, `docs-research`, `deep-research`, `exa-search`, `firecrawl`, `agent-browser`, `simplify`, `modular-code-enforcement`, `python-coding-style`
-- **Kenma** (11): `repo-discovery`, `docs-research`, `deep-research`, `exa-search`, `firecrawl`, `article-writing`, `writing-clearly-and-concisely`, `writing-plans`, `writing-skills`, `agent-browser`, `simplify`
-- **Oikawa** (15): `repo-discovery`, `docs-research`, `exa-search`, `firecrawl`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`, `agentation`, `annotation-sync`, `agentation-self-driving`, `dogfood`, `agent-browser`, `simplify`, `modular-code-enforcement`
-- **Nanami** (8): `executing-plans`, `dogfood`, `repo-discovery`, `writing-clearly-and-concisely`, `simplify`, `agent-browser`, `modular-code-enforcement`, `python-coding-style`
+- **Gojo** (10): `brainstorming`, `writing-plans`, `agent-harness-construction`, `repo-discovery`, `research`, `firecrawl`, `agent-browser`, `simplify`, `modular-code-enforcement`, `python-coding-style`
+- **Kenma** (9): `repo-discovery`, `research`, `firecrawl`, `article-writing`, `writing-clearly-and-concisely`, `writing-plans`, `writing-skills`, `agent-browser`, `simplify`
+- **Oikawa** (13): `repo-discovery`, `research`, `firecrawl`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`, `agentation`, `annotation-sync`, `agentation-self-driving`, `dogfood`, `agent-browser`, `simplify`, `modular-code-enforcement`
+- **Nanami** (12): `executing-plans`, `dogfood`, `repo-discovery`, `writing-clearly-and-concisely`, `simplify`, `agent-browser`, `modular-code-enforcement`, `python-coding-style`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`
 
 ---
 
@@ -195,27 +195,26 @@ The planning system combines the [Manus 3-file pattern](https://github.com/Othma
 
 ## Rules
 
-Three cross-cutting rules in `rules/` govern all agent behavior:
+Two cross-cutting rules in `rules/` govern all agent behavior:
 
 
-| Rule                    | Scope                                                                             |
-| ----------------------- | --------------------------------------------------------------------------------- |
-| `agent-workflow.md`     | Work scoping, planning gates, evidence standards, parallelism, research hierarchy |
-| `agent-writing.md`      | Prose quality, context budget, naming, source-backed claims                       |
-| `browser-automation.md` | UI freshness, verification, sessions, observation modes                           |
+| Rule                | Scope                                            |
+| ------------------- | ------------------------------------------------ |
+| `agent-workflow.md` | Planning gates, verification, parallelism, escalation, skill routing |
+| `agent-writing.md`  | Prose quality, context budget discipline         |
 
 
 Code style policies (modular code enforcement, Python coding style) are now delivered as skills rather than always-loaded rules, so they activate only when relevant.
 
 ---
 
-## Skills (31)
+## Skills (29)
 
 
 | Category          | Skills                                                                                   |
 | ----------------- | ---------------------------------------------------------------------------------------- |
 | **Planning**      | planning-with-files, brainstorming, writing-plans, executing-plans                       |
-| **Research**      | deep-research, docs-research, exa-search, firecrawl, repo-discovery                     |
+| **Research**      | research, firecrawl, repo-discovery                                                      |
 | **Frontend**      | frontend-design, frontend-patterns, frontend-slides, liquid-glass-design                 |
 | **Writing**       | article-writing, writing-clearly-and-concisely, writing-skills                           |
 | **Browser**       | agent-browser, dogfood, agentation, agentation-self-driving                              |

@@ -25,6 +25,16 @@ A **skill** is a reference guide for proven techniques, patterns, or tools. Skil
 
 **Skills are NOT:** Narratives about how you solved a problem once
 
+## Skill Interface Design
+
+When naming and scoping a skill, follow these principles:
+
+- **Stable names:** Choose names that describe the capability, not the current implementation. Names are hard to change once agents reference them.
+- **Trigger-condition descriptions:** The `description` field answers "when should I load this?" — not "what does this skill do?"
+- **Single responsibility:** Each skill owns one workflow or capability. If a skill tries to do two unrelated things, split it.
+- **Overlap avoidance:** Before creating a new skill, check whether an existing skill already covers the territory. If two skills overlap, clarify boundaries in both descriptions.
+- **Validation:** After writing or editing a skill, verify that the name, description, and body are internally consistent and that the description does not summarize the workflow (see CSO section).
+
 ## TDD Mapping for Skills
 
 | TDD Concept             | Skill Creation                                   |

@@ -74,19 +74,17 @@ For non-trivial implementation work, follow this sequence:
 
 Bias towards not asking the user for help if you can find the answer yourself.
 
-Use the `docs-research` skill for external research and non-repo documentation/code discovery when you need:
+Use the `research` skill for external research and non-repo documentation/code discovery when you need:
 
 - Web research, release updates, or time-sensitive facts
 - External API examples, snippets, and troubleshooting patterns
 - Company/people/domain discovery
 - Content extraction from known URLs
+- Broader external synthesis across many sources (competitive analysis, due diligence, cited reports)
 
 Execution standard:
 
-- Load `docs-research` instead of naming raw MCP-family tool names in your workflow.
-
-Use the `deep-research` skill when you need broader external synthesis across many sources, such as competitive analysis, state-of-the-market research, due diligence, or cited research reports.
-
+- Load `research` instead of naming raw MCP-family tool names in your workflow.
 - Use focused queries and cite source URL(s)
 
 ## Making Code Changes

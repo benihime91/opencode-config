@@ -16,7 +16,11 @@ Load plan, review critically, execute all tasks, report when complete. **Same se
 ### Step 1: Load and Review Plan
 
 1. Read plan file
-2. Review critically - identify any questions or concerns about the plan
+2. Review critically — check for:
+   - Placeholder language ("TBD", "add appropriate", "similar to Task N")
+   - Contradictions between tasks (type names, method signatures, file paths)
+   - Coverage gaps against the spec or requirements
+   - Missing verification steps
 3. If concerns: Raise them with your human partner before starting
 4. If no concerns: proceed with execution tracking (checklist in the plan, `.plans/progress.md` if that workstream is active, or another explicit tracker the user chose)
 
@@ -55,11 +59,18 @@ After all tasks complete and verified:
 
 **Don't force through blockers** - stop and ask.
 
+## Evidence-First Completion
+
+A task is complete only when its verification step produces the expected output. Do not mark a task done based on "it looks right" — run the specified check and confirm the result matches.
+
+When reporting completion to a coordinator or user, include the verification evidence (command output, test result, build status), not just "done".
+
 ## Remember
 
 - Review plan critically first
 - Follow plan steps exactly
 - Don't skip verifications
+- Match claimed outcomes to actual verification evidence
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent

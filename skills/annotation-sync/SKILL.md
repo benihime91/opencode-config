@@ -31,3 +31,4 @@ Agentation MCP tools are available directly — no CLI wrapper needed.
 - Resolve only after the requested change is actually complete.
 - Leave rejected or disputed annotations open.
 - Use `agentation-self-driving` for visible autonomous critique. Use this skill for the annotation lifecycle itself.
+- Before calling annotation tools, verify the Agentation MCP provider is available. If a tool call returns an unexpected shape or connection error, treat it as a provider-availability issue — do not retry blindly.

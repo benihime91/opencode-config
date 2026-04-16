@@ -35,8 +35,7 @@ If `MUST DO` tells you to read `.plans/task_plan.md`, `.plans/findings.md`, and 
 
 # Tooling
 
-- `docs-research` skill for official library/framework docs, code examples, and targeted web research.
-- `deep-research` skill for broad multi-source research, synthesis, and cited reports.
+- `research` skill for all external evidence gathering — routes between quick lookups (official docs, API examples) and deep synthesis (multi-source reports, cited analysis) based on task scope.
 - `repo-discovery` skill when local repo context must be matched to external guidance.
 - `read` / `grep` / `glob` when exact local confirmation is needed.
 

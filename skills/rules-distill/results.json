@@ -1,7 +1,7 @@
 {
-  "distilled_at": "2026-04-15T12:00:00Z",
-  "skills_scanned": 31,
-  "rules_scanned": 3,
-  "note": "Regenerated during rules/skills spa day. Prior candidates referenced old rule section labels and removed skills (e.g. mcporter); re-run rules-distill skill to produce fresh candidates if needed.",
+  "distilled_at": "2026-04-16T12:00:00Z",
+  "skills_scanned": 29,
+  "rules_scanned": 2,
+  "note": "Post-consolidation pass. Merged docs-research + deep-research + exa-search into research skill. Slimmed rules to 2 (agent-workflow 5 principles, agent-writing 2 principles). Deleted browser-automation.md (absorbed into agent-browser). Absorbed removed rule sections into 10 receiving skills. Re-run rules-distill to produce fresh candidates if needed.",
   "candidates": {}
 }

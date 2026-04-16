@@ -57,9 +57,7 @@ If no sequence is provided, default to structural repo discovery before broad `r
 
 ## External Research Workflow
 
-Use `deep-research` when the task requires broad external evidence, market/technology state analysis, or cited multi-source synthesis.
-
-Use `docs-research` when the task is narrower and mainly about official docs, APIs, or library examples.
+Use the `research` skill for external evidence gathering. It routes internally between quick lookups (official docs, API examples) and deep synthesis (multi-source reports, cited analysis) based on the task scope.
 
 ## Output Contract (standard response)
 

@@ -60,15 +60,16 @@ If the first search looks plausible but thin, assume there is more and search ag
 
 ## Confirmation Rules
 
-Semantic hits are discovery signals, not final evidence.
+Semantic hits are discovery signals, not final evidence. Treat every search result as a lead, not proof.
 
 After a semantic search identifies likely files or symbols:
 
 1. inspect the structure or skeleton of the best candidates
 2. read the exact files that appear relevant
 3. confirm the real lines, exports, and usages before making claims
+4. cross-check against at least one additional source (blast radius, direct grep, or a second semantic query) when the finding will drive an edit
 
-Do not report a symbol path, owner file, or call chain until you have confirmed it directly.
+Do not report a symbol path, owner file, or call chain until you have confirmed it directly. If a single search result looks conclusive but has no corroboration, assume there is more and search again.
 
 ## Blast-Radius Rule
 

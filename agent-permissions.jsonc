@@ -1,19 +1,42 @@
 {
   // Default: deny all skills unless an agent entry allowlists them (pairs with plugins/agent-permissions.ts + using-skills.ts).
   "defaults": {
-    "skills": ["!*"]
+    "skills": [
+      "!*"
+    ]
   },
   "agents": {
     // ─── Primary agents — full skill access ───
-    "shikamaru": { "skills": ["*"] },
-    "urahara": { "skills": ["*"] },
-
+    "shikamaru": {
+      "skills": [
+        "*"
+      ]
+    },
+    "urahara": {
+      "skills": [
+        "*"
+      ]
+    },
     // ─── Built-in agents — everything except planning-file ownership ───
     // Note: this repo's opencode.json disables `general` and `explore`; keep entries for forks or other installs.
-    "build": { "skills": ["*", "!planning-with-files"] },
-    "general": { "skills": ["*", "!planning-with-files"] },
-    "plan": { "skills": ["*", "!planning-with-files"] },
-
+    "build": {
+      "skills": [
+        "*",
+        "!planning-with-files"
+      ]
+    },
+    "general": {
+      "skills": [
+        "*",
+        "!planning-with-files"
+      ]
+    },
+    "plan": {
+      "skills": [
+        "*",
+        "!planning-with-files"
+      ]
+    },
     // ─── Hinata — The Explorer (Haikyuu) ───
     // Read-only codebase scout. Lean and fast.
     "hinata": {
@@ -23,7 +46,6 @@
         "simplify"
       ]
     },
-
     // ─── Gojo — The Oracle (JJK) ───
     // Architect + strategic advisor. Needs design, research, and planning skills.
     "gojo": {
@@ -31,9 +53,7 @@
         "agent-harness-construction",
         "brainstorming",
         "repo-discovery",
-        "docs-research",
-        "deep-research",
-        "exa-search",
+        "research",
         "firecrawl",
         "writing-plans",
         "agent-browser",
@@ -42,15 +62,12 @@
         "python-coding-style"
       ]
     },
-
     // ─── Kenma — The Librarian (Haikyuu) ───
     // Research + documentation. Covers external evidence and doc authorship.
     "kenma": {
       "skills": [
         "repo-discovery",
-        "docs-research",
-        "deep-research",
-        "exa-search",
+        "research",
         "firecrawl",
         "article-writing",
         "writing-clearly-and-concisely",
@@ -60,14 +77,12 @@
         "simplify"
       ]
     },
-
     // ─── Oikawa — The Designer (Haikyuu) ───
     // UI/UX specialist. Design skills + QA/testing + design research.
     "oikawa": {
       "skills": [
         "repo-discovery",
-        "docs-research",
-        "exa-search",
+        "research",
         "firecrawl",
         "frontend-design",
         "frontend-patterns",
@@ -82,7 +97,6 @@
         "modular-code-enforcement"
       ]
     },
-
     // ─── Nanami — The Fixer (JJK) ───
     // Execution specialist. Implementation, review, refactoring, QA.
     "nanami": {
@@ -94,7 +108,11 @@
         "simplify",
         "agent-browser",
         "modular-code-enforcement",
-        "python-coding-style"
+        "python-coding-style",
+        "frontend-design",
+        "frontend-patterns",
+        "frontend-slides",
+        "liquid-glass-design"
       ]
     }
   }

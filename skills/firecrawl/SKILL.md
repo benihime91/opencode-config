@@ -7,7 +7,7 @@ description: Use when working directly with Firecrawl for web search, scraping, 
 
 Use this skill for direct Firecrawl operations.
 
-- Use `deep-research` when the job is a multi-source research report with synthesis and citations.
+- Use `research` when the job is a multi-source research report with synthesis and citations.
 - Use this skill when the job is direct Firecrawl usage, Firecrawl troubleshooting, or choosing the right Firecrawl primitive.
 
 ## Repo Defaults
@@ -99,9 +99,23 @@ Do not conflate them.
 docker compose -f "$HOME/firecrawl/docker-compose.yaml" logs api --tail 120
 ```
 
+## Failure Classification
+
+When a Firecrawl operation fails, classify the failure before retrying or escalating:
+
+| Category | Signal | Response |
+|----------|--------|----------|
+| **Feature gating** | "not enabled", 403 on beta endpoints | Use a different primitive; do not retry |
+| **Schema mismatch** | Unexpected response shape, missing fields | Check API version; adjust request format |
+| **Auth / key** | 401, "invalid API key" | Verify key and endpoint configuration |
+| **Runtime** | Timeout, 500, network error | Retry with backoff; escalate after 2-3 failures |
+
+Do not conflate these categories. A feature-gating error is not a networking problem.
+
 ## Rules
 
 - Prefer `search`/`scrape`/`map`/`extract` over `agent` unless there is a clear reason.
 - Treat `crawl` as async and check status explicitly.
 - Keep Firecrawl host guidance simple: `http://localhost:3002`.
+- Classify failures before retrying (see table above).
 - Escalate only when direct evidence shows the failure is not feature-gating, schema mismatch, or provider availability.

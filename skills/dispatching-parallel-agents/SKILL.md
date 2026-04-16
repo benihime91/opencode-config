@@ -115,6 +115,14 @@ Do NOT just increase timeouts - find the real issue.
 Return: Summary of what you found and what you fixed.
 ```
 
+## Cold-Start & Evidence Rules
+
+**Cold-start handoffs:** Each agent prompt must be fully self-contained. Include all context needed to understand and solve the problem — file paths, error messages, constraints, expected output format. Never assume the agent has session history.
+
+**Evidence-first completion:** When agents return, treat their summaries as claims until verified. Run the verification yourself (test suite, build, manual check) before integrating. A "fixed" claim without passing evidence is not done.
+
+**Stage continuity:** If agents produce outputs that feed into later work, capture those outputs explicitly. Do not rely on conversational memory across dispatch boundaries.
+
 ## Common Mistakes
 
 **❌ Too broad:** "Fix all the tests" - agent gets lost

@@ -1,5 +1,16 @@
 # Progress Log
 
+## Session: 2026-04-16 (spa day consolidation — skill-heavy restructure)
+
+- **Status:** complete
+- **Focus:** Consolidate rules and skills per user preferences: skill-heavy hierarchy, merge research skills, strictly heavyweight `.plans/`.
+- **Outcome:**
+  - **Phase 1:** Slimmed `rules/agent-workflow.md` (15→5 principles), `rules/agent-writing.md` (4→2 principles), deleted `rules/browser-automation.md`
+  - **Phase 2:** Created `skills/research/SKILL.md` merging docs-research + deep-research + exa-search. Removed 3 old skill dirs.
+  - **Phase 3:** Absorbed removed rule content into 10 skills: writing-plans (cold-start readiness), executing-plans (review checklist + evidence-first completion), dispatching-parallel-agents (cold-start/evidence/continuity), repo-discovery (evidence confirmation strengthened), writing-skills (skill interface design), firecrawl (failure classification table), annotation-sync (MCP provider verification), agent-browser (6 browser automation discipline rules), brainstorming (already covered), planning-with-files (already covered)
+  - **Phase 4:** Updated agent-permissions.jsonc (3→1 research skill), all 5 agent files, README.md (counts, permissions, skills table, rules table), firecrawl SKILL.md reference, rules-distill/results.json
+- **Open:** None. All 4 phases complete.
+
 ## Session: 2026-04-15 (rules and skills spa day — implementation)
 
 - **Status:** complete
