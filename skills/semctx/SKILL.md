@@ -52,7 +52,7 @@ fail or use the wrong embedding backend.
 ```md
 ## semctx default model configuration
 
-- Default model: `vertex_ai/gemini-embedding-2-preview`
+- Default model: "ollama/nomic-embed-text-v2-moe:latest"
 - Default cache-dir: `<target-dir>/.semctx/`
 - Notes for agents: `Use this default model for index init, index refresh, search-code, and search-identifiers unless the user explicitly overrides it.`
 
