@@ -1,5 +1,20 @@
 # Progress Log
 
+## Session: 2026-04-16 (semctx migration — install, docs, verification)
+
+- **Status:** complete
+- **Focus:** Replace live Context+ surfaces with semctx, set the requested default Ollama model, and verify the CLI locally.
+- **Outcome so far:**
+  - **Phase 1:** Removed native `contextplus` MCP config from `opencode.json`.
+  - **Phase 1:** Updated `install.sh` to ensure `uv`, install semctx from GitHub, and print semctx/Ollama post-install guidance.
+  - **Phase 1:** Rewrote `skills/repo-discovery/SKILL.md` around semctx and added `skills/semctx/SKILL.md`.
+  - **Phase 1:** Updated `agents/shikamaru.md`, `agents/nanami.md`, `agent-permissions.jsonc`, and `README.md` for semctx defaults and permissions.
+  - **Planning:** Replaced stale `.plans/task_plan.md` baseline task with the active semctx migration task and refreshed `.plans/findings.md`.
+  - **Phase 3:** Installed semctx locally with `uv tool install --force git+https://github.com/benihime91/semctx.git`; confirmed `semctx --help` and `semctx --json tree . --depth-limit 1` worked.
+  - **Phase 3:** Verified indexed semctx flow with the requested model using `index init`, `index refresh --full`, `search-code`, and `search-identifiers`.
+  - **Phase 4:** Confirmed remaining `contextplus` hits are limited to historical `.plans/*` files and git history.
+- **Open:** None. Migration complete.
+
 ## Session: 2026-04-16 (spa day consolidation — skill-heavy restructure)
 
 - **Status:** complete

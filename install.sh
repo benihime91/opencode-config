@@ -17,6 +17,7 @@ CONFIG_DIR="${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}"
 FIRECRAWL_REPO_URL="${OPENCODE_FIRECRAWL_REPO_URL:-https://github.com/firecrawl/firecrawl.git}"
 FIRECRAWL_DIR="${OPENCODE_FIRECRAWL_DIR:-$HOME/firecrawl}"
 INSTALL_FIRECRAWL="${OPENCODE_INSTALL_FIRECRAWL:-1}"
+SEMCTX_REPO_URL="${OPENCODE_SEMCTX_REPO_URL:-git+https://github.com/benihime91/semctx.git}"
 FIRECRAWL_ENV_TEMPLATE_REL="firecrawl/.env.default"
 BACKUP_DIR="$HOME/.config/opencode.bak.$(date +%Y%m%d_%H%M%S)"
 CONFLICT_BACKUP_DIR="$BACKUP_DIR/conflicts"
@@ -258,6 +259,25 @@ ensure_jq() {
   fi
 }
 
+ensure_uv() {
+  if check_command uv; then return; fi
+  info "uv not found. Installing..."
+  if [[ "$OSTYPE" == darwin* ]]; then
+    install_homebrew && brew install uv
+  elif check_command apt-get; then
+    sudo apt-get update -y && sudo apt-get install -y uv
+  elif check_command dnf; then
+    sudo dnf install -y uv
+  elif check_command pacman; then
+    sudo pacman -S --noconfirm uv
+  else
+    curl -LsSf https://astral.sh/uv/install.sh | sh || error "Could not install uv automatically. Please install uv and re-run."
+    export PATH="$HOME/.local/bin:$PATH"
+  fi
+
+  check_command uv || error "uv is required for semctx installation but was not found after install."
+}
+
 
 ensure_opencode() {
   if check_command opencode; then
@@ -452,7 +472,6 @@ install_cli_workflow_deps() {
     "firecrawl-mcp@latest"
     "agentation-mcp@latest"
     "@upstash/context7-mcp@latest"
-    "contextplus@latest"
   )
 
   info "Installing CLI workflow dependencies..."
@@ -460,6 +479,9 @@ install_cli_workflow_deps() {
     info "  cli: $pkg"
     pm_global_install "$pkg" 2>/dev/null || warn_optional "Could not install $pkg (it may auto-download on first use)"
   done
+
+  info "Installing semctx via uv..."
+  uv tool install --force "$SEMCTX_REPO_URL" 2>/dev/null || warn_optional "Could not install semctx via uv (install it manually with: uv tool install $SEMCTX_REPO_URL)"
 }
 
 ensure_firecrawl_env() {
@@ -641,6 +663,7 @@ main() {
   ensure_git
   ensure_bun_or_node
   ensure_jq
+  ensure_uv
   clone_repo
   backup_existing
   symlink_config
@@ -673,12 +696,16 @@ main() {
   echo "     ↳ Get a key at https://exa.ai"
   echo "     ↳ Add to ~/.zshrc / ~/.bashrc to persist"
   echo ""
-  echo "  5. Firecrawl local research endpoint"
+  echo "  5. Semctx local discovery defaults"
+  echo "     default model: ollama/leoipulsar/harrier-0.6b:latest"
+  echo "     ↳ Keep Ollama running and make sure that model is pulled locally"
+  echo ""
+  echo "  6. Firecrawl local research endpoint"
   echo "     default: http://localhost:3002"
   echo "     ↳ Disable bootstrap with OPENCODE_INSTALL_FIRECRAWL=0"
   echo "     ↳ Override location with OPENCODE_FIRECRAWL_DIR or FIRECRAWL_API_URL"
   echo ""
-  echo "  6. Launch opencode"
+  echo "  7. Launch opencode"
   echo "     opencode"
   echo ""
   print_warning_summary

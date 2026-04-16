@@ -1,39 +1,54 @@
 # Findings & decisions (current)
 
-**As of 2026-04-15** — this file is the **live** planning-memory summary for this install. Older narrative blocks were removed to avoid contradicting the repo; dated plans under `.plans/` remain as **historical** context (see [`HISTORICAL.md`](./HISTORICAL.md)).
+**As of 2026-04-16** — this file is the **live** planning-memory summary for the active semctx migration. Older dated plans under `.plans/` remain historical context only (see [`HISTORICAL.md`](./HISTORICAL.md)).
 
 ## Install snapshot
 
 | Item | Value |
 | ---- | ----- |
-| Always-on rules | 3: `agent-workflow.md`, `agent-writing.md`, `browser-automation.md` (via `opencode.json` `instructions`) |
-| Skills | 31 under `skills/*/SKILL.md` |
+| Always-on rules | 2: `agent-workflow.md`, `agent-writing.md` (via `opencode.json` `instructions`) |
+| Skills | 30 under `skills/*/SKILL.md` |
 | Slash commands | 10 under `commands/*.md` |
 | Custom agents | `shikamaru`, `urahara`, `hinata`, `gojo`, `kenma`, `oikawa`, `nanami` |
 | Built-ins disabled in `opencode.json` | `explore`, `general` |
-| MCP (native `opencode.json`) | `contextplus`, `firecrawl`, `agentation`, `context7`, `exa` (remote) |
-| Context+ embed env | `OLLAMA_EMBED_MODEL` = `nomic-embed-text-v2-moe:latest` (see `opencode.json`) |
-| Skill defaults | `agent-permissions.jsonc` defaults `["!*"]` — allowlists per agent; primaries `*` |
+| Native MCP/services | `firecrawl`, `agentation`, `context7`, `exa` (remote) + semctx CLI via skill/install flow |
+| Default local discovery model | `ollama/leoipulsar/harrier-0.6b:latest` for semctx indexed commands |
+| Skill defaults | `agent-permissions.jsonc` defaults `![*]` style deny-by-default allowlists per subagent; primaries keep `*` |
 
-## Policy decisions (spa day)
+## Decisions for semctx migration
 
-1. **Rules vs skills:** Rules stay short and cross-cutting; skills own workflows and triggers.
-2. **`.plans/`:** Use for long-running, multi-session, or high-risk work (or explicit user request), not every multi-step task.
-3. **Strict skills:** Agents must consider allowlisted skills early; universal prompt stays short and references capability policy.
-4. **No `mcporter` in tree:** Research/skills use native MCP or repo-documented paths; ignore dated docs that reference removed `mcporter.json` / `skills/mcporter`.
+1. **semctx is the live default** for local repo discovery, indexing, semantic search, and blast-radius analysis.
+2. **Context+ references should remain only in archival surfaces** such as old `.plans/*` files and git history.
+3. **Use the user's requested model by default:** `ollama/leoipulsar/harrier-0.6b:latest`.
+4. **Indexed semctx commands should stay explicit** about `--json`, `--target-dir`, `--cache-dir`, and `--model`.
 
-## Contradictions resolved in this pass
+## Research findings for this task
 
-- README command count and `/checkpoint` drift vs actual `commands/`
-- README skill-permissions names (`docs/deep-research`, `exa`) vs real skill ids (`docs-research`, `deep-research`, `exa-search`)
-- README MCP embed label vs `opencode.json`
-- Bulky `using-skills` injection vs minimal core + OpenCode reality
-- `agent-permissions` "CLI-only" wording vs MCP-backed skills
-- `planning-with-files` / rules §8 implying default `.plans/` for all work
-- `writing-plans` same-session vs `executing-plans` separate-session wording
-- Stale `.plans/findings.md` / `progress.md` narratives (old rosters, mcporter) presented as current
+- semctx upstream install command is `uv tool install git+https://github.com/benihime91/semctx.git`.
+- semctx indexed commands (`index`, `search-code`, `search-identifiers`) depend on embeddings and take explicit provider/model configuration.
+- Upstream semctx skill guidance recommends `--json` for agent use and explicit `--target-dir` plus `--cache-dir` for deterministic scope.
+- External research suggests the requested Harrier model is embedding-oriented, but local runtime verification is still required because semctx uses Ollama's embedding path and compatibility must be proven empirically.
 
-## Follow-ups (optional)
+## Runtime verification findings
 
-- Normalize any remaining `origin:` frontmatter in unrelated skills if desired (not required for this baseline).
-- If you add `/checkpoint` again, bump command count in README.
+- `uv tool install --force git+https://github.com/benihime91/semctx.git` succeeded locally and installed the `semctx` executable.
+- `semctx --help` succeeded and showed the expected command surface: `tree`, `skeleton`, `search-code`, `search-identifiers`, `blast-radius`, and `index`.
+- `semctx --json tree . --depth-limit 1` succeeded locally.
+- `semctx --json --target-dir "." --cache-dir ".semctx" index init --model "ollama/leoipulsar/harrier-0.6b:latest"` succeeded locally and wrote an index under `.semctx/index.db`.
+- First `search-code` attempt returned `full_rebuild_required`; running `semctx index refresh --full --model "ollama/leoipulsar/harrier-0.6b:latest"` resolved it.
+- After the full refresh, both `search-code` and `search-identifiers` succeeded with the requested Ollama model.
+- semctx created `.semctx/` cache artifacts and the repo now ignores that path via `.gitignore`.
+
+## Live repo surfaces updated so far
+
+- `opencode.json` — removed native `contextplus` MCP entry.
+- `install.sh` — added `uv` prerequisite handling, semctx install step, and post-install semctx guidance.
+- `skills/repo-discovery/SKILL.md` — rewritten around semctx CLI workflow.
+- `skills/semctx/SKILL.md` — added new semctx skill with local default model guidance.
+- `agents/shikamaru.md`, `agents/nanami.md` — replaced live Context+ wording with semctx wording.
+- `agent-permissions.jsonc` — added `semctx` to relevant subagent allowlists.
+- `README.md` — updated install, skill counts, permission counts, and discovery/service docs.
+
+## Remaining work
+
+- None open for the requested migration.

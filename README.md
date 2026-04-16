@@ -46,7 +46,7 @@ opencode auth
 export EXA_API_KEY=<your-key>   # optional, for Exa MCP
 # Optional: local Firecrawl / scraping (see mcp.firecrawl env in opencode.json)
 # export FIRECRAWL_API_KEY=...
-# Context+ embeddings use Ollama; model name is set in opencode.json (OLLAMA_EMBED_MODEL)
+# Semctx indexed search defaults to Ollama model ollama/leoipulsar/harrier-0.6b:latest
 opencode
 ```
 
@@ -76,6 +76,7 @@ ln -sfn ~/opencode-config/rules ~/.config/opencode/rules
 ln -sfn ~/opencode-config/skills ~/.config/opencode/skills
 ln -sfn ~/opencode-config/themes ~/.config/opencode/themes
 cd ~/opencode-config && (bun install || npm install)
+uv tool install git+https://github.com/benihime91/semctx.git
 ln -sfn ~/opencode-config/node_modules ~/.config/opencode/node_modules
 
 # optional: bootstrap local Firecrawl (matches the installer default when Docker is available)
@@ -99,7 +100,7 @@ If you installed to a different clone directory, run the same command from that 
 
 - `agents/` — the Seven Divine Beings and their specialist roles
 - `commands/` — 10 slash commands including `/code-review`, `/commit-push`, `/learn`, `/refactor-clean`, and more
-- `skills/` — 29 reusable workflows covering planning, research, frontend, writing, browser automation, and more
+- `skills/` — 30 reusable workflows covering planning, research, repo discovery, frontend, writing, browser automation, and more
 - `plugins/` — local plugins for planning hooks, skill permissions, and skill enforcement
 - `rules/` — 2 instruction files loaded by `opencode.json` (agent workflow, writing standards)
 - `firecrawl/.env.default` — repo-owned Firecrawl env with Ollama defaults managed from one place
@@ -136,11 +137,11 @@ If you installed to a different clone directory, run the same command from that 
 
 Each agent has a scoped set of allowed skills defined in `agent-permissions.jsonc`. Primary agents (Shikamaru, Urahara) have full access. Subagents get only the skills relevant to their role:
 
-- **Hinata** (3): `repo-discovery`, `agent-browser`, `simplify`
-- **Gojo** (10): `brainstorming`, `writing-plans`, `agent-harness-construction`, `repo-discovery`, `research`, `firecrawl`, `agent-browser`, `simplify`, `modular-code-enforcement`, `python-coding-style`
-- **Kenma** (9): `repo-discovery`, `research`, `firecrawl`, `article-writing`, `writing-clearly-and-concisely`, `writing-plans`, `writing-skills`, `agent-browser`, `simplify`
-- **Oikawa** (13): `repo-discovery`, `research`, `firecrawl`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`, `agentation`, `annotation-sync`, `agentation-self-driving`, `dogfood`, `agent-browser`, `simplify`, `modular-code-enforcement`
-- **Nanami** (12): `executing-plans`, `dogfood`, `repo-discovery`, `writing-clearly-and-concisely`, `simplify`, `agent-browser`, `modular-code-enforcement`, `python-coding-style`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`
+- **Hinata** (4): `repo-discovery`, `semctx`, `agent-browser`, `simplify`
+- **Gojo** (11): `brainstorming`, `writing-plans`, `agent-harness-construction`, `repo-discovery`, `semctx`, `research`, `firecrawl`, `agent-browser`, `simplify`, `modular-code-enforcement`, `python-coding-style`
+- **Kenma** (10): `repo-discovery`, `semctx`, `research`, `firecrawl`, `article-writing`, `writing-clearly-and-concisely`, `writing-plans`, `writing-skills`, `agent-browser`, `simplify`
+- **Oikawa** (15): `repo-discovery`, `semctx`, `research`, `firecrawl`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`, `agentation`, `annotation-sync`, `agentation-self-driving`, `dogfood`, `agent-browser`, `simplify`, `modular-code-enforcement`
+- **Nanami** (13): `executing-plans`, `dogfood`, `repo-discovery`, `semctx`, `writing-clearly-and-concisely`, `simplify`, `agent-browser`, `modular-code-enforcement`, `python-coding-style`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`
 
 ---
 
@@ -208,13 +209,13 @@ Code style policies (modular code enforcement, Python coding style) are now deli
 
 ---
 
-## Skills (29)
+## Skills (30)
 
 
 | Category          | Skills                                                                                   |
 | ----------------- | ---------------------------------------------------------------------------------------- |
 | **Planning**      | planning-with-files, brainstorming, writing-plans, executing-plans                       |
-| **Research**      | research, firecrawl, repo-discovery                                                      |
+| **Research**      | research, firecrawl, repo-discovery, semctx                                              |
 | **Frontend**      | frontend-design, frontend-patterns, frontend-slides, liquid-glass-design                 |
 | **Writing**       | article-writing, writing-clearly-and-concisely, writing-skills                           |
 | **Browser**       | agent-browser, dogfood, agentation, agentation-self-driving                              |
@@ -245,14 +246,14 @@ Code style policies (modular code enforcement, Python coding style) are now deli
 
 ---
 
-## MCP Servers
+## Discovery + MCP Services
 
-Configured natively in `opencode.json`:
+Configured across `skills/semctx/SKILL.md` and `opencode.json`:
 
 
-| Server        | Purpose                                                 |
+| Service       | Purpose                                                 |
 | ------------- | ------------------------------------------------------- |
-| `contextplus` | Local semantic embeddings via Ollama (`OLLAMA_EMBED_MODEL` in `opencode.json`, e.g. `nomic-embed-text-v2-moe:latest`) |
+| `semctx`      | Default local repo discovery, indexing, semantic search, and blast-radius CLI (`ollama/leoipulsar/harrier-0.6b:latest`) |
 | `firecrawl`   | Web scraping and extraction (local instance)            |
 | `agentation`  | Design annotation toolbar                               |
 | `context7`    | Library documentation                                   |

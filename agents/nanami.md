@@ -151,7 +151,7 @@ For any task with 2+ concrete actions:
 - Implementation only. No external research.
 - No delegation. Do not spawn subagents.
 - Do not use external research tools.
-- If context is missing, use local repo discovery (read/glob/grep/contextplus) before asking the user.
+- If context is missing, use local repo discovery (repo-discovery/semctx/read/glob/grep) before asking the user.
 - If the first fix fails, diagnose once, change approach, and try again.
 - If the second local approach fails, reduce the problem, isolate the blocker, and only then return `blocked` or `needs_input`.
 

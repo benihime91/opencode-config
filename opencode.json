@@ -27,19 +27,6 @@
     }
   },
   "mcp": {
-    "contextplus": {
-      "type": "local",
-      "timeout": 300000,
-      "command": [
-        "npx",
-        "-y",
-        "contextplus"
-      ],
-      "enabled": true,
-      "environment": {
-        "OLLAMA_EMBED_MODEL": "nomic-embed-text-v2-moe:latest"
-      }
-    },
     "firecrawl": {
       "type": "local",
       "command": [

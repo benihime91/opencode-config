@@ -199,11 +199,11 @@ Do not assume the subagent will recover the canonical artifact path from chat hi
 When a subagent must understand repo structure, architecture, symbol usage, blast radius, or prompt/runtime workflow before acting, `REQUIRED TOOLS` must name the exact repo-discovery workflow instead of vague phrases. Do not assume the subagent will infer this from `CONTEXT` alone; spell the workflow out in the delegation package. For `@hinata`, this repo-discovery workflow is the default and should be omitted only when the task is explicitly non-repo-facing. Default workflow:
 
 1. load `repo-discovery`.
-2. use repo-discovery commands to scope the relevant directory or feature area and inspect file skeletons before broad file-body reads.
-3. use repo-discovery semantic search to locate concepts, symbols, and call paths.
+2. use semctx-backed repo-discovery commands to scope the relevant directory or feature area and inspect tree/skeleton output before broad file-body reads.
+3. use semctx-backed semantic search to locate concepts, symbols, and call paths.
 4. `read`, then `grep` / `glob` only as needed for exact confirmation.
 5. include blast-radius analysis before deleting or modifying an existing symbol.
-6. run static analysis after edits when applicable.
+6. run local static analysis after edits when applicable.
 
 If the task genuinely does not need repo-understanding work, say that explicitly in `MUST DO` or `CONTEXT` instead of silently omitting the repo-discovery workflow.
 
@@ -291,7 +291,7 @@ Only report completion when all are true:
 - **Role**: Codebase search — discover files, patterns, architecture. Jumps high, sees the whole court.
 - **Cost**: FREE — use liberally
 - **Delegate when**: Need to find unknowns, map code structure, locate patterns across modules, trace symbols, narrow the exact file set, or ground an implementation handoff in repo facts
-- **Context+ rule**: Explorer handoffs should include the explicit Context+ workflow by default for repo-facing work
+- **semctx rule**: Explorer handoffs should include the explicit semctx-backed repo-discovery workflow by default for repo-facing work
 - **Skip when**: The task is genuinely non-repo-facing, or you already know the exact file path and only need direct file content rather than exploration
 
 ## @kenma — The Librarian (Haikyuu)

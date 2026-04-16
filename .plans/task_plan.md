@@ -1,53 +1,52 @@
-# Task Plan: Install policy baseline (post spa day)
+# Task Plan: Replace Context+ with semctx
 
 ## Goal
 
-Keep this OpenCode config internally consistent: minimal always-on rules, strict skill usage within `agent-permissions.jsonc`, `.plans/` reserved for heavyweight work, and docs aligned with the live repo.
+Replace Context+ with semctx as the default local search and indexing workflow, set the requested Ollama model, update install/docs/permissions surfaces, and verify the CLI works locally.
 
 ## Active Artifacts
 
-- **Active task:** Policy baseline — rules, skills, plugins, README (2026-04-15)
+- **Active task:** Semctx migration — install, docs, verification (2026-04-16)
 - **Active spec path:** none
 - **Active plan path:** none (implementation tracked in repo + session)
-- **Last updated:** 2026-04-15
+- **Last updated:** 2026-04-16
 
 ## Intake
 
-- **Intended outcome:** Single coherent hierarchy (rules → principles; skills → workflows; plugins enforce planning + permissions); no stale planning memory presented as current truth.
-- **Known context:** Custom roster `shikamaru`, `urahara`, `hinata`, `gojo`, `kenma`, `oikawa`, `nanami`. Three rules; 31 skills; 10 slash commands. `opencode.json` disables built-ins `general` and `explore`.
-- **Unknowns / blockers:** none for baseline doc pass.
-- **Non-goals:** Redesign agent personalities or replace MCP providers.
-- **Decision boundaries:** Personal-first install; `.plans/` only when long-running / multi-session / high-risk unless user opts in.
-- **Readiness:** complete for this baseline pass.
+- **Intended outcome:** semctx replaces Context+ everywhere that defines local repo discovery defaults; install flow installs semctx; docs mention the requested default model; local CLI verification proves the setup works.
+- **Known context:** semctx upstream install is `uv tool install git+https://github.com/benihime91/semctx.git`; requested default model is `ollama/leoipulsar/harrier-0.6b:latest`; local machine already has `uv`, `ollama`, and that Ollama model available.
+- **Unknowns / blockers:** whether the requested model works end-to-end for semctx indexed search under local Ollama.
+- **Non-goals:** rewriting historical `.plans/*.md` archives or redesigning unrelated agent behavior.
+- **Decision boundaries:** semctx becomes the default local search/indexing backend; keep historical references only in archival `.plans/*` and git metadata.
+- **Readiness:** in progress.
 
 ## Current Phase
 
-**Closed** — baseline recorded 2026-04-15
+**Phase 4** — final review complete
 
 ## Phases
 
-### Phase 1: Always-on core + permissions copy
+### Phase 1: Replace live Context+ surfaces
 
-- [x] Soften `rules/agent-workflow.md` §8 (durable planning scope)
-- [x] Shorten `plugins/using-skills.ts` (strict + permission-aware)
-- [x] Fix `plugins/agent-permissions.ts` capability wording
+- [x] Remove `contextplus` from `opencode.json`
+- [x] Install semctx via `install.sh` and add uv prerequisite handling
+- [x] Replace repo-discovery workflow and add `skills/semctx/SKILL.md`
+- [x] Update agent permissions and live agent references
 
-### Phase 2: Planning scope + skills
+### Phase 2: Docs and planning memory
 
-- [x] Narrow `planning-with-files` skill + plugin copy + pre-tool noise (`constants.ts`)
-- [x] Qualify `brainstorming` disk paths when `.plans/` active
-- [x] Reconcile `writing-plans` / `executing-plans` execution handoff
+- [x] Update README install/discovery/skill-permission docs
+- [x] Refresh `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md`
 
-### Phase 3: Live docs
+### Phase 3: Runtime verification
 
-- [x] README counts, skill permissions list, MCP embed model, commands table
-- [x] `commands/agent-permissions-debug.md` accuracy
-- [x] `agent-permissions.jsonc` clarifying comments
+- [x] Run semctx install/health checks locally
+- [x] Run a real semctx command path using the requested model
 
-### Phase 4: Historical surfaces
+### Phase 4: Final review
 
-- [x] Replace planning trio narrative with current baseline; add `HISTORICAL.md`
-- [x] Refresh `skills/rules-distill/results.json`
+- [x] Confirm remaining `contextplus` mentions are historical only
+- [x] Summarize any runtime caveats from verification
 
 ## Key Questions
 
@@ -57,12 +56,14 @@ None open.
 
 | Decision | Rationale |
 | -------- | --------- |
-| `.plans/` for heavyweight workstreams only | User preference; reduces ceremony |
-| Keep strict skill invocation | User preference; paired with per-agent allowlists |
-| Archive note for dated `.plans/*` | Old files remain as history without masquerading as current policy |
+| semctx replaces Context+ for live repo discovery | User explicitly requested semctx as the default for all search and indexing ops |
+| Default semctx model is `ollama/leoipulsar/harrier-0.6b:latest` | User explicitly requested that model |
+| Historical `.plans/*` references stay untouched unless needed | They are archival context, not live config surfaces |
+| `.semctx/` should stay ignored | semctx verification created local cache artifacts that should not be committed |
 
 ## Errors Encountered
 
 | Error | Attempt | Resolution |
 | ----- | ------- | ---------- |
-| — | — | — |
+| Large multi-file patch failed on first attempt | 1 | Re-read exact file state and switched to smaller targeted patches |
+| `search-code` returned `full_rebuild_required` right after `index init` | 1 | Ran `semctx index refresh --full` and re-ran searches successfully |
