@@ -92,10 +92,12 @@ fail or use the wrong embedding backend.
 
 ### Agent rule
 
-Agents should treat the user-filled default model in this file as the standard
-embedding configuration for indexed semctx commands. Only pass a different
-`--model provider/model` when the user explicitly asks for an override or when
-the task requires a different cache/model combination.
+Agents MUST pass `--model vertex_ai/gemini-embedding-2-preview` explicitly on
+every indexed semctx invocation (`search-code`, `search-identifiers`,
+`index init`, `index status`, `index refresh`, `index clear --model ...`). Do
+not omit `--model`, and do not substitute a different provider/model unless the
+user explicitly asks for an override. Non-indexed commands (`tree`, `skeleton`,
+`blast-radius`) do not take `--model`.
 
 ---
 
@@ -259,7 +261,7 @@ most important ones.
 ### Find and understand code
 
 ```bash
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "user authentication middleware" --top-k 5 --model "ollama/nomic-embed-text-v2-moe:latest"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "user authentication middleware" --top-k 5 --model "vertex_ai/gemini-embedding-2-preview"
 ```
 
 Read the `matches[].relative_path` and `start_line`/`end_line` to locate
@@ -268,7 +270,7 @@ relevant source. Use the `snippet` field for a quick preview.
 ### Find a specific symbol
 
 ```bash
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "database connection pool" --top-k 3 --model "ollama/nomic-embed-text-v2-moe:latest"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "database connection pool" --top-k 3 --model "vertex_ai/gemini-embedding-2-preview"
 ```
 
 Each match includes `kind` (function/class/variable), `name`, and `signature`.
@@ -288,10 +290,10 @@ Check `usages[]` length and file distribution to gauge the blast radius.
 semctx --json tree --depth-limit 2
 
 # 2. Search for the feature area
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "payment processing" --top-k 5 --model "ollama/nomic-embed-text-v2-moe:latest"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "payment processing" --top-k 5 --model "vertex_ai/gemini-embedding-2-preview"
 
 # 3. Find the key function
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "process_payment" --top-k 3 --model "ollama/nomic-embed-text-v2-moe:latest"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "process_payment" --top-k 3 --model "vertex_ai/gemini-embedding-2-preview"
 
 # 4. Check what breaks if you change it
 semctx --json blast-radius "process_payment" "backend/payments/service.py"

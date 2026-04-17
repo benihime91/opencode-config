@@ -52,3 +52,10 @@
 ## Remaining work
 
 - None open for the requested migration.
+
+## 2026-04-17 — Skill model override (intentional drift)
+
+- **What I did:** Updated `skills/repo-discovery/SKILL.md` and `skills/semctx/SKILL.md` to always call indexed semctx commands with `--model vertex_ai/gemini-embedding-2-preview`. Reviewer flagged this as drift from the verified default (`ollama/leoipulsar/harrier-0.6b:latest`) still documented in `README.md`, `install.sh`, and entries above in this file.
+- **User decision:** Keep skills on Vertex, leave install/docs/findings on Ollama. The drift is intentional — agents should prefer Vertex embeddings per skill guidance, while the install flow and historical verification record remain Ollama-based.
+- **Implication for future reviewers:** Do not "fix" the mismatch by reverting the skill model back to Ollama or by rewriting install.sh/README to Vertex without an explicit user request. Treat `vertex_ai/gemini-embedding-2-preview` as the current agent-runtime default and `ollama/leoipulsar/harrier-0.6b:latest` as the documented install-flow reference only.
+- **Early detection signal missed:** After editing skill model defaults, I should have checked install/docs surfaces for consistency before declaring the change done. Added that to the review reflex for future skill/config edits.
