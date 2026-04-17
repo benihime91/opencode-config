@@ -35,8 +35,8 @@
       ],
       "enabled": true,
       "environment": {
-        "FIRECRAWL_API_URL": "${FIRECRAWL_API_URL:-http://localhost:3002}",
-        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY:-}"
+        "FIRECRAWL_API_URL": "http://localhost:3002",
+        "FIRECRAWL_API_KEY": "fc-local"
       }
     },
     "agentation": {
