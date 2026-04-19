@@ -540,9 +540,6 @@ ensure_firecrawl_env() {
     return
   fi
 
-  OPENCODE_OPENAI_BASE_URL="$openai_base_url" \
-  OPENCODE_MODEL_NAME="$model_name" \
-  OPENCODE_EMBEDDING_MODEL="$embedding_model" \
   cat > "$env_file" <<EOF
 PORT=3002
 HOST=0.0.0.0
