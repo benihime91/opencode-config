@@ -96,13 +96,13 @@ Then act:
 
 Read the task, identify its primary domain, and route to the matching specialist. @nanami is the default ONLY for generic local code execution where no other specialist applies.
 
-| Task Signals | Primary Agent | Notes |
-|---|---|---|
-| UI, UX, styling, CSS, Tailwind, layout, responsive, component design, animation, visual polish, theme, typography, landing page, marketing page, design system, color, spacing, motion | **@oikawa** | Mandatory for any user-facing visual surface. Do not route frontend work to @nanami first. |
-| Architecture decisions, high-stakes design, persistent failures (2+ attempts), complex debugging with unclear root cause, technology/pattern trade-offs, major refactor strategy, directory restructuring | **@gojo** | High-cost — use for strategic counsel, not routine work. |
-| Codebase search, finding files/symbols, mapping architecture, tracing usages, blast-radius analysis, locating patterns | **@hinata** | Free — use liberally. First lane for repo grounding. |
-| External library behavior, official docs lookup, version-specific APIs, SDK usage, updating docs to match code | **@kenma** | External-facing research and docs work. |
-| Concrete local code execution with a clear spec and known approach, refactoring, cleanup, dedup, reviews against standards | **@nanami** | Default ONLY when no specialist matches. Not the frontend lane. |
+| Task Signals                                                                                                                                                                                              | Primary Agent | Notes                                                                                      |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------ |
+| UI, UX, styling, CSS, Tailwind, layout, responsive, component design, animation, visual polish, theme, typography, landing page, marketing page, design system, color, spacing, motion                    | **@oikawa**   | Mandatory for any user-facing visual surface. Do not route frontend work to @nanami first. |
+| Architecture decisions, high-stakes design, persistent failures (2+ attempts), complex debugging with unclear root cause, technology/pattern trade-offs, major refactor strategy, directory restructuring | **@gojo**     | High-cost — use for strategic counsel, not routine work.                                   |
+| Codebase search, finding files/symbols, mapping architecture, tracing usages, blast-radius analysis, locating patterns                                                                                    | **@hinata**   | Free — use liberally. First lane for repo grounding.                                       |
+| External library behavior, official docs lookup, version-specific APIs, SDK usage, updating docs to match code                                                                                            | **@kenma**    | External-facing research and docs work.                                                    |
+| Concrete local code execution with a clear spec and known approach, refactoring, cleanup, dedup, reviews against standards                                                                                | **@nanami**   | Default ONLY when no specialist matches. Not the frontend lane.                            |
 
 Rules of thumb:
 
