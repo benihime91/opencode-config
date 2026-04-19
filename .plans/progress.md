@@ -1,5 +1,17 @@
 # Progress Log
 
+## Session: 2026-04-19 (firecrawl repair + shikamaru routing fix)
+
+- **Status:** complete
+- **Focus:** User reported (1) firecrawl non-functional and (2) shikamaru over-routing to @nanami instead of @oikawa for frontend.
+- **Outcome:**
+  - **Fix 1 — firecrawl live stack.** Root cause: `~/firecrawl/.env` was a dangling symlink pointing into a non-existent `~/.config/opencode/firecrawl/` directory, so docker compose loaded empty env. Started OrbStack, added the missing `~/.config/opencode/firecrawl` directory symlink to `/Users/ayushmanburagohain/opencode-config/firecrawl`, repointed `~/firecrawl/.env` to the canonical `.env.default`, and brought the stack up (`docker compose up -d`). All 5 containers healthy; `curl http://localhost:3002/` returns the API banner.
+  - **Fix 2 — shikamaru routing.** Edited `agents/shikamaru.md`: added an explicit Routing Matrix after Phase 0 mapping task-signals to primary agents (UI/visual → @oikawa mandatory; architecture → @gojo; search → @hinata; external docs → @kenma; backend/non-visual code → @nanami default only when no specialist matches). Expanded @oikawa roster entry with cost tag, trigger keywords, parallelization, and pairing notes. Tightened @nanami entry: removed "primary implementer" framing, scoped to non-visual work, added explicit "NOT the default for UI" note.
+  - **Fix 3 — firecrawl extract bug.** `firecrawl_extract` failed with `Unsupported model version v1 for provider ollama.chat` because image upgraded to AI SDK 5 (spec v2) while `ollama-ai-provider@1.2.0` is still v1. Firecrawl's `llmExtract.ts` hardcodes `provider="openai"` anyway. Rerouted through Ollama's OpenAI-compatible `/v1` endpoint: `OPENAI_BASE_URL=http://host.docker.internal:11434/v1`, `OPENAI_API_KEY=ollama`, `MODEL_NAME=granite4:350m` (non-thinking, ~0.6s on CPU), `OLLAMA_BASE_URL=` empty. Pulled `granite4:350m` locally. `docker compose down && up -d` to pick up new env. Verified: `firecrawl_extract(example.com)` returned clean `{title, body}` JSON.
+  - **Fix 4 — install.sh alignment.** Updated `install.sh` so fresh installs produce the same corrected env: renamed helper to `default_firecrawl_ollama_openai_base_url` (emits `/v1`, not `/api`); added `FIRECRAWL_DEFAULT_MODEL=granite4:350m` and `FIRECRAWL_DEFAULT_EMBEDDING_MODEL=nomic-embed-text` constants; rewrote `apply_firecrawl_ollama_defaults` to manage 5 keys (sets `OPENAI_BASE_URL`/`OPENAI_API_KEY`/`MODEL_NAME`/`MODEL_EMBEDDING_NAME`, comments out legacy `OLLAMA_BASE_URL`); rewrote `ensure_firecrawl_env` fallback heredoc to interpolate correctly (also fixed pre-existing single-quoted heredoc bug); added next-steps banner lines about `/v1` endpoint and model pull. `bash -n` passes; python rewrite block tested against a seeded old-state env and produced the expected output.
+  - **MCP surface verification.** `firecrawl_scrape`, `firecrawl_map`, `firecrawl_search`, `firecrawl_crawl`, `firecrawl_extract` all returned valid responses against the running local stack.
+- **Open:** None.
+
 ## Session: 2026-04-16 (semctx migration — install, docs, verification)
 
 - **Status:** complete
