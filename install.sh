@@ -46,57 +46,92 @@ warn_required() {
 warn()    { warn_optional "$*"; }
 error()   { echo -e "${RED}[opencode-config]${NC} $*" >&2; exit 1; }
 
-default_firecrawl_ollama_base_url() {
+# Firecrawl is on AI SDK 5, but its bundled ollama-ai-provider@1.2.0 is spec v1
+# and fails with "Unsupported model version v1 for provider ollama.chat".
+# llmExtract.ts also hardcodes provider="openai". The supported path is to
+# route Ollama through its OpenAI-compatible /v1 endpoint.
+default_firecrawl_ollama_openai_base_url() {
   if [[ "$OSTYPE" == linux* ]]; then
     local docker_bridge_gateway
     docker_bridge_gateway="$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)"
     if [[ -n "$docker_bridge_gateway" ]]; then
-      printf 'http://%s:11434/api' "$docker_bridge_gateway"
+      printf 'http://%s:11434/v1' "$docker_bridge_gateway"
       return
     fi
-    printf 'http://172.17.0.1:11434/api'
+    printf 'http://172.17.0.1:11434/v1'
     return
   fi
 
-  printf 'http://host.docker.internal:11434/api'
+  printf 'http://host.docker.internal:11434/v1'
 }
+
+# granite4:350m is a small non-thinking model that returns in ~0.6s on CPU.
+# Thinking models (qwen3, lfm2.5-thinking) take minutes per extract.
+FIRECRAWL_DEFAULT_MODEL="granite4:350m"
+FIRECRAWL_DEFAULT_EMBEDDING_MODEL="nomic-embed-text"
 
 apply_firecrawl_ollama_defaults() {
   local env_file="$1"
-  local ollama_base_url="$2"
+  local openai_base_url="$2"
+  local model_name="$3"
+  local embedding_model="$4"
 
   [[ -f "$env_file" ]] || return
 
-  python3 - "$env_file" "$ollama_base_url" <<'PY'
+  OPENCODE_OPENAI_BASE_URL="$openai_base_url" \
+  OPENCODE_MODEL_NAME="$model_name" \
+  OPENCODE_EMBEDDING_MODEL="$embedding_model" \
+  python3 - "$env_file" <<'PY'
 from pathlib import Path
+import os
 import sys
 
 env_path = Path(sys.argv[1])
-ollama_base_url = sys.argv[2]
+openai_base_url = os.environ["OPENCODE_OPENAI_BASE_URL"]
+model_name = os.environ["OPENCODE_MODEL_NAME"]
+embedding_model = os.environ["OPENCODE_EMBEDDING_MODEL"]
+
 lines = env_path.read_text().splitlines()
 updated = []
-seen = {"OLLAMA_BASE_URL": False, "MODEL_NAME": False, "MODEL_EMBEDDING_NAME": False}
+seen = {
+    "OPENAI_BASE_URL": False,
+    "OPENAI_API_KEY": False,
+    "MODEL_NAME": False,
+    "MODEL_EMBEDDING_NAME": False,
+    "OLLAMA_BASE_URL": False,
+}
 
 for line in lines:
     stripped = line.strip()
-    if stripped.startswith("# OLLAMA_BASE_URL=") or stripped.startswith("OLLAMA_BASE_URL="):
-        updated.append(f"OLLAMA_BASE_URL={ollama_base_url}")
-        seen["OLLAMA_BASE_URL"] = True
+    if stripped.startswith("# OPENAI_BASE_URL=") or stripped.startswith("OPENAI_BASE_URL="):
+        updated.append(f"OPENAI_BASE_URL={openai_base_url}")
+        seen["OPENAI_BASE_URL"] = True
+    elif stripped.startswith("# OPENAI_API_KEY=") or stripped.startswith("OPENAI_API_KEY="):
+        # Any non-empty value satisfies the openai client; ollama ignores it.
+        updated.append("OPENAI_API_KEY=ollama")
+        seen["OPENAI_API_KEY"] = True
     elif stripped.startswith("# MODEL_NAME=") or stripped.startswith("MODEL_NAME="):
-        updated.append("MODEL_NAME=qwen3:8b")
+        updated.append(f"MODEL_NAME={model_name}")
         seen["MODEL_NAME"] = True
     elif stripped.startswith("# MODEL_EMBEDDING_NAME=") or stripped.startswith("MODEL_EMBEDDING_NAME="):
-        updated.append("MODEL_EMBEDDING_NAME=nomic-embed-text")
+        updated.append(f"MODEL_EMBEDDING_NAME={embedding_model}")
         seen["MODEL_EMBEDDING_NAME"] = True
+    elif stripped.startswith("OLLAMA_BASE_URL="):
+        # The native ollama provider is spec v1 and breaks AI SDK 5. Leave
+        # commented so it does not intercept the openai-compat path.
+        updated.append(f"# {line}")
+        seen["OLLAMA_BASE_URL"] = True
     else:
         updated.append(line)
 
-if not seen["OLLAMA_BASE_URL"]:
-    updated.append(f"OLLAMA_BASE_URL={ollama_base_url}")
+if not seen["OPENAI_BASE_URL"]:
+    updated.append(f"OPENAI_BASE_URL={openai_base_url}")
+if not seen["OPENAI_API_KEY"]:
+    updated.append("OPENAI_API_KEY=ollama")
 if not seen["MODEL_NAME"]:
-    updated.append("MODEL_NAME=qwen3:8b")
+    updated.append(f"MODEL_NAME={model_name}")
 if not seen["MODEL_EMBEDDING_NAME"]:
-    updated.append("MODEL_EMBEDDING_NAME=nomic-embed-text")
+    updated.append(f"MODEL_EMBEDDING_NAME={embedding_model}")
 
 env_path.write_text("\n".join(updated) + "\n")
 PY
@@ -487,23 +522,25 @@ install_cli_workflow_deps() {
 ensure_firecrawl_env() {
   local env_file="$FIRECRAWL_DIR/.env"
   local template_file="$CLONE_DIR/$FIRECRAWL_ENV_TEMPLATE_REL"
-  local ollama_base_url
+  local openai_base_url
+  local model_name="$FIRECRAWL_DEFAULT_MODEL"
+  local embedding_model="$FIRECRAWL_DEFAULT_EMBEDDING_MODEL"
 
-  ollama_base_url="$(default_firecrawl_ollama_base_url)"
+  openai_base_url="$(default_firecrawl_ollama_openai_base_url)"
 
   if [[ -f "$env_file" ]]; then
-    apply_firecrawl_ollama_defaults "$env_file" "$ollama_base_url"
+    apply_firecrawl_ollama_defaults "$env_file" "$openai_base_url" "$model_name" "$embedding_model"
     return
   fi
 
   if [[ -f "$template_file" ]]; then
     cp "$template_file" "$env_file"
-    apply_firecrawl_ollama_defaults "$env_file" "$ollama_base_url"
+    apply_firecrawl_ollama_defaults "$env_file" "$openai_base_url" "$model_name" "$embedding_model"
     info "Copied Firecrawl env template to $env_file"
     return
   fi
 
-  cat > "$env_file" <<'EOF'
+  cat > "$env_file" <<EOF
 PORT=3002
 HOST=0.0.0.0
 REDIS_URL=redis://redis:6379
@@ -516,11 +553,15 @@ CRAWL_CONCURRENT_REQUESTS=10
 MAX_CONCURRENT_JOBS=5
 BROWSER_POOL_SIZE=5
 LOGGING_LEVEL=INFO
-OLLAMA_BASE_URL=$ollama_base_url
-MODEL_NAME=qwen3:8b
-MODEL_EMBEDDING_NAME=nomic-embed-text
-OPENAI_API_KEY=
-OPENAI_BASE_URL=
+# LLM extraction: route Ollama through its OpenAI-compatible endpoint.
+# The native ollama-ai-provider is spec v1 and breaks under AI SDK 5.
+OPENAI_BASE_URL=${openai_base_url}
+OPENAI_API_KEY=ollama
+MODEL_NAME=${model_name}
+MODEL_EMBEDDING_NAME=${embedding_model}
+# Native Ollama provider — disabled. Uncomment only if firecrawl ships an
+# AI SDK 5 compatible Ollama adapter.
+# OLLAMA_BASE_URL=
 LLAMAPARSE_API_KEY=
 SEARCHAPI_API_KEY=
 SEARCHAPI_ENGINE=
@@ -702,6 +743,8 @@ main() {
   echo ""
   echo "  6. Firecrawl local research endpoint"
   echo "     default: http://localhost:3002"
+  echo "     ↳ LLM extract uses Ollama via OpenAI-compat endpoint (/v1)"
+  echo "     ↳ default model: granite4:350m (pull with: ollama pull granite4:350m)"
   echo "     ↳ Disable bootstrap with OPENCODE_INSTALL_FIRECRAWL=0"
   echo "     ↳ Override location with OPENCODE_FIRECRAWL_DIR or FIRECRAWL_API_URL"
   echo ""
