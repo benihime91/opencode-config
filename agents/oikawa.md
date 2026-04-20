@@ -80,6 +80,8 @@ If `MUST DO` tells you to read `.plans/task_plan.md`, `.plans/findings.md`, and 
 - Leverage component libraries where available
 - Preserve implementation realism: recommend designs that can be shipped with the current stack and constraints
 - Prioritize visual excellence without ignoring accessibility and product goals
+- For any runnable UI or web surface, verify the real result with `agent-browser` before reporting success. Treat browser verification as the default for layout, interaction, responsive, and polish checks.
+- If browser verification is blocked or impossible, say so explicitly in `VERIFICATION` with the reason and what remains unverified.
 
 ## Operating Style
 

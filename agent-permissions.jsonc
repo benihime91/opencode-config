@@ -84,8 +84,10 @@
     // UI/UX specialist. Design skills + QA/testing + design research.
     "oikawa": {
       "skills": [
+        "brainstorming",
         "repo-discovery",
         "semctx",
+        "planning-with-files",
         "research",
         "firecrawl",
         "frontend-design",
@@ -97,6 +99,7 @@
         "agentation-self-driving",
         "dogfood",
         "agent-browser",
+        "writing-clearly-and-concisely",
         "simplify",
         "modular-code-enforcement"
       ]
