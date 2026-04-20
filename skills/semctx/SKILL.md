@@ -1,10 +1,6 @@
 ---
 name: semctx
-description: >-
-  Semantic codebase discovery, search, and impact analysis CLI. Use when
-  exploring unfamiliar repositories, finding code by meaning, locating symbol
-  definitions or usages, tracing blast radius before refactors, or when the
-  user mentions semctx, code search, codebase indexing, or symbol tracing.
+description: Semantic codebase discovery, search, and impact analysis CLI. Use when exploring unfamiliar repositories, finding code by meaning, locating symbol definitions or usages, tracing blast radius before refactors, or when the user mentions semctx, code search, codebase indexing, or symbol tracing.
 ---
 
 # semctx — Semantic Code Context CLI

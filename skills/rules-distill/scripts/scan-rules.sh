@@ -10,6 +10,12 @@ set -euo pipefail
 
 RULES_DIR="${RULES_DISTILL_DIR:-${1:-$HOME/.config/opencode/rules}}"
 
+# Follow symlinks so scans work whether the caller passes the symlink
+# (~/.config/opencode/rules) or the underlying repo (~/opencode-config/rules).
+if [[ -L "$RULES_DIR" ]]; then
+  RULES_DIR="$(readlink -f "$RULES_DIR" 2>/dev/null || realpath "$RULES_DIR")"
+fi
+
 if [[ ! -d "$RULES_DIR" ]]; then
   jq -n --arg path "$RULES_DIR" '{"error":"rules directory not found","path":$path}' >&2
   exit 1
