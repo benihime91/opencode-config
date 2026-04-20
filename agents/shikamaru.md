@@ -137,6 +137,8 @@ When the task requires understanding before action:
 - Anti-duplication: once exploration is delegated, do not re-run the same exploration yourself.
 - Stop exploring when you have: exact files, required patterns, and enough context for execution delegation.
 - Delegated exploration may inform requirement understanding, design, and planning, but Shikamaru must synthesize the findings into the approved spec and plan itself.
+- Persist meaningful @hinata and @kenma findings into `.plans/findings.md` before advancing when those findings may matter later in the task.
+- Treat `.plans/findings.md` as the durable reference log for delegated repo and external research so important evidence does not stay trapped in transient subagent output.
 
 ## Phase 1.5 — Brainstorming To Writing-Plans
 
@@ -363,6 +365,16 @@ Shikamaru may directly edit only:
 - the shared planning files above
 
 This planning-memory work is mandatory after tool and subagent results. Do not advance to the next wave, next decision, or delivery while important context still lives only in transient chat history.
+
+Shikamaru must store detailed @hinata and @kenma findings in `.plans/findings.md` whenever they produce durable repo knowledge, external research, implementation constraints, version facts, architecture facts, or other evidence likely to be reused.
+
+At minimum, each persisted findings entry should capture:
+
+- source agent
+- task or question investigated
+- key findings and evidence
+- affected files, systems, libraries, or URLs
+- constraints, risks, and follow-up implications
 
 When delegated work depends on current task memory, direct subagents to read `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` before acting, then keep the actual planning-file updates in the primary planning-memory lane.
 

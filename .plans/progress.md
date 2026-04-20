@@ -1,5 +1,15 @@
 # Progress Log
 
+## Session: 2026-04-20 (agents wording follow-up — commit, push, PR refresh)
+
+- **Status:** complete
+- **Focus:** Commit the outstanding `agents/shikamaru.md` and `agents/urahara.md` wording changes, push the branch, and ensure the PR is up to date.
+- **Outcome:**
+  - Committed the pending agent-doc changes as `docs(agents): clarify routing and task guidance` (`91120d1`).
+  - Pushed `fix/firecrawl-ollama-extract-and-shikamaru-routing` to `origin` with upstream tracking intact.
+  - Confirmed the branch already had an open PR against `main`, so no new PR was created; the existing PR remains the active review surface: https://github.com/benihime91/opencode-config/pull/2
+- **Open:** None.
+
 ## Session: 2026-04-19 (firecrawl repair + shikamaru routing fix)
 
 - **Status:** complete

@@ -169,9 +169,17 @@ Treat `.plans/task_plan.md`, `.plans/findings.md`, and `.plans/progress.md` as t
 - You are in the primary planning-memory lane together with Shikamaru and the default build agent.
 - Read the planning trio before major work when the task depends on current session context.
 - Keep `.plans/task_plan.md` current as the canonical artifact index: active task, active spec path, active plan path, and last updated.
+- Store your own detailed findings in `.plans/findings.md` when you uncover durable facts, constraints, decisions, repo knowledge, external research, or verification results that may matter later.
 - Keep subagents read-only on these files; they should hand durable outcomes back for consolidation.
 
 If you create, revise, or switch the active spec or implementation plan in this lane, update the `Active Artifacts` section in `.plans/task_plan.md` immediately so crash recovery and later delegation do not rely on guesswork.
+
+Detailed findings entries should include, when relevant:
+
+- task or question investigated
+- key findings and supporting evidence
+- affected files, systems, libraries, or URLs
+- constraints, risks, and follow-up implications
 
 After any user correction or redirection, update `.plans/findings.md`.
 
