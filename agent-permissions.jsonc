@@ -44,6 +44,7 @@
         "repo-discovery",
         "semctx",
         "agent-browser",
+        "aria2c",
         "simplify"
       ]
     },
@@ -57,6 +58,7 @@
         "semctx",
         "research",
         "firecrawl",
+        "aria2c",
         "writing-plans",
         "agent-browser",
         "simplify",
@@ -72,6 +74,7 @@
         "semctx",
         "research",
         "firecrawl",
+        "aria2c",
         "article-writing",
         "writing-clearly-and-concisely",
         "writing-plans",
@@ -115,6 +118,7 @@
         "writing-clearly-and-concisely",
         "simplify",
         "agent-browser",
+        "aria2c",
         "modular-code-enforcement",
         "python-coding-style",
         "frontend-design",
