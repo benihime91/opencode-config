@@ -1,0 +1,88 @@
+{
+  "mcpServers": {
+    "rapidapi-skyscanner": {
+      "description": "Skyscanner MCP via RapidAPI",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: skyscanner-flights-travel-api.p.rapidapi.com",
+        "--header",
+        "x-api-key: ${RAPIDAPI_KEY}"
+      ]
+    },
+    "rapidapi-hostelworld": {
+      "description": "HostelWorld MCP via RapidAPI",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: hostel-world-api.p.rapidapi.com",
+        "--header",
+        "x-api-key: ${RAPIDAPI_KEY}"
+      ]
+    },
+    "rapidapi-visa-requirements": {
+      "description": "Visa Requirement MCP via RapidAPI",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: visa-requirement.p.rapidapi.com",
+        "--header",
+        "x-api-key: ${RAPIDAPI_KEY}"
+      ]
+    },
+    "rapidapi-airbnb-listings": {
+      "description": "Airbnb Listings MCP via RapidAPI",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: airbnb-listings.p.rapidapi.com",
+        "--header",
+        "x-api-key: ${RAPIDAPI_KEY}"
+      ]
+    },
+    "rapidapi-travel-guide": {
+      "description": "Travel Guide MCP via RapidAPI",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: travel-guide-api-city-guide-top-places.p.rapidapi.com",
+        "--header",
+        "x-api-key: ${RAPIDAPI_KEY}"
+      ]
+    },
+    "rapidapi-currency-rates": {
+      "description": "Currency Conversion and Exchange Rates MCP via RapidAPI",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: currency-conversion-and-exchange-rates.p.rapidapi.com",
+        "--header",
+        "x-api-key: ${RAPIDAPI_KEY}"
+      ]
+    },
+    "rapidapi-tripadvisor": {
+      "description": "Tripadvisor MCP via RapidAPI",
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.rapidapi.com",
+        "--header",
+        "x-api-host: tripadvisor16.p.rapidapi.com",
+        "--header",
+        "x-api-key: ${RAPIDAPI_KEY}"
+      ]
+    }
+  }
+}

@@ -31,10 +31,10 @@ Skip this skill when the task is already limited to one known file and no broade
 
 Always start with semctx structure and search commands. Use `grep`, `glob`, and broad raw reads only as fallbacks.
 
-Always pass `--model vertex_ai/gemini-embedding-2-preview` explicitly on every indexed semctx call (`search-code`, `search-identifiers`, `index init`, `index status`, `index refresh`). Do not omit it; do not substitute another model unless the user explicitly overrides.
+Always pass `--model ollama/qwen3-embedding:8b` explicitly on every indexed semctx call (`search-code`, `search-identifiers`, `index init`, `index status`, `index refresh`). Do not omit it; do not substitute another model unless the user explicitly overrides.
 
 1. Start broad with `semctx --json tree` or `semctx --json skeleton`.
-2. Narrow with `semctx --json search-code` using explicit `--target-dir`, `--cache-dir`, and `--model vertex_ai/gemini-embedding-2-preview`.
+2. Narrow with `semctx --json search-code` using explicit `--target-dir`, `--cache-dir`, and `--model ollama/qwen3-embedding:8b`.
 3. Trace identifiers with `semctx --json search-identifiers` (same explicit flags) when the question becomes symbol-specific.
 4. Confirm exact paths and lines with direct file reads — only after semctx has identified the targets.
 5. Inspect blast radius with `semctx --json blast-radius` before editing or deleting existing symbols.
@@ -86,19 +86,19 @@ If blast radius is unclear, treat the change as high risk and gather more eviden
 
 ## Tool Surface
 
-Use the semctx CLI directly, always with `--json` for agent-driven calls. For every indexed command, pass `--model vertex_ai/gemini-embedding-2-preview` explicitly:
+Use the semctx CLI directly, always with `--json` for agent-driven calls. For every indexed command, pass `--model ollama/qwen3-embedding:8b` explicitly:
 
 - `semctx --json tree [path] --depth-limit N`
 - `semctx --json skeleton <file>`
-- `semctx --json --target-dir <dir> --cache-dir <cache> search-code <query> --model vertex_ai/gemini-embedding-2-preview`
-- `semctx --json --target-dir <dir> --cache-dir <cache> search-identifiers <query> --model vertex_ai/gemini-embedding-2-preview`
+- `semctx --json --target-dir <dir> --cache-dir <cache> search-code <query> --model ollama/qwen3-embedding:8b`
+- `semctx --json --target-dir <dir> --cache-dir <cache> search-identifiers <query> --model ollama/qwen3-embedding:8b`
 - `semctx --json blast-radius <symbol> <file>`
 
 Typical progression:
 
 1. `semctx --json tree` or `semctx --json skeleton`
-2. `semctx --json search-code ... --model vertex_ai/gemini-embedding-2-preview` with 2-3 query phrasings
-3. `semctx --json search-identifiers ... --model vertex_ai/gemini-embedding-2-preview` when the question becomes symbol-specific
+2. `semctx --json search-code ... --model ollama/qwen3-embedding:8b` with 2-3 query phrasings
+3. `semctx --json search-identifiers ... --model ollama/qwen3-embedding:8b` when the question becomes symbol-specific
 4. `semctx --json blast-radius` before rewiring an existing symbol
 5. project-native static analysis after edits when available
 

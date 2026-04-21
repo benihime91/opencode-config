@@ -55,7 +55,7 @@ fail or use the wrong embedding backend.
 ```md
 ## semctx default model configuration
 
-- Default model: `vertex_ai/gemini-embedding-2-preview`
+- Default model: `ollama/qwen3-embedding:8b`
 - Default cache-dir: `<target-dir>/.semctx/`
 - Notes for agents: `Use this default model for index init, index refresh, search-code, and search-identifiers unless the user explicitly overrides it.`
 
@@ -64,7 +64,7 @@ fail or use the wrong embedding backend.
 - `ollama/...`
   - Install and run Ollama locally.
   - Pull the embedding model before using semctx.
-  - Example: `ollama/nomic-embed-text-v2-moe:latest`
+  - Example: `ollama/qwen3-embedding:8b`
 
 - `gemini/...`
   - Export `GEMINI_API_KEY` in the shell or agent runtime.
@@ -82,13 +82,13 @@ fail or use the wrong embedding backend.
 
 | Provider example                        | What the user must set up                                             |
 | --------------------------------------- | --------------------------------------------------------------------- |
-| `ollama/nomic-embed-text-v2-moe:latest` | Install Ollama, start the local service, and pull the embedding model |
+| `ollama/qwen3-embedding:8b`             | Install Ollama, start the local service, and pull the embedding model |
 | `gemini/gemini-embedding-2-preview`     | Set `GEMINI_API_KEY` in the runtime environment                       |
 | `vertex_ai/gemini-embedding-2-preview`  | Provide Google auth env vars and a runtime with Google auth support   |
 
 ### Agent rule
 
-Agents MUST pass `--model vertex_ai/gemini-embedding-2-preview` explicitly on
+Agents MUST pass `--model ollama/qwen3-embedding:8b` explicitly on
 every indexed semctx invocation (`search-code`, `search-identifiers`,
 `index init`, `index status`, `index refresh`, `index clear --model ...`). Do
 not omit `--model`, and do not substitute a different provider/model unless the
@@ -157,7 +157,7 @@ semctx index clear  --all
 | `clear`    | Delete one selected index DB or all namespaced DBs       |
 
 The `--model` flag accepts `provider/model` strings (e.g.
-`ollama/nomic-embed-text-v2-moe:latest`,
+`ollama/qwen3-embedding:8b`,
 `gemini/gemini-embedding-2-preview`,
 `vertex_ai/gemini-embedding-2-preview`).
 
@@ -257,7 +257,7 @@ most important ones.
 ### Find and understand code
 
 ```bash
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "user authentication middleware" --top-k 5 --model "vertex_ai/gemini-embedding-2-preview"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "user authentication middleware" --top-k 5 --model "ollama/qwen3-embedding:8b"
 ```
 
 Read the `matches[].relative_path` and `start_line`/`end_line` to locate
@@ -266,7 +266,7 @@ relevant source. Use the `snippet` field for a quick preview.
 ### Find a specific symbol
 
 ```bash
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "database connection pool" --top-k 3 --model "vertex_ai/gemini-embedding-2-preview"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "database connection pool" --top-k 3 --model "ollama/qwen3-embedding:8b"
 ```
 
 Each match includes `kind` (function/class/variable), `name`, and `signature`.
@@ -286,10 +286,10 @@ Check `usages[]` length and file distribution to gauge the blast radius.
 semctx --json tree --depth-limit 2
 
 # 2. Search for the feature area
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "payment processing" --top-k 5 --model "vertex_ai/gemini-embedding-2-preview"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-code "payment processing" --top-k 5 --model "ollama/qwen3-embedding:8b"
 
 # 3. Find the key function
-semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "process_payment" --top-k 3 --model "vertex_ai/gemini-embedding-2-preview"
+semctx --json --target-dir "backend/" --cache-dir ".semctx" search-identifiers "process_payment" --top-k 3 --model "ollama/qwen3-embedding:8b"
 
 # 4. Check what breaks if you change it
 semctx --json blast-radius "process_payment" "backend/payments/service.py"
@@ -328,7 +328,7 @@ The `--model` flag uses `provider/model` format:
 
 | Provider    | Example                                 | Notes                                                                           |
 | ----------- | --------------------------------------- | ------------------------------------------------------------------------------- |
-| `ollama`    | `ollama/nomic-embed-text-v2-moe:latest` | Requires a running local Ollama service and the embedding model pulled locally  |
+| `ollama`    | `ollama/qwen3-embedding:8b`             | Requires a running local Ollama service and the embedding model pulled locally  |
 | `gemini`    | `gemini/gemini-embedding-2-preview`     | Requires `GEMINI_API_KEY`                                                       |
 | `vertex_ai` | `vertex_ai/gemini-embedding-2-preview`  | Requires Google auth env vars plus a runtime with LiteLLM + Google auth support |
 

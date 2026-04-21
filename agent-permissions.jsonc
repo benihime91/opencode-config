@@ -107,6 +107,43 @@
         "modular-code-enforcement"
       ]
     },
+    // ─── Trip Planner — The Travel Concierge ───
+    // Full-service travel agent. Travel MCP servers + GWS for itineraries/budgets + research for advisories.
+    "trip-planner": {
+      "skills": [
+        "research",
+        "firecrawl",
+        "agent-browser",
+        "writing-clearly-and-concisely",
+        "rapidapi-skyscanner",
+        "rapidapi-hostelworld",
+        "rapidapi-visa-requirements",
+        "rapidapi-airbnb-listings",
+        "rapidapi-travel-guide",
+        "rapidapi-currency-rates",
+        "rapidapi-tripadvisor",
+        "gws-shared",
+        "gws-calendar",
+        "gws-calendar-insert",
+        "gws-calendar-agenda",
+        "gws-sheets",
+        "gws-sheets-append",
+        "gws-sheets-read",
+        "gws-docs",
+        "gws-docs-write",
+        "gws-gmail",
+        "gws-gmail-send",
+        "gws-gmail-read",
+        "gws-drive",
+        "gws-drive-upload",
+        "gws-tasks",
+        "gws-workflow",
+        "recipe-create-events-from-sheet",
+        "recipe-create-expense-tracker",
+        "recipe-plan-weekly-schedule",
+        "recipe-find-free-time"
+      ]
+    },
     // ─── Nanami — The Fixer (JJK) ───
     // Execution specialist. Implementation, review, refactoring, QA.
     "nanami": {

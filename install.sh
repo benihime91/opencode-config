@@ -46,97 +46,6 @@ warn_required() {
 warn()    { warn_optional "$*"; }
 error()   { echo -e "${RED}[opencode-config]${NC} $*" >&2; exit 1; }
 
-# Firecrawl is on AI SDK 5, but its bundled ollama-ai-provider@1.2.0 is spec v1
-# and fails with "Unsupported model version v1 for provider ollama.chat".
-# llmExtract.ts also hardcodes provider="openai". The supported path is to
-# route Ollama through its OpenAI-compatible /v1 endpoint.
-default_firecrawl_ollama_openai_base_url() {
-  if [[ "$OSTYPE" == linux* ]]; then
-    local docker_bridge_gateway
-    docker_bridge_gateway="$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)"
-    if [[ -n "$docker_bridge_gateway" ]]; then
-      printf 'http://%s:11434/v1' "$docker_bridge_gateway"
-      return
-    fi
-    printf 'http://172.17.0.1:11434/v1'
-    return
-  fi
-
-  printf 'http://host.docker.internal:11434/v1'
-}
-
-# granite4:350m is a small non-thinking model that returns in ~0.6s on CPU.
-# Thinking models (qwen3, lfm2.5-thinking) take minutes per extract.
-FIRECRAWL_DEFAULT_MODEL="granite4:350m"
-FIRECRAWL_DEFAULT_EMBEDDING_MODEL="nomic-embed-text"
-
-apply_firecrawl_ollama_defaults() {
-  local env_file="$1"
-  local openai_base_url="$2"
-  local model_name="$3"
-  local embedding_model="$4"
-
-  [[ -f "$env_file" ]] || return
-
-  OPENCODE_OPENAI_BASE_URL="$openai_base_url" \
-  OPENCODE_MODEL_NAME="$model_name" \
-  OPENCODE_EMBEDDING_MODEL="$embedding_model" \
-  python3 - "$env_file" <<'PY'
-from pathlib import Path
-import os
-import sys
-
-env_path = Path(sys.argv[1])
-openai_base_url = os.environ["OPENCODE_OPENAI_BASE_URL"]
-model_name = os.environ["OPENCODE_MODEL_NAME"]
-embedding_model = os.environ["OPENCODE_EMBEDDING_MODEL"]
-
-lines = env_path.read_text().splitlines()
-updated = []
-seen = {
-    "OPENAI_BASE_URL": False,
-    "OPENAI_API_KEY": False,
-    "MODEL_NAME": False,
-    "MODEL_EMBEDDING_NAME": False,
-    "OLLAMA_BASE_URL": False,
-}
-
-for line in lines:
-    stripped = line.strip()
-    if stripped.startswith("# OPENAI_BASE_URL=") or stripped.startswith("OPENAI_BASE_URL="):
-        updated.append(f"OPENAI_BASE_URL={openai_base_url}")
-        seen["OPENAI_BASE_URL"] = True
-    elif stripped.startswith("# OPENAI_API_KEY=") or stripped.startswith("OPENAI_API_KEY="):
-        # Any non-empty value satisfies the openai client; ollama ignores it.
-        updated.append("OPENAI_API_KEY=ollama")
-        seen["OPENAI_API_KEY"] = True
-    elif stripped.startswith("# MODEL_NAME=") or stripped.startswith("MODEL_NAME="):
-        updated.append(f"MODEL_NAME={model_name}")
-        seen["MODEL_NAME"] = True
-    elif stripped.startswith("# MODEL_EMBEDDING_NAME=") or stripped.startswith("MODEL_EMBEDDING_NAME="):
-        updated.append(f"MODEL_EMBEDDING_NAME={embedding_model}")
-        seen["MODEL_EMBEDDING_NAME"] = True
-    elif stripped.startswith("OLLAMA_BASE_URL="):
-        # The native ollama provider is spec v1 and breaks AI SDK 5. Leave
-        # commented so it does not intercept the openai-compat path.
-        updated.append(f"# {line}")
-        seen["OLLAMA_BASE_URL"] = True
-    else:
-        updated.append(line)
-
-if not seen["OPENAI_BASE_URL"]:
-    updated.append(f"OPENAI_BASE_URL={openai_base_url}")
-if not seen["OPENAI_API_KEY"]:
-    updated.append("OPENAI_API_KEY=ollama")
-if not seen["MODEL_NAME"]:
-    updated.append(f"MODEL_NAME={model_name}")
-if not seen["MODEL_EMBEDDING_NAME"]:
-    updated.append(f"MODEL_EMBEDDING_NAME={embedding_model}")
-
-env_path.write_text("\n".join(updated) + "\n")
-PY
-}
-
 # ── Preflight ────────────────────────────────
 # Fail fast on hard requirements before mutating anything.
 
@@ -404,6 +313,7 @@ symlink_config() {
   local dir_links=(
     "agents:agents"
     "commands:commands"
+    "config:config"
     "plugins:plugins"
     "rules:rules"
     "skills:skills"
@@ -504,6 +414,8 @@ install_opencode_plugins() {
 
 install_cli_workflow_deps() {
   local pkgs=(
+    "mcporter@latest"
+    "mcp-remote@latest"
     "firecrawl-mcp@latest"
     "agentation-mcp@latest"
     "@upstash/context7-mcp@latest"
@@ -519,79 +431,13 @@ install_cli_workflow_deps() {
   uv tool install --force "$SEMCTX_REPO_URL" 2>/dev/null || warn_optional "Could not install semctx via uv (install it manually with: uv tool install $SEMCTX_REPO_URL)"
 }
 
-ensure_firecrawl_env() {
-  local env_file="$FIRECRAWL_DIR/.env"
-  local template_file="$CLONE_DIR/$FIRECRAWL_ENV_TEMPLATE_REL"
-  local openai_base_url
-  local model_name="$FIRECRAWL_DEFAULT_MODEL"
-  local embedding_model="$FIRECRAWL_DEFAULT_EMBEDDING_MODEL"
-
-  openai_base_url="$(default_firecrawl_ollama_openai_base_url)"
-
-  if [[ -f "$env_file" ]]; then
-    apply_firecrawl_ollama_defaults "$env_file" "$openai_base_url" "$model_name" "$embedding_model"
-    return
-  fi
-
-  if [[ -f "$template_file" ]]; then
-    cp "$template_file" "$env_file"
-    apply_firecrawl_ollama_defaults "$env_file" "$openai_base_url" "$model_name" "$embedding_model"
-    info "Copied Firecrawl env template to $env_file"
-    return
-  fi
-
-  cat > "$env_file" <<EOF
-PORT=3002
-HOST=0.0.0.0
-REDIS_URL=redis://redis:6379
-REDIS_RATE_LIMIT_URL=redis://redis:6379
-PLAYWRIGHT_MICROSERVICE_URL=http://playwright-service:3000/scrape
-USE_DB_AUTHENTICATION=false
-BULL_AUTH_KEY=opencode-firecrawl-local
-NUM_WORKERS_PER_QUEUE=8
-CRAWL_CONCURRENT_REQUESTS=10
-MAX_CONCURRENT_JOBS=5
-BROWSER_POOL_SIZE=5
-LOGGING_LEVEL=INFO
-# LLM extraction: route Ollama through its OpenAI-compatible endpoint.
-# The native ollama-ai-provider is spec v1 and breaks under AI SDK 5.
-OPENAI_BASE_URL=${openai_base_url}
-OPENAI_API_KEY=ollama
-MODEL_NAME=${model_name}
-MODEL_EMBEDDING_NAME=${embedding_model}
-# Native Ollama provider — disabled. Uncomment only if firecrawl ships an
-# AI SDK 5 compatible Ollama adapter.
-# OLLAMA_BASE_URL=
-LLAMAPARSE_API_KEY=
-SEARCHAPI_API_KEY=
-SEARCHAPI_ENGINE=
-SCRAPING_BEE_API_KEY=
-SUPABASE_ANON_TOKEN=
-SUPABASE_URL=
-SUPABASE_SERVICE_TOKEN=
-TEST_API_KEY=
-PROXY_SERVER=
-PROXY_USERNAME=
-PROXY_PASSWORD=
-BLOCK_MEDIA=
-SELF_HOSTED_WEBHOOK_URL=
-SELF_HOSTED_WEBHOOK_HMAC_SECRET=
-POSTHOG_API_KEY=
-POSTHOG_HOST=
-SLACK_WEBHOOK_URL=
-RESEND_API_KEY=
-EOF
-
-  info "Created fuller fallback Firecrawl .env at $env_file"
-}
-
 symlink_firecrawl_env() {
   local env_file="$FIRECRAWL_DIR/.env"
   local template_file="$CLONE_DIR/$FIRECRAWL_ENV_TEMPLATE_REL"
   local backup_file
 
   [[ -f "$template_file" ]] || {
-    warn_optional "Firecrawl env template missing at $template_file. Skipping Firecrawl .env symlink."
+    warn_optional "Firecrawl env template missing at $template_file. Create or restore it before installing Firecrawl."
     return
   }
 
@@ -603,6 +449,45 @@ symlink_firecrawl_env() {
 
   ln -sfn "$template_file" "$env_file"
   info "Linked Firecrawl .env to repo template at $template_file"
+}
+
+update_firecrawl_repo() {
+  local status_output
+  local filtered_status
+
+  status_output="$(git -C "$FIRECRAWL_DIR" status --porcelain 2>/dev/null || true)"
+  filtered_status="$(printf '%s\n' "$status_output" | grep -vE '^(\?\? \.semctx/?|\?\? \.env\.pre-opencode-link\.)' || true)"
+  filtered_status="$(printf '%s' "$filtered_status" | tr -d '\r')"
+
+  if [[ -n "$filtered_status" ]]; then
+    warn_optional "Firecrawl repo has local changes. Skipping auto-update from origin/main in $FIRECRAWL_DIR"
+    return
+  fi
+
+  info "Refreshing Firecrawl checkout from origin/main..."
+  if ! git -C "$FIRECRAWL_DIR" fetch origin main; then
+    warn_optional "Failed to fetch origin/main for Firecrawl. Continuing with existing checkout in $FIRECRAWL_DIR"
+    return
+  fi
+
+  if git -C "$FIRECRAWL_DIR" show-ref --verify --quiet refs/heads/main; then
+    if ! git -C "$FIRECRAWL_DIR" checkout main >/dev/null 2>&1; then
+      warn_optional "Failed to switch Firecrawl checkout to main. Continuing with current branch in $FIRECRAWL_DIR"
+      return
+    fi
+  else
+    if ! git -C "$FIRECRAWL_DIR" checkout -b main --track origin/main >/dev/null 2>&1; then
+      warn_optional "Failed to create Firecrawl main branch from origin/main. Continuing with existing checkout in $FIRECRAWL_DIR"
+      return
+    fi
+  fi
+
+  if ! git -C "$FIRECRAWL_DIR" merge --ff-only origin/main >/dev/null 2>&1; then
+    warn_optional "Firecrawl checkout could not fast-forward to origin/main. Resolve local branch divergence in $FIRECRAWL_DIR and re-run install."
+    return
+  fi
+
+  info "Firecrawl checkout is up to date with origin/main"
 }
 
 bootstrap_firecrawl() {
@@ -633,7 +518,8 @@ bootstrap_firecrawl() {
         warn_optional "Existing Firecrawl checkout points to a different repo ($origin). Skipping Firecrawl bootstrap in $FIRECRAWL_DIR"
         return
       fi
-      info "Firecrawl repo already present at $FIRECRAWL_DIR — skipping clone."
+      info "Firecrawl repo already present at $FIRECRAWL_DIR"
+      update_firecrawl_repo
     else
       warn_optional "Firecrawl path exists but is not a git repo: $FIRECRAWL_DIR"
       return
@@ -644,9 +530,9 @@ bootstrap_firecrawl() {
       warn_optional "Failed to clone Firecrawl from $FIRECRAWL_REPO_URL"
       return
     }
+    update_firecrawl_repo
   fi
 
-  ensure_firecrawl_env
   symlink_firecrawl_env
 
   info "Bootstrapping local Firecrawl with Docker Compose..."
@@ -734,21 +620,26 @@ main() {
   echo ""
   echo "  4. Optional: set CLI workflow API keys"
   echo "     export EXA_API_KEY=<your-key>   # exa-backed docs/web research"
+  echo "     export RAPIDAPI_KEY=<your-key>  # trip-planner RapidAPI provider access"
   echo "     ↳ Get a key at https://exa.ai"
-  echo "     ↳ Add to ~/.zshrc / ~/.bashrc to persist"
+  echo "     ↳ Add keys to ~/.zshrc / ~/.bashrc to persist"
   echo ""
-  echo "  5. Semctx local discovery defaults"
-  echo "     default model: ollama/leoipulsar/harrier-0.6b:latest"
+  echo "  5. mcporter travel runtime"
+  echo "     config path: $CONFIG_DIR/config/mcporter.json"
+  echo "     ↳ installer links the repo's config/ directory into your OpenCode config"
+  echo "     ↳ trip-planner expects RAPIDAPI_KEY to already be exported in your shell"
+  echo ""
+  echo "  6. Semctx local discovery defaults"
+  echo "     default model: ollama/qwen3-embedding:8b"
   echo "     ↳ Keep Ollama running and make sure that model is pulled locally"
   echo ""
-  echo "  6. Firecrawl local research endpoint"
+  echo "  7. Firecrawl local research endpoint"
   echo "     default: http://localhost:3002"
-  echo "     ↳ LLM extract uses Ollama via OpenAI-compat endpoint (/v1)"
-  echo "     ↳ default model: granite4:350m (pull with: ollama pull granite4:350m)"
+  echo "     ↳ edit firecrawl/.env.default before install; installer only symlinks it"
   echo "     ↳ Disable bootstrap with OPENCODE_INSTALL_FIRECRAWL=0"
   echo "     ↳ Override location with OPENCODE_FIRECRAWL_DIR or FIRECRAWL_API_URL"
   echo ""
-  echo "  7. Launch opencode"
+  echo "  8. Launch opencode"
   echo "     opencode"
   echo ""
   print_warning_summary
