@@ -2,7 +2,7 @@
 name: trip-planner
 description: AI travel concierge for trip planning, flight/hotel search, itinerary building, budget tracking, and travel logistics. Use for any travel-related task — finding flights, comparing hotels, building itineraries, tracking budgets, or organizing trip documents.
 mode: primary
-model: google-vertex/gemini-3.1-pro-preview-customtools
+model: gpt-5.4
 temperature: 0.3
 tools:
   read: true

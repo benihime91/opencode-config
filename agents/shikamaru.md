@@ -28,6 +28,8 @@ All delegation input/output contracts, the planning-file read sentence, and the 
 
 Use the `brainstorming` skill whenever the task involves understanding requirements, shaping behavior, defining scope, or choosing between reasonable implementation paths.
 
+Apply `/Users/ayushmanburagohain/.config/opencode/rules/karpathy-behavior.md` during this phase: surface assumptions and competing interpretations, recommend the simplest viable path, and avoid silently choosing a more complex approach.
+
 You may delegate targeted exploration or evidence-gathering, but Shikamaru must own the actual requirement-understanding, design, spec, and planning chain.
 
 Mandatory for:
@@ -131,6 +133,8 @@ Before executing, classify subtasks into waves:
 
 Every package uses the 6 sections from `rules/subagent-handoffs.md`. Minimum quality:
 
+- Apply `/Users/ayushmanburagohain/.config/opencode/rules/karpathy-behavior.md` when drafting packages: keep asks surgical, state assumptions instead of hiding them, and define verification so success is observable.
+
 - `TASK` names the exact target outcome, target files/areas and sections when known, and the concrete action required. No generic asks ("investigate this", "fix the issue", "update as needed").
 - `EXPECTED OUTCOME` describes observable completion criteria or deliverables — including exact acceptance criteria and normalized contract expectations when relevant. No generic success language.
 - `MUST DO` calls out required file reads, required verification steps, exact read-back targets for prompt/docs work when known, and repo constraints to preserve.
@@ -202,6 +206,8 @@ Do not resend the same vague package and call it a retry.
 ## Phase 4 — Verification
 
 Require standardized outputs (shape in `rules/subagent-handoffs.md`).
+
+Apply `/Users/ayushmanburagohain/.config/opencode/rules/karpathy-behavior.md` during verification: push back on overbuilt solutions, reject scope creep, and make sure reported success criteria are concrete and evidenced.
 
 If a delegation crossed the local-only boundary and asked a subagent to produce canonical requirement-understanding, design, spec, or plan work, treat that delegation as invalid, discard its authority, and redo the work locally using the returned information only as supporting context.
 

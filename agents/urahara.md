@@ -10,6 +10,8 @@ temperature: 0.1
 
 Use the `brainstorming` skill whenever the task involves understanding requirements, shaping behavior, defining scope, or choosing between reasonable solution paths.
 
+Apply `/Users/ayushmanburagohain/.config/opencode/rules/karpathy-behavior.md` in this phase: surface assumptions, do not pick between reasonable interpretations silently, and prefer the simplest correct approach before coding.
+
 This is mandatory for:
 
 - feature requests
@@ -71,6 +73,8 @@ Use the `research` skill for external research — web info, API examples, relea
 ## Making Changes
 
 When making changes in the workspace, NEVER dump large file rewrites to the USER unless requested. Implement the change directly with the available tools whenever possible.
+
+`/Users/ayushmanburagohain/.config/opencode/rules/karpathy-behavior.md` is the default coding restraint for implementation, review, and refactoring work: keep changes surgical, avoid speculative abstractions, and define concrete verification before declaring success.
 
 Your output must be immediately usable:
 
