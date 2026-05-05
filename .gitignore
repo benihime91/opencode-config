@@ -3,5 +3,4 @@ bun.lock
 docs/*
 .mcp_data/*
 .logs/*
-.semctx/*
 .plans/

@@ -4,7 +4,7 @@
 
 Reusable [OpenCode](https://opencode.ai) config for agents, commands, skills, plugins, and workflows (including MCP-backed tools where configured).
 
-Inspired by [oh-my-opencode-slim](https://github.com/alvinunreal/oh-my-opencode-slim), [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent), and the [planning-with-files](https://github.com/OthmanAdi/planning-with-files) workflow.
+Inspired by [oh-my-opencode-slim](https://github.com/alvinunreal/oh-my-opencode-slim) and [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent).
 
 ## Install
 
@@ -13,7 +13,6 @@ curl -fsSL https://raw.githubusercontent.com/benihime91/opencode-config/refs/hea
 ```
 
 The installer clones the repo, backs up your existing config, symlinks files into `~/.config/opencode`, installs dependencies, and bootstraps a local Firecrawl instance by default when Docker with `docker compose` is available.
-It also links `agent-permissions.jsonc` for per-agent skill rules.
 The default Firecrawl env now lives in this repo at `firecrawl/.env.default`. During bootstrap, the installer updates only the Ollama-related lines, then links `~/firecrawl/.env` back to that repo-owned file so you edit one source of truth.
 
 ### Override defaults
@@ -46,13 +45,10 @@ opencode auth
 export EXA_API_KEY=<your-key>   # optional, for Exa MCP
 # Optional: local Firecrawl / scraping (see mcp.firecrawl env in opencode.json)
 # export FIRECRAWL_API_KEY=...
-# Semctx indexed search defaults to Ollama model ollama/leoipulsar/harrier-0.6b:latest
 opencode
 ```
 
-MCP servers are configured directly in `~/.config/opencode/opencode.json` under the `mcp` key.
-
-Built-in agents `explore` and `general` are set to `disable: true` in this repo’s `opencode.json`; primary use is the custom roster below. Entries for `build`, `general`, and `plan` in `agent-permissions.jsonc` still apply when those agents are used.
+MCP servers are configured directly in `~/.config/opencode/opencode.json` under the `mcp` key. Primary use is the custom roster below.
 
 By default, the installer also attempts to bring up a local Firecrawl instance at `http://localhost:3002` using Docker Compose. If Docker is missing, it skips that step with a warning. The bootstrap links `~/firecrawl/.env` to `firecrawl/.env.default` from this repo so edits happen in one place.
 
@@ -66,7 +62,6 @@ OPENCODE_INSTALL_FIRECRAWL=0 curl -fsSL https://raw.githubusercontent.com/benihi
 git clone https://github.com/benihime91/opencode-config.git ~/opencode-config
 mkdir -p ~/.config/opencode
 ln -sf ~/opencode-config/opencode.json ~/.config/opencode/opencode.json
-ln -sf ~/opencode-config/agent-permissions.jsonc ~/.config/opencode/agent-permissions.jsonc
 ln -sf ~/opencode-config/dcp.jsonc ~/.config/opencode/dcp.jsonc
 ln -sf ~/opencode-config/tui.json ~/.config/opencode/tui.json
 ln -sfn ~/opencode-config/agents ~/.config/opencode/agents
@@ -76,7 +71,6 @@ ln -sfn ~/opencode-config/rules ~/.config/opencode/rules
 ln -sfn ~/opencode-config/skills ~/.config/opencode/skills
 ln -sfn ~/opencode-config/themes ~/.config/opencode/themes
 cd ~/opencode-config && (bun install || npm install)
-uv tool install git+https://github.com/benihime91/semctx.git
 ln -sfn ~/opencode-config/node_modules ~/.config/opencode/node_modules
 
 # optional: bootstrap local Firecrawl (matches the installer default when Docker is available)
@@ -99,10 +93,10 @@ If you installed to a different clone directory, run the same command from that 
 ## What's Included
 
 - `agents/` — the Seven Divine Beings and their specialist roles
-- `commands/` — 10 slash commands including `/code-review`, `/commit-push`, `/learn`, `/refactor-clean`, and more
-- `skills/` — 30 reusable workflows covering planning, research, repo discovery, frontend, writing, browser automation, and more
-- `plugins/` — local plugins for planning hooks, skill permissions, and skill enforcement
-- `rules/` — 2 instruction files loaded by `opencode.json` (agent workflow, writing standards)
+- `commands/` — slash commands including `/code-review`, `/commit-push`, `/refactor-clean`, and more
+- `skills/` — local reusable workflows covering planning, research, repo discovery, frontend, writing, browser automation, and more
+- `plugins/` — local plugins for skill permissions and skill-use enforcement
+- `rules/` — cross-cutting instruction files loaded by `opencode.json`
 - `firecrawl/.env.default` — repo-owned Firecrawl env with Ollama defaults managed from one place
 - `tui.json` — TUI configuration (van-helsing theme)
 
@@ -117,8 +111,8 @@ If you installed to a different clone directory, run the same command from that 
 
 | #   | Agent       | Title                | Anime  | Model                         | Role                                                                                                                                                                              |
 | --- | ----------- | -------------------- | ------ | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 01  | `shikamaru` | **The Orchestrator** | Naruto | openai/gpt-5.4               | Master delegator and strategic coordinator. Plans 200 moves ahead. Owns requirements, design, specs, and plans. Delegates to specialists in execution waves, then verifies.       |
-| 02  | `urahara`   | **The Builder**      | Bleach | openai/gpt-5.4               | Pair-programming partner and inventor. Builds impossible solutions to impossible problems. Handles direct coding tasks end-to-end. Shares planning-file ownership with Shikamaru. |
+| 01  | `shikamaru` | **The Orchestrator** | Naruto | openai/gpt-5.5               | Master delegator and strategic coordinator. Owns requirements, design, specs, plans, delegated execution waves, and verification.       |
+| 02  | `urahara`   | **The Builder**      | Bleach | openai/gpt-5.5               | Direct pair-programming partner. Handles coding tasks end-to-end without delegation unless explicitly instructed. |
 
 
 ### Specialist Subagents
@@ -127,21 +121,15 @@ If you installed to a different clone directory, run the same command from that 
 | #   | Agent    | Title             | Anime   | Model                                          | Role                                                                                                                                       |
 | --- | -------- | ----------------- | ------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | 03  | `hinata` | **The Explorer**  | Haikyuu | anthropic/claude-sonnet-4-5                    | Fast read-only codebase reconnaissance — finds files, traces symbols, maps architecture.                                                   |
-| 04  | `gojo`   | **The Oracle**    | JJK     | openai/gpt-5.4                                | Strategic advisor and technical architect — architecture decisions, high-level design, code review, trade-off analysis, and ADRs.           |
+| 04  | `gojo`   | **The Oracle**    | JJK     | openai/gpt-5.5                                | Strategic advisor and technical architect — architecture decisions, high-level design, code review, trade-off analysis, and ADRs.           |
 | 05  | `kenma`  | **The Librarian** | Haikyuu | google-vertex/gemini-3.1-pro-preview-customtools | External docs and library research with evidence, plus documentation authorship.                                                           |
 | 06  | `oikawa` | **The Designer**  | Haikyuu | google-vertex/gemini-3.1-pro-preview-customtools | UI/UX specialist — visual direction, responsive layouts, design systems, interaction design. Higher temperature (0.7) for creative work.    |
-| 07  | `nanami` | **The Fixer**     | JJK     | openai/gpt-5.4                                | Deep local execution specialist — implementation, code review, refactoring, and cleanup. Turns specification into working code.             |
+| 07  | `nanami` | **The Fixer**     | JJK     | openai/gpt-5.5                                | Deep local execution specialist — implementation, code review, refactoring, and cleanup. Turns specification into working code.             |
 
 
-### Skill Permissions
+### Skill Loading
 
-Each agent has a scoped set of allowed skills defined in `agent-permissions.jsonc`. Primary agents (Shikamaru, Urahara) have full access. Subagents get only the skills relevant to their role:
-
-- **Hinata** (4): `repo-discovery`, `semctx`, `agent-browser`, `simplify`
-- **Gojo** (11): `brainstorming`, `writing-plans`, `agent-harness-construction`, `repo-discovery`, `semctx`, `research`, `firecrawl`, `agent-browser`, `simplify`, `modular-code-enforcement`, `python-coding-style`
-- **Kenma** (10): `repo-discovery`, `semctx`, `research`, `firecrawl`, `article-writing`, `writing-clearly-and-concisely`, `writing-plans`, `writing-skills`, `agent-browser`, `simplify`
-- **Oikawa** (15): `repo-discovery`, `semctx`, `research`, `firecrawl`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`, `agentation`, `annotation-sync`, `agentation-self-driving`, `dogfood`, `agent-browser`, `simplify`, `modular-code-enforcement`
-- **Nanami** (13): `executing-plans`, `dogfood`, `repo-discovery`, `semctx`, `writing-clearly-and-concisely`, `simplify`, `agent-browser`, `modular-code-enforcement`, `python-coding-style`, `frontend-design`, `frontend-patterns`, `frontend-slides`, `liquid-glass-design`
+Agents load the most specific relevant skill before substantive work. Primary agents can use the full local skill set; subagents rely on their role prompts and task handoffs to select the narrowest useful skill.
 
 ---
 
@@ -177,49 +165,39 @@ flowchart TD
 
 
 
-### Planning Workflow (Manus-style + .plans/)
+### Planning Workflow
 
-The planning system combines the [Manus 3-file pattern](https://github.com/OthmanAdi/planning-with-files) with a structured specs directory:
-
-```
-.plans/
-├── task_plan.md          <- Canonical task state, phase tracking, active artifacts index
-├── findings.md           <- Research discoveries, user corrections, lessons learned
-├── progress.md           <- Session log, test results, what was done
-└── specs/
-    └── YYYY-MM-DD-*.md   <- Design specs from brainstorming, implementation plans from writing-plans
-```
-
-**Core principle**: `Context Window = RAM` (volatile, limited). `Filesystem = Disk` (persistent, unlimited). Use this pattern for **long-running, multi-session, or high-risk** work (or when you explicitly choose disk-backed planning); ordinary tasks do not need `.plans/` by default.
+Planning follows a structured sequence: `brainstorming` -> spec artifact -> `research` when needed -> `writing-plans` -> `executing-plans`. Specs are saved to `.docs/plans/specs/`; implementation plans are saved directly in `.docs/.plans/`.
 
 ---
 
 ## Rules
 
-Two cross-cutting rules in `rules/` govern all agent behavior:
+Cross-cutting rules in `rules/` govern all agent behavior:
 
 
 | Rule                | Scope                                            |
 | ------------------- | ------------------------------------------------ |
-| `agent-workflow.md` | Planning gates, verification, parallelism, escalation, skill routing |
 | `agent-writing.md`  | Prose quality, context budget discipline         |
+| `karpathy-behavior.md` | Simplicity, surgical changes, assumptions, verification |
+| `subagent-handoffs.md` | Subagent input/output contracts and repo-discovery handoffs |
 
 
 Code style policies (modular code enforcement, Python coding style) are now delivered as skills rather than always-loaded rules, so they activate only when relevant.
 
 ---
 
-## Skills (30)
+## Skills
 
 
 | Category          | Skills                                                                                   |
 | ----------------- | ---------------------------------------------------------------------------------------- |
-| **Planning**      | planning-with-files, brainstorming, writing-plans, executing-plans                       |
-| **Research**      | research, firecrawl, repo-discovery, semctx                                              |
-| **Frontend**      | frontend-design, frontend-patterns, frontend-slides, liquid-glass-design                 |
+| **Planning**      | brainstorming, writing-plans, executing-plans                                            |
+| **Research**      | research, firecrawl, repo-discovery                                                     |
+| **Frontend**      | frontend-design, frontend-patterns, frontend-slides, liquid-glass-design, design-taste-frontend, gpt-taste, redesign-existing-projects, image-to-code, imagegen-frontend-web, imagegen-frontend-mobile, brandkit, minimalist-ui, industrial-brutalist-ui |
 | **Writing**       | article-writing, writing-clearly-and-concisely, writing-skills                           |
 | **Browser**       | agent-browser, dogfood, agentation, agentation-self-driving                              |
-| **Orchestration** | dispatching-parallel-agents, annotation-sync                                             |
+| **Orchestration** | annotation-sync                                                                          |
 | **Coding**        | simplify, modular-code-enforcement, python-coding-style                                  |
 | **Meta**          | rules-distill, agent-harness-construction                                                |
 | **Media**         | manim-video, electron, slack, vercel-sandbox                                             |
@@ -227,7 +205,7 @@ Code style policies (modular code enforcement, Python coding style) are now deli
 
 ---
 
-## Commands (10)
+## Commands
 
 
 | Command                  | Description                                             |
@@ -235,12 +213,10 @@ Code style policies (modular code enforcement, Python coding style) are now deli
 | `/commit-push`           | Commit and push changes to the current branch           |
 | `/commit-push-pr`        | Commit, push, and open a PR                             |
 | `/code-review`           | Review code for quality, security, and maintainability  |
-| `/learn`                 | Extract patterns and learnings from the current session |
 | `/update-docs`           | Update documentation for recent changes                 |
 | `/refactor-clean`        | Remove dead code and consolidate duplicates             |
 | `/prompt-optimize`       | Analyze a draft prompt and output an optimized version  |
 | `/skill-create`          | Generate skills from git history analysis               |
-| `/agent-permissions-debug` | Inspect resolved agent skill allowlists and discovery |
 | `/rollback`              | Rollback to a previous checkpoint or N commits back     |
 
 
@@ -248,12 +224,11 @@ Code style policies (modular code enforcement, Python coding style) are now deli
 
 ## Discovery + MCP Services
 
-Configured across `skills/semctx/SKILL.md` and `opencode.json`:
+Configured in `opencode.json` and related skill files:
 
 
 | Service       | Purpose                                                 |
 | ------------- | ------------------------------------------------------- |
-| `semctx`      | Default local repo discovery, indexing, semantic search, and blast-radius CLI (`ollama/leoipulsar/harrier-0.6b:latest`) |
 | `firecrawl`   | Web scraping and extraction (local instance)            |
 | `agentation`  | Design annotation toolbar                               |
 | `context7`    | Library documentation                                   |

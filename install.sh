@@ -17,7 +17,6 @@ CONFIG_DIR="${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}"
 FIRECRAWL_REPO_URL="${OPENCODE_FIRECRAWL_REPO_URL:-https://github.com/firecrawl/firecrawl.git}"
 FIRECRAWL_DIR="${OPENCODE_FIRECRAWL_DIR:-$HOME/firecrawl}"
 INSTALL_FIRECRAWL="${OPENCODE_INSTALL_FIRECRAWL:-1}"
-SEMCTX_REPO_URL="${OPENCODE_SEMCTX_REPO_URL:-git+https://github.com/benihime91/semctx.git}"
 FIRECRAWL_ENV_TEMPLATE_REL="firecrawl/.env.default"
 BACKUP_DIR="$HOME/.config/opencode.bak.$(date +%Y%m%d_%H%M%S)"
 CONFLICT_BACKUP_DIR="$BACKUP_DIR/conflicts"
@@ -203,26 +202,6 @@ ensure_jq() {
   fi
 }
 
-ensure_uv() {
-  if check_command uv; then return; fi
-  info "uv not found. Installing..."
-  if [[ "$OSTYPE" == darwin* ]]; then
-    install_homebrew && brew install uv
-  elif check_command apt-get; then
-    sudo apt-get update -y && sudo apt-get install -y uv
-  elif check_command dnf; then
-    sudo dnf install -y uv
-  elif check_command pacman; then
-    sudo pacman -S --noconfirm uv
-  else
-    curl -LsSf https://astral.sh/uv/install.sh | sh || error "Could not install uv automatically. Please install uv and re-run."
-    export PATH="$HOME/.local/bin:$PATH"
-  fi
-
-  check_command uv || error "uv is required for semctx installation but was not found after install."
-}
-
-
 ensure_opencode() {
   if check_command opencode; then
     info "opencode already installed: $(opencode --version 2>/dev/null || echo 'version unknown')"
@@ -302,9 +281,12 @@ symlink_config() {
 
   local files=(
     "opencode.json"
+    "tui.json"
+  )
+
+  local legacy_files=(
     "agent-permissions.jsonc"
     "dcp.jsonc"
-    "tui.json"
   )
 
   # OpenCode discovers custom agents from ~/.config/opencode/agents/.
@@ -336,6 +318,16 @@ symlink_config() {
       info "Linked $f"
     else
       warn_required "Source file not found, skipping: $f"
+    fi
+  done
+
+  for f in "${legacy_files[@]}"; do
+    local dst="$CONFIG_DIR/$f"
+    if [[ -L "$dst" ]] && [[ "$(readlink "$dst")" == "$CLONE_DIR/$f" ]]; then
+      rm "$dst"
+      info "Removed legacy link $f"
+    elif [[ -e "$dst" || -L "$dst" ]]; then
+      warn_optional "Legacy config path still exists and was not touched: $dst"
     fi
   done
 
@@ -399,7 +391,6 @@ install_opencode_plugins() {
   if (( ${#pkgs[@]} == 0 )); then
     pkgs=(
       "@franlol/opencode-md-table-formatter@0.0.3"
-      "@tarquinen/opencode-dcp@latest"
     )
   fi
 
@@ -426,9 +417,6 @@ install_cli_workflow_deps() {
     info "  cli: $pkg"
     pm_global_install "$pkg" 2>/dev/null || warn_optional "Could not install $pkg (it may auto-download on first use)"
   done
-
-  info "Installing semctx via uv..."
-  uv tool install --force "$SEMCTX_REPO_URL" 2>/dev/null || warn_optional "Could not install semctx via uv (install it manually with: uv tool install $SEMCTX_REPO_URL)"
 }
 
 symlink_firecrawl_env() {
@@ -456,7 +444,7 @@ update_firecrawl_repo() {
   local filtered_status
 
   status_output="$(git -C "$FIRECRAWL_DIR" status --porcelain 2>/dev/null || true)"
-  filtered_status="$(printf '%s\n' "$status_output" | grep -vE '^(\?\? \.semctx/?|\?\? \.env\.pre-opencode-link\.)' || true)"
+  filtered_status="$(printf '%s\n' "$status_output" | grep -vE '^\?\? \.env\.pre-opencode-link\.' || true)"
   filtered_status="$(printf '%s' "$filtered_status" | tr -d '\r')"
 
   if [[ -n "$filtered_status" ]]; then
@@ -590,7 +578,6 @@ main() {
   ensure_git
   ensure_bun_or_node
   ensure_jq
-  ensure_uv
   clone_repo
   backup_existing
   symlink_config
@@ -629,17 +616,13 @@ main() {
   echo "     ↳ installer links the repo's config/ directory into your OpenCode config"
   echo "     ↳ trip-planner expects RAPIDAPI_KEY to already be exported in your shell"
   echo ""
-  echo "  6. Semctx local discovery defaults"
-  echo "     default model: ollama/qwen3-embedding:8b"
-  echo "     ↳ Keep Ollama running and make sure that model is pulled locally"
-  echo ""
-  echo "  7. Firecrawl local research endpoint"
+  echo "  6. Firecrawl local research endpoint"
   echo "     default: http://localhost:3002"
   echo "     ↳ edit firecrawl/.env.default before install; installer only symlinks it"
   echo "     ↳ Disable bootstrap with OPENCODE_INSTALL_FIRECRAWL=0"
   echo "     ↳ Override location with OPENCODE_FIRECRAWL_DIR or FIRECRAWL_API_URL"
   echo ""
-  echo "  8. Launch opencode"
+  echo "  7. Launch opencode"
   echo "     opencode"
   echo ""
   print_warning_summary

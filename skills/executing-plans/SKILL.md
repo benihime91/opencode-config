@@ -1,76 +1,59 @@
 ---
 name: executing-plans
-description: Use when you have a written implementation plan to execute with review checkpoints between batches. Default to the current session; use a fresh session only when the plan or user requires isolation.
+description: Use when you have an approved implementation plan to execute with review checkpoints
 ---
 
 # Executing Plans
 
-## Overview
-
-Load plan, review critically, execute all tasks, report when complete. **Same session vs new session:** run here unless the plan or user explicitly asks for a separate session (cold handoff, clean environment, or delegated executor).
+Load the approved implementation plan, review it critically, execute each task, verify the result, and report evidence.
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
-## The Process
+## Plan Location
 
-### Step 1: Load and Review Plan
+Implementation plans live directly in `.docs/.plans/<timestamp>-<unique-name>-plan.md`.
 
-1. Read plan file
-2. Review critically — check for:
-   - Placeholder language ("TBD", "add appropriate", "similar to Task N")
-   - Contradictions between tasks (type names, method signatures, file paths)
-   - Coverage gaps against the spec or requirements
-   - Missing verification steps
-3. If concerns: Raise them with your human partner before starting
-4. If no concerns: proceed with execution tracking (checklist in the plan, `.plans/progress.md` if that workstream is active, or another explicit tracker the user chose)
+## Process
 
-### Step 2: Execute Tasks
+### 1. Load And Review
+
+1. Read `.docs/.plans/findings.md` when present.
+2. Read the named plan file.
+3. Review for blockers, unsafe assumptions, missing files, unclear steps, and verification gaps.
+4. If the plan has critical gaps, stop and ask before editing.
+5. If the plan is executable, create a todo list and proceed.
+
+### 2. Execute Tasks
 
 For each task:
 
-1. Mark as in_progress
-2. Follow each step exactly (plan has bite-sized steps)
-3. Run verifications as specified
-4. Mark as completed
+1. Mark the task `in_progress`.
+2. Follow the plan steps in order.
+3. Read every target file before editing it.
+4. Run the verification specified by the plan.
+5. Mark the task `completed` only after verification passes or a blocker is documented.
 
-### Step 3: Complete Development
+### 3. Complete Development
 
-After all tasks complete and verified:
+After all tasks complete:
 
-- Follow that skill to verify tests, present options, execute choice
+1. Run the strongest relevant final checks available.
+2. Inspect the diff for unrelated changes.
+3. Report touched files, verification commands, remaining risks, and any checks not run.
 
-## When to Stop and Ask for Help
+## Stop And Ask
 
-**STOP executing immediately when:**
+Stop instead of guessing when:
 
-- Hit a blocker (missing dependency, test fails, instruction unclear)
-- Plan has critical gaps preventing starting
-- You don't understand an instruction
-- Verification fails repeatedly
+- the plan is missing information required to start safely;
+- a required dependency, file, credential, or command is unavailable;
+- verification fails twice for the same issue;
+- the plan conflicts with explicit user instructions;
+- the current branch is `main` or `master` and implementation would be risky without explicit consent.
 
-**Ask for clarification rather than guessing.**
+## Constraints
 
-## When to Revisit Earlier Steps
-
-**Return to Review (Step 1) when:**
-
-- Partner updates the plan based on your feedback
-- Fundamental approach needs rethinking
-
-**Don't force through blockers** - stop and ask.
-
-## Evidence-First Completion
-
-A task is complete only when its verification step produces the expected output. Do not mark a task done based on "it looks right" — run the specified check and confirm the result matches.
-
-When reporting completion to a coordinator or user, include the verification evidence (command output, test result, build status), not just "done".
-
-## Remember
-
-- Review plan critically first
-- Follow plan steps exactly
-- Don't skip verifications
-- Match claimed outcomes to actual verification evidence
-- Reference skills when plan says to
-- Stop when blocked, don't guess
-- Never start implementation on main/master branch without explicit user consent
+- Do not commit unless the user explicitly asks.
+- Do not skip verification unless blocked; explain the blocker.
+- Do not broaden scope beyond the approved plan.
+- Do not continue through unclear or unsafe plan steps.

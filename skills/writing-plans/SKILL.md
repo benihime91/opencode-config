@@ -7,17 +7,13 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase. Document everything they need to know: which files to touch for each task, code, how to verify it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. Frequent commits.
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
 
-Include TDD steps (test-first) only when the user has explicitly requested tests or the project has an established testing convention. Otherwise, include verification steps (build, typecheck, lint, manual check) without mandating test authorship.
-
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain.
+Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-**Context:** This should be run in a dedicated worktree (created by brainstorming skill).
-
-**Save plans to:** `.plans/YYYY-MM-DD-<feature-name>-plan.md`
+**Save plans to:** `.docs/.plans/<timestamp>-<feature-name>-plan.md`
 
 - (User preferences for plan location override this default)
 
@@ -44,7 +40,22 @@ This structure informs the task decomposition. Each task should produce self-con
 - "Run it to make sure it fails" - step
 - "Implement the minimal code to make the test pass" - step
 - "Run the tests and make sure they pass" - step
-- "Commit" - step
+
+## Plan Document Header
+
+**Every plan MUST start with this header:**
+
+```markdown
+# [Feature Name] Implementation Plan
+
+**Goal:** [One sentence describing what this builds]
+
+**Architecture:** [2-3 sentences about approach]
+
+**Tech Stack:** [Key technologies/libraries]
+
+---
+```
 
 ## Task Structure
 
@@ -64,33 +75,25 @@ def test_specific_behavior():
     result = function(input)
     assert result == expected
 ```
-````
 
-````
-
-- **Step 2: Run test to verify it fails (OPTIONAL ONLY IF USER WANTS TO WRITE TESTS)**
+- [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
 
-- **Step 3: Write minimal implementation**
+- [ ] **Step 3: Write minimal implementation**
 
 ```python
 def function(input):
     return expected
-````
+```
 
-- **Step 4: Run test to verify it passes**
+- [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
 
-- **Step 5: Commit**
-
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
+````
 
 ## No Placeholders
 
@@ -108,19 +111,7 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - Exact file paths always
 - Complete code in every step — if a step changes code, show the code
 - Exact commands with expected output
-- DRY, YAGNI, TDD, frequent commits
-
-## Cold-Start Readiness
-
-Every task must be executable by a fresh agent with zero prior context:
-
-- **Scope:** What this task changes and what it does not.
-- **Files:** Exact create/modify paths with line ranges where relevant.
-- **Constraints:** Invariants this task must not break.
-- **Verification:** Exact command and expected output.
-- **Exit criteria:** How to know this task is done.
-
-Between tasks, preserve the assumptions, outputs, and risks that carry forward. If Task 3 depends on a type defined in Task 1, repeat or reference that type explicitly — do not assume the executor remembers.
+- DRY, YAGNI, TDD, explicit verification
 
 ## Self-Review
 
@@ -133,16 +124,3 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
-
-## Execution Handoff
-
-After saving the plan:
-
-**"Plan complete and saved to `.plans/<filename>.md`"**
-
-When disk-backed planning is active, update the `Active Artifacts` section in `.plans/task_plan.md` with the exact implementation-plan path before handing execution off.
-
-**Execution session:** Use the `executing-plans` skill in **this session** by default (same context, review checkpoints between batches). Use a **fresh session** only when the user or the plan explicitly requires isolation (e.g. clean tree, different agent, deliberate cold handoff).
-
-- **REQUIRED SUB-SKILL:** `executing-plans`
-- Batch work with checkpoints for review between batches

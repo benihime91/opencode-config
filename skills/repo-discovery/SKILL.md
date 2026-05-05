@@ -1,6 +1,6 @@
 ---
 name: repo-discovery
-description: Semantic and structural repository discovery using semctx as the default local search and indexing CLI.
+description: Local repository discovery using native file search, content search, and direct reads.
 ---
 
 # Repo Discovery
@@ -8,11 +8,6 @@ description: Semantic and structural repository discovery using semctx as the de
 Use this skill when the job is understanding a local repository: structure, symbol locations, call paths, blast radius, exact file targets, and the safest place to make a change.
 
 This skill owns the repo-understanding workflow in this config.
-
-## Canonical Config
-
-Always load `semctx` skill before using this skill.
-`semctx` is the default local discovery and indexed-search backend for this install. Its command reference and default model configuration live in `skills/semctx/SKILL.md`. You can use the `semctx` skill to index the repo and use the `repo-discovery` skill to search the indexed repo.
 
 ## When To Use It
 
@@ -29,18 +24,14 @@ Skip this skill when the task is already limited to one known file and no broade
 
 ## Core Sequence
 
-Always start with semctx structure and search commands. Use `grep`, `glob`, and broad raw reads only as fallbacks.
+Start with file-pattern discovery and exact content search. Use direct reads only after narrowing likely targets.
 
-Always pass `--model ollama/qwen3-embedding:8b` explicitly on every indexed semctx call (`search-code`, `search-identifiers`, `index init`, `index status`, `index refresh`). Do not omit it; do not substitute another model unless the user explicitly overrides.
-
-1. Start broad with `semctx --json tree` or `semctx --json skeleton`.
-2. Narrow with `semctx --json search-code` using explicit `--target-dir`, `--cache-dir`, and `--model ollama/qwen3-embedding:8b`.
-3. Trace identifiers with `semctx --json search-identifiers` (same explicit flags) when the question becomes symbol-specific.
-4. Confirm exact paths and lines with direct file reads — only after semctx has identified the targets.
-5. Inspect blast radius with `semctx --json blast-radius` before editing or deleting existing symbols.
+1. Start broad with `glob` patterns that map the relevant directories and file types.
+2. Narrow with `grep` searches using 2-3 different terms for the concept, symbol, or workflow.
+3. Trace identifiers by searching definitions, exports, imports, and call sites when the question becomes symbol-specific.
+4. Confirm exact paths and lines with direct file reads.
+5. Before deleting, renaming, or rewiring existing behavior, search for all references and inspect the most important callers/importers.
 6. Run local static analysis or the project's native checks after edits when applicable.
-
-Use `grep` or `glob` only when semctx returns nothing useful or when you need exact-string matching.
 
 ## Broad-To-Narrow Search Strategy
 
@@ -63,14 +54,14 @@ If the first search looks plausible but thin, assume there is more and search ag
 
 ## Confirmation Rules
 
-Semantic hits are discovery signals, not final evidence. Treat every semctx result as a lead, not proof.
+Search hits are discovery signals, not final evidence. Treat every result as a lead, not proof.
 
-After a semantic search identifies likely files or symbols:
+After search identifies likely files or symbols:
 
 1. inspect the structure or skeleton of the best candidates
 2. read the exact files that appear relevant
 3. confirm the real lines, exports, and usages before making claims
-4. cross-check against at least one additional source (`blast-radius`, `grep`, or a second semantic query) when the finding will drive an edit
+4. cross-check against at least one additional source (`grep`, `glob`, or another read) when the finding will drive an edit
 
 Do not report a symbol path, owner file, or call chain until you have confirmed it directly. If a single search result looks conclusive but has no corroboration, assume there is more and search again.
 
@@ -78,7 +69,7 @@ Do not report a symbol path, owner file, or call chain until you have confirmed 
 
 Before deleting, renaming, or rewiring an existing symbol:
 
-1. trace its blast radius
+1. search for definitions, imports, exports, and references
 2. inspect the most important callers/importers
 3. verify whether the usage is public, indirect, or dynamically referenced
 
@@ -86,43 +77,37 @@ If blast radius is unclear, treat the change as high risk and gather more eviden
 
 ## Tool Surface
 
-Use the semctx CLI directly, always with `--json` for agent-driven calls. For every indexed command, pass `--model ollama/qwen3-embedding:8b` explicitly:
+Use native repository tools first:
 
-- `semctx --json tree [path] --depth-limit N`
-- `semctx --json skeleton <file>`
-- `semctx --json --target-dir <dir> --cache-dir <cache> search-code <query> --model ollama/qwen3-embedding:8b`
-- `semctx --json --target-dir <dir> --cache-dir <cache> search-identifiers <query> --model ollama/qwen3-embedding:8b`
-- `semctx --json blast-radius <symbol> <file>`
+- `glob` for file patterns and directory coverage
+- `grep` for exact strings, regexes, definitions, imports, exports, and call sites
+- `read` for direct confirmation once likely files are known
 
 Typical progression:
 
-1. `semctx --json tree` or `semctx --json skeleton`
-2. `semctx --json search-code ... --model ollama/qwen3-embedding:8b` with 2-3 query phrasings
-3. `semctx --json search-identifiers ... --model ollama/qwen3-embedding:8b` when the question becomes symbol-specific
-4. `semctx --json blast-radius` before rewiring an existing symbol
+1. `glob` broad file patterns for the relevant area
+2. `grep` with 2-3 query phrasings
+3. `grep` for definitions/imports/exports/call sites when the question becomes symbol-specific
+4. direct `read` confirmation of likely files
 5. project-native static analysis after edits when available
 
 ## Practical Defaults
 
-- **semctx first, always.** Every repo-understanding task should begin with semctx structural and semantic commands. Do not start with `grep`, `glob`, or raw file reads.
-- Prefer one structural call (`tree`, `skeleton`) before any raw reads.
-- Prefer multiple semctx semantic searches with different wording over one overly narrow query.
-- Use direct file reads only after semctx has identified likely targets.
-- Use `grep` or `glob` only for exact-string confirmation or regex matching after semantic discovery has narrowed the search area.
+- Prefer `glob` before raw reads when the relevant files are not known.
+- Prefer multiple `grep` searches with different wording over one overly narrow query.
+- Use direct file reads only after search has identified likely targets.
+- Use `grep` for exact-string confirmation and regex matching.
 - Keep the search surface bounded to the relevant directory or feature area once you know it.
-- For indexed commands, do not rely on implicit scope. Pass explicit `--target-dir` and `--cache-dir`.
 
 ## Anti-Patterns
 
 Avoid these mistakes:
 
-1. **defaulting to `grep`/`glob` instead of semctx** — this is the most common error; always reach for semctx semantic search first
-2. searching only once, then assuming the first result is complete
-3. reading entire large files before checking structure or skeleton with semctx
-4. reporting guessed symbol relationships without direct confirmation
-5. editing or deleting a symbol before checking blast radius
-6. turning implementation work into open-ended repo archaeology
-7. omitting `--json`, `--target-dir`, or `--cache-dir` on indexed semctx calls
+1. searching only once, then assuming the first result is complete
+2. reading entire large files before narrowing likely targets
+3. reporting guessed symbol relationships without direct confirmation
+4. editing or deleting a symbol before checking references
+5. turning implementation work into open-ended repo archaeology
 
 ## Output Expectations
 

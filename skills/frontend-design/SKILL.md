@@ -1,144 +1,67 @@
 ---
 name: frontend-design
-description: Use when building or upgrading frontend surfaces where visual direction, typography, layout, and motion matter as much as functional correctness.
+description: Create distinctive, production-grade frontend interfaces with high design quality. Use when building or refining web components, pages, or apps (HTML/CSS/JS/React) with bold aesthetics, purposeful layouts, motion, and accessibility. Avoid generic AI-looking output.
 ---
 
 # Frontend Design
 
-Use this when the task is not just "make it work" but "make it look designed."
+## Overview
 
-This skill is for product pages, dashboards, app shells, components, or visual systems that need a clear point of view instead of generic AI-looking UI.
+Build memorable, functional interfaces with a clear aesthetic direction (no generic templates). Focus on bold typography, cohesive palettes, purposeful motion, semantic structure, and accessibility.
 
-## When To Use
+## Quick Start
+- Collect intent: purpose, audience, platform constraints, framework, delivery format (HTML/React/Vue).
+- Choose an aesthetic direction and signature move (stripe, glow, grain, magazine stack). See `references/aesthetic-playbook.md`.
+- Route to a Taste Skill variant when the task needs a stricter visual or implementation mode. See “Taste Skill Routing”.
+- Define tokens: fonts, palette, shadows, radii, spacing scale. Load fonts early.
+- Plan layout: hero + supporting sections, data/timeline rails, cards; pick grid system and motion plan.
+- Build semantic markup, wire CSS variables, add motion with staggered reveals, then run accessibility and responsive checks.
 
-- building a landing page, dashboard, or app surface from scratch
-- upgrading a bland interface into something intentional and memorable
-- translating a product concept into a concrete visual direction
-- implementing a frontend where typography, composition, and motion matter
+## Taste Skill Routing
 
-## Core Principle
+Use `frontend-design` as the default frontend entrypoint, then load the narrowest matching Taste Skill variant when useful:
 
-Pick a direction and commit to it.
+| Task signal | Load |
+| --- | --- |
+| Greenfield premium frontend implementation | `design-taste-frontend` |
+| Stricter GPT/Codex-style motion-heavy or GSAP work | `gpt-taste` |
+| Existing UI upgrade, anti-slop audit, visual cleanup | `redesign-existing-projects` |
+| Image-first website workflow | `image-to-code` or `imagegen-frontend-web` |
+| Mobile visual concepts or app screen references | `imagegen-frontend-mobile` |
+| Brand boards, identity systems, logo/palette exploration | `brandkit` |
+| Explicit minimalist direction | `minimalist-ui` |
+| Explicit brutalist/mechanical direction | `industrial-brutalist-ui` |
 
-Safe-average UI is usually worse than a strong, coherent aesthetic with a few bold choices.
+Do not stack multiple strong visual-direction skills unless the user asks. Pick one primary variant and keep the design language coherent.
 
-## Design Workflow
+## Workflow
 
-### 1. Frame the interface first
+### 1) Define intent and aesthetic
+- Ask for: target users, tone (brutalist, editorial, neon, soft craft, industrial, etc.), content types (cards, forms, charts), performance constraints.
+- Pick a single memorable gesture and stick to it. Avoid mixed-font chaos unless the style calls for it.
+- If the user is vague, propose 2–3 aesthetic directions from `references/aesthetic-playbook.md` and confirm.
 
-Before coding, settle:
+### 2) Plan structure and tokens
+- Establish CSS variables for palette, shadows, radii, spacing, and motion curve. Keep accent count to 1–2.
+- Choose font pairing (display + body, optional mono). Provide fallbacks after custom fonts.
+- Map sections and micro-interactions. For vanilla builds, start from semantic HTML; for React, break into composable pieces (Hero, FeatureList, Timeline, CTA Rail).
+- Reference `references/implementation-patterns.md` for layout, motion, accessibility, and responsive patterns.
 
-- purpose
-- audience
-- emotional tone
-- visual direction
-- one thing the user should remember
+### 3) Build and animate
+- Markup: semantic headings, skip links, ARIA labels for interactive elements, descriptive alt text.
+- Layout: prefer CSS Grid for macro and Flexbox for clusters. Break the grid deliberately (asymmetry, overlaps) while preserving readability.
+- Styling: use custom backgrounds (gradient meshes, grain, hatch) to avoid flat color; design buttons and cards with intentional borders/shadows.
+- Motion: orchestrate a few meaningful animations (page-load stagger, hover magnetic lift, scroll reveals). Guard with `prefers-reduced-motion`.
+- Data-driven UI: define arrays of content (cards, metrics, steps) to keep components DRY and easy to restyle.
 
-Possible directions:
+### 4) Polish and QA
+- Responsive: collapse grids, maintain padding, ensure CTAs remain prominent on mobile, swap hover cues for focus/active styles.
+- Accessibility: one `h1`, logical heading order, focus styles, contrast AA+, labeled inputs, `aria-live` where status changes.
+- Performance: avoid heavy shadows on mobile, compress/limit assets, use font-display swap, prefer CSS animations over JS-heavy effects.
 
-- brutally minimal
-- editorial
-- industrial
-- luxury
-- playful
-- geometric
-- retro-futurist
-- soft and organic
-- maximalist
+## References
+- `references/aesthetic-playbook.md`: Pick strong aesthetic directions with fonts, colors, layout, and motion cues.
+- `references/implementation-patterns.md`: HTML/React patterns, tokens, motion recipes, responsive and accessibility guidance.
 
-Do not mix directions casually. Choose one and execute it cleanly.
-
-### 2. Build the visual system
-
-Define:
-
-- type hierarchy
-- color variables
-- spacing rhythm
-- layout logic
-- motion rules
-- surface / border / shadow treatment
-
-Use CSS variables or the project's token system so the interface stays coherent as it grows.
-
-### 3. Compose with intention
-
-Prefer:
-
-- asymmetry when it sharpens hierarchy
-- overlap when it creates depth
-- strong whitespace when it clarifies focus
-- dense layouts only when the product benefits from density
-
-Avoid defaulting to a symmetrical card grid unless it is clearly the right fit.
-
-### 4. Make motion meaningful
-
-Use animation to:
-
-- reveal hierarchy
-- stage information
-- reinforce user action
-- create one or two memorable moments
-
-Do not scatter generic micro-interactions everywhere. One well-directed load sequence is usually stronger than twenty random hover effects.
-
-## Strong Defaults
-
-### Typography
-
-- pick fonts with character
-- pair a distinctive display face with a readable body face when appropriate
-- avoid generic defaults when the page is design-led
-
-### Color
-
-- commit to a clear palette
-- one dominant field with selective accents usually works better than evenly weighted rainbow palettes
-- avoid cliché purple-gradient-on-white unless the product genuinely calls for it
-
-### Background
-
-Use atmosphere:
-
-- gradients
-- meshes
-- textures
-- subtle noise
-- patterns
-- layered transparency
-
-Flat empty backgrounds are rarely the best answer for a product-facing page.
-
-### Layout
-
-- break the grid when the composition benefits from it
-- use diagonals, offsets, and grouping intentionally
-- keep reading flow obvious even when the layout is unconventional
-
-## Anti-Patterns
-
-Never default to:
-
-- interchangeable SaaS hero sections
-- generic card piles with no hierarchy
-- random accent colors without a system
-- placeholder-feeling typography
-- motion that exists only because animation was easy to add
-
-## Execution Rules
-
-- preserve the established design system when working inside an existing product
-- match technical complexity to the visual idea
-- keep accessibility and responsiveness intact
-- frontends should feel deliberate on desktop and mobile
-
-## Quality Gate
-
-Before delivering:
-
-- the interface has a clear visual point of view
-- typography and spacing feel intentional
-- color and motion support the product instead of decorating it randomly
-- the result does not read like generic AI UI
-- the implementation is production-grade, not just visually interesting
+## Assets
+- `assets/vanilla-starter/`: Ready-to-run vanilla HTML/CSS/JS concept (avant studio theme) with gradients, grain, staggered reveals, skip link, and accessible structure. Copy and retheme by updating CSS variables, fonts, and content.

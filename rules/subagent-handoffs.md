@@ -31,9 +31,9 @@ FOLLOW_UP: [remaining risks, missing evidence, required next step, or "none"]
 
 ## 3. Planning-File Read Rule
 
-When `MUST DO` contains the sentence `Read .plans/task_plan.md, .plans/findings.md, and .plans/progress.md before acting.`, read all three before any other substantive work and treat them as required session context.
+When `MUST DO` contains the sentence `Read .docs/.plans/findings.md before acting.`, read that file before any other substantive work and treat it as required session context.
 
-When the handoff names exact spec or implementation-plan paths (or when `.plans/task_plan.md` lists them under `Active Artifacts`), read those files before executing and treat them as authoritative task artifacts, not optional background.
+When the handoff names exact spec or implementation-plan paths, read those files before executing and treat them as authoritative task artifacts, not optional background. Specs live in `.docs/plans/specs/`; implementation plans live directly in `.docs/.plans/`.
 
 ## 4. Repo-Discovery Handoff Rule
 
@@ -41,7 +41,7 @@ When the task requires repo understanding, `REQUIRED TOOLS` must name a concrete
 
 - load the `repo-discovery` skill first
 - follow the sequence provided in the handoff
-- if no sequence is given, default to structural discovery (`semctx tree`/`skeleton`) before broad reads, then use `grep`/`glob` only for exact confirmation
+- if no sequence is given, default to `glob` for structure, `grep` for concepts/symbols, then `read` for exact confirmation
 - run blast-radius analysis before deleting, renaming, or rewiring an existing symbol
 
 If the task is genuinely non-repo-facing, the handoff must say so explicitly.
